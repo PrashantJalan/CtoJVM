@@ -92,14 +92,15 @@ Rule 13    dataType -> SIGNED
 Rule 14    dataType -> UNSIGNED
 Rule 15    functionName -> IDENTIFIER
 Rule 16    argumentList -> LEFT_ROUND arguments RIGHT_ROUND
-Rule 17    arguments -> arguments COMMA oneArgument
-Rule 18    arguments -> oneArgument
-Rule 19    oneArgument -> dataType IDENTIFIER
-Rule 20    oneArgument -> dataType IDENTIFIER EQUAL value
-Rule 21    value -> HEX_NUM
-Rule 22    value -> INT_NUM
-Rule 23    value -> EXP_NUM
-Rule 24    value -> REAL_NUM
+Rule 17    argumentList -> LEFT_ROUND RIGHT_ROUND
+Rule 18    arguments -> arguments COMMA oneArgument
+Rule 19    arguments -> oneArgument
+Rule 20    oneArgument -> dataType IDENTIFIER
+Rule 21    oneArgument -> dataType IDENTIFIER EQUAL value
+Rule 22    value -> HEX_NUM
+Rule 23    value -> INT_NUM
+Rule 24    value -> EXP_NUM
+Rule 25    value -> REAL_NUM
 
 Terminals, with rules where they appear
 
@@ -113,7 +114,7 @@ CASE                 :
 CHAR                 : 7
 CHARACTER            : 
 COLON                : 
-COMMA                : 17
+COMMA                : 18
 COMMENT              : 
 COMMENTS             : 
 CONST                : 
@@ -128,10 +129,10 @@ DOUBLE               : 12
 ELLIPSIS             : 
 ELSE                 : 
 ENUM                 : 
-EQUAL                : 20
+EQUAL                : 21
 EQ_OP                : 
 EXCLAMATION          : 
-EXP_NUM              : 23
+EXP_NUM              : 24
 EXTERN               : 
 FLOAT                : 11
 FOR                  : 
@@ -140,16 +141,16 @@ GOTO                 :
 G_OP                 : 
 HASH                 : 
 HEADER               : 
-HEX_NUM              : 21
-IDENTIFIER           : 15 19 20
+HEX_NUM              : 22
+IDENTIFIER           : 15 20 21
 IF                   : 
 INC_OP               : 
 INT                  : 9
-INT_NUM              : 22
+INT_NUM              : 23
 LEFT_ASSIGN          : 
 LEFT_CURL            : 
 LEFT_OP              : 
-LEFT_ROUND           : 16
+LEFT_ROUND           : 16 17
 LEFT_SQUARE          : 
 LE_OP                : 
 LONG                 : 10
@@ -167,13 +168,13 @@ PLUS                 :
 POWER                : 
 PTR_OP               : 
 QUESTION             : 
-REAL_NUM             : 24
+REAL_NUM             : 25
 REGISTER             : 
 RETURN               : 
 RIGHT_ASSIGN         : 
 RIGHT_CURL           : 
 RIGHT_OP             : 
-RIGHT_ROUND          : 16
+RIGHT_ROUND          : 16 17
 RIGHT_SQUARE         : 
 SEMICOLON            : 4
 SHORT                : 8
@@ -197,15 +198,15 @@ error                :
 Nonterminals, with rules where they appear
 
 argumentList         : 4
-arguments            : 16 17
-dataType             : 5 19 20
+arguments            : 16 18
+dataType             : 5 20 21
 function             : 1 2
 functionDeclaration  : 3
 functionName         : 4
 functionReturnType   : 4
-oneArgument          : 17 18
+oneArgument          : 18 19
 program              : 1 0
-value                : 20
+value                : 21
 
 Parsing method: LALR
 
@@ -397,6 +398,7 @@ state 16
 
     (4) functionDeclaration -> functionReturnType functionName . argumentList SEMICOLON
     (16) argumentList -> . LEFT_ROUND arguments RIGHT_ROUND
+    (17) argumentList -> . LEFT_ROUND RIGHT_ROUND
 
     LEFT_ROUND      shift and go to state 19
 
@@ -428,10 +430,11 @@ state 18
 state 19
 
     (16) argumentList -> LEFT_ROUND . arguments RIGHT_ROUND
-    (17) arguments -> . arguments COMMA oneArgument
-    (18) arguments -> . oneArgument
-    (19) oneArgument -> . dataType IDENTIFIER
-    (20) oneArgument -> . dataType IDENTIFIER EQUAL value
+    (17) argumentList -> LEFT_ROUND . RIGHT_ROUND
+    (18) arguments -> . arguments COMMA oneArgument
+    (19) arguments -> . oneArgument
+    (20) oneArgument -> . dataType IDENTIFIER
+    (21) oneArgument -> . dataType IDENTIFIER EQUAL value
     (6) dataType -> . VOID
     (7) dataType -> . CHAR
     (8) dataType -> . SHORT
@@ -442,6 +445,7 @@ state 19
     (13) dataType -> . SIGNED
     (14) dataType -> . UNSIGNED
 
+    RIGHT_ROUND     shift and go to state 23
     VOID            shift and go to state 6
     CHAR            shift and go to state 10
     SHORT           shift and go to state 2
@@ -454,7 +458,7 @@ state 19
 
     dataType                       shift and go to state 21
     oneArgument                    shift and go to state 22
-    arguments                      shift and go to state 23
+    arguments                      shift and go to state 24
 
 state 20
 
@@ -474,51 +478,58 @@ state 20
 
 state 21
 
-    (19) oneArgument -> dataType . IDENTIFIER
-    (20) oneArgument -> dataType . IDENTIFIER EQUAL value
+    (20) oneArgument -> dataType . IDENTIFIER
+    (21) oneArgument -> dataType . IDENTIFIER EQUAL value
 
-    IDENTIFIER      shift and go to state 24
+    IDENTIFIER      shift and go to state 25
 
 
 state 22
 
-    (18) arguments -> oneArgument .
+    (19) arguments -> oneArgument .
 
-    RIGHT_ROUND     reduce using rule 18 (arguments -> oneArgument .)
-    COMMA           reduce using rule 18 (arguments -> oneArgument .)
+    RIGHT_ROUND     reduce using rule 19 (arguments -> oneArgument .)
+    COMMA           reduce using rule 19 (arguments -> oneArgument .)
 
 
 state 23
 
-    (16) argumentList -> LEFT_ROUND arguments . RIGHT_ROUND
-    (17) arguments -> arguments . COMMA oneArgument
+    (17) argumentList -> LEFT_ROUND RIGHT_ROUND .
 
-    RIGHT_ROUND     shift and go to state 25
-    COMMA           shift and go to state 26
+    SEMICOLON       reduce using rule 17 (argumentList -> LEFT_ROUND RIGHT_ROUND .)
 
 
 state 24
 
-    (19) oneArgument -> dataType IDENTIFIER .
-    (20) oneArgument -> dataType IDENTIFIER . EQUAL value
+    (16) argumentList -> LEFT_ROUND arguments . RIGHT_ROUND
+    (18) arguments -> arguments . COMMA oneArgument
 
-    RIGHT_ROUND     reduce using rule 19 (oneArgument -> dataType IDENTIFIER .)
-    COMMA           reduce using rule 19 (oneArgument -> dataType IDENTIFIER .)
-    EQUAL           shift and go to state 27
+    RIGHT_ROUND     shift and go to state 26
+    COMMA           shift and go to state 27
 
 
 state 25
+
+    (20) oneArgument -> dataType IDENTIFIER .
+    (21) oneArgument -> dataType IDENTIFIER . EQUAL value
+
+    RIGHT_ROUND     reduce using rule 20 (oneArgument -> dataType IDENTIFIER .)
+    COMMA           reduce using rule 20 (oneArgument -> dataType IDENTIFIER .)
+    EQUAL           shift and go to state 28
+
+
+state 26
 
     (16) argumentList -> LEFT_ROUND arguments RIGHT_ROUND .
 
     SEMICOLON       reduce using rule 16 (argumentList -> LEFT_ROUND arguments RIGHT_ROUND .)
 
 
-state 26
+state 27
 
-    (17) arguments -> arguments COMMA . oneArgument
-    (19) oneArgument -> . dataType IDENTIFIER
-    (20) oneArgument -> . dataType IDENTIFIER EQUAL value
+    (18) arguments -> arguments COMMA . oneArgument
+    (20) oneArgument -> . dataType IDENTIFIER
+    (21) oneArgument -> . dataType IDENTIFIER EQUAL value
     (6) dataType -> . VOID
     (7) dataType -> . CHAR
     (8) dataType -> . SHORT
@@ -540,67 +551,67 @@ state 26
     UNSIGNED        shift and go to state 8
 
     dataType                       shift and go to state 21
-    oneArgument                    shift and go to state 28
-
-state 27
-
-    (20) oneArgument -> dataType IDENTIFIER EQUAL . value
-    (21) value -> . HEX_NUM
-    (22) value -> . INT_NUM
-    (23) value -> . EXP_NUM
-    (24) value -> . REAL_NUM
-
-    HEX_NUM         shift and go to state 33
-    INT_NUM         shift and go to state 30
-    EXP_NUM         shift and go to state 32
-    REAL_NUM        shift and go to state 31
-
-    value                          shift and go to state 29
+    oneArgument                    shift and go to state 29
 
 state 28
 
-    (17) arguments -> arguments COMMA oneArgument .
+    (21) oneArgument -> dataType IDENTIFIER EQUAL . value
+    (22) value -> . HEX_NUM
+    (23) value -> . INT_NUM
+    (24) value -> . EXP_NUM
+    (25) value -> . REAL_NUM
 
-    RIGHT_ROUND     reduce using rule 17 (arguments -> arguments COMMA oneArgument .)
-    COMMA           reduce using rule 17 (arguments -> arguments COMMA oneArgument .)
+    HEX_NUM         shift and go to state 34
+    INT_NUM         shift and go to state 31
+    EXP_NUM         shift and go to state 33
+    REAL_NUM        shift and go to state 32
 
+    value                          shift and go to state 30
 
 state 29
 
-    (20) oneArgument -> dataType IDENTIFIER EQUAL value .
+    (18) arguments -> arguments COMMA oneArgument .
 
-    RIGHT_ROUND     reduce using rule 20 (oneArgument -> dataType IDENTIFIER EQUAL value .)
-    COMMA           reduce using rule 20 (oneArgument -> dataType IDENTIFIER EQUAL value .)
+    RIGHT_ROUND     reduce using rule 18 (arguments -> arguments COMMA oneArgument .)
+    COMMA           reduce using rule 18 (arguments -> arguments COMMA oneArgument .)
 
 
 state 30
 
-    (22) value -> INT_NUM .
+    (21) oneArgument -> dataType IDENTIFIER EQUAL value .
 
-    RIGHT_ROUND     reduce using rule 22 (value -> INT_NUM .)
-    COMMA           reduce using rule 22 (value -> INT_NUM .)
+    RIGHT_ROUND     reduce using rule 21 (oneArgument -> dataType IDENTIFIER EQUAL value .)
+    COMMA           reduce using rule 21 (oneArgument -> dataType IDENTIFIER EQUAL value .)
 
 
 state 31
 
-    (24) value -> REAL_NUM .
+    (23) value -> INT_NUM .
 
-    RIGHT_ROUND     reduce using rule 24 (value -> REAL_NUM .)
-    COMMA           reduce using rule 24 (value -> REAL_NUM .)
+    RIGHT_ROUND     reduce using rule 23 (value -> INT_NUM .)
+    COMMA           reduce using rule 23 (value -> INT_NUM .)
 
 
 state 32
 
-    (23) value -> EXP_NUM .
+    (25) value -> REAL_NUM .
 
-    RIGHT_ROUND     reduce using rule 23 (value -> EXP_NUM .)
-    COMMA           reduce using rule 23 (value -> EXP_NUM .)
+    RIGHT_ROUND     reduce using rule 25 (value -> REAL_NUM .)
+    COMMA           reduce using rule 25 (value -> REAL_NUM .)
 
 
 state 33
 
-    (21) value -> HEX_NUM .
+    (24) value -> EXP_NUM .
 
-    RIGHT_ROUND     reduce using rule 21 (value -> HEX_NUM .)
-    COMMA           reduce using rule 21 (value -> HEX_NUM .)
+    RIGHT_ROUND     reduce using rule 24 (value -> EXP_NUM .)
+    COMMA           reduce using rule 24 (value -> EXP_NUM .)
+
+
+state 34
+
+    (22) value -> HEX_NUM .
+
+    RIGHT_ROUND     reduce using rule 22 (value -> HEX_NUM .)
+    COMMA           reduce using rule 22 (value -> HEX_NUM .)
 

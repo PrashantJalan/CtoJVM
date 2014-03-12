@@ -5,9 +5,9 @@ _tabversion = '3.2'
 
 _lr_method = 'LALR'
 
-_lr_signature = '\x93>\x94W\x0f\xe7\xf4\xe6{\x13\x8dK\xcf\x9d\x12\x84'
+_lr_signature = '@\x863*\xdc\x9c\xce\x18\x95\xf6\xe9\x9a\x8f%{\\'
     
-_lr_action_items = {'SHORT':([0,1,3,12,17,19,20,26,],[2,-2,-3,2,-1,2,-4,2,]),'LEFT_ROUND':([15,16,],[-15,19,]),'SEMICOLON':([18,25,],[20,-16,]),'INT':([0,1,3,12,17,19,20,26,],[14,-2,-3,14,-1,14,-4,14,]),'DOUBLE':([0,1,3,12,17,19,20,26,],[5,-2,-3,5,-1,5,-4,5,]),'VOID':([0,1,3,12,17,19,20,26,],[6,-2,-3,6,-1,6,-4,6,]),'FLOAT':([0,1,3,12,17,19,20,26,],[7,-2,-3,7,-1,7,-4,7,]),'RIGHT_ROUND':([22,23,24,28,29,30,31,32,33,],[-18,25,-19,-17,-20,-22,-24,-23,-21,]),'UNSIGNED':([0,1,3,12,17,19,20,26,],[8,-2,-3,8,-1,8,-4,8,]),'LONG':([0,1,3,12,17,19,20,26,],[9,-2,-3,9,-1,9,-4,9,]),'EQUAL':([24,],[27,]),'CHAR':([0,1,3,12,17,19,20,26,],[10,-2,-3,10,-1,10,-4,10,]),'INT_NUM':([27,],[30,]),'COMMA':([22,23,24,28,29,30,31,32,33,],[-18,26,-19,-17,-20,-22,-24,-23,-21,]),'SIGNED':([0,1,3,12,17,19,20,26,],[13,-2,-3,13,-1,13,-4,13,]),'EXP_NUM':([27,],[32,]),'REAL_NUM':([27,],[31,]),'IDENTIFIER':([2,4,5,6,7,8,9,10,11,13,14,21,],[-8,15,-12,-6,-11,-14,-10,-7,-5,-13,-9,24,]),'HEX_NUM':([27,],[33,]),'$end':([1,3,12,17,20,],[-2,-3,0,-1,-4,]),}
+_lr_action_items = {'SHORT':([0,1,3,12,17,19,20,27,],[2,-2,-3,2,-1,2,-4,2,]),'LEFT_ROUND':([15,16,],[-15,19,]),'SEMICOLON':([18,23,26,],[20,-17,-16,]),'INT':([0,1,3,12,17,19,20,27,],[14,-2,-3,14,-1,14,-4,14,]),'DOUBLE':([0,1,3,12,17,19,20,27,],[5,-2,-3,5,-1,5,-4,5,]),'VOID':([0,1,3,12,17,19,20,27,],[6,-2,-3,6,-1,6,-4,6,]),'FLOAT':([0,1,3,12,17,19,20,27,],[7,-2,-3,7,-1,7,-4,7,]),'RIGHT_ROUND':([19,22,24,25,29,30,31,32,33,34,],[23,-19,26,-20,-18,-21,-23,-25,-24,-22,]),'UNSIGNED':([0,1,3,12,17,19,20,27,],[8,-2,-3,8,-1,8,-4,8,]),'LONG':([0,1,3,12,17,19,20,27,],[9,-2,-3,9,-1,9,-4,9,]),'EQUAL':([25,],[28,]),'CHAR':([0,1,3,12,17,19,20,27,],[10,-2,-3,10,-1,10,-4,10,]),'INT_NUM':([28,],[31,]),'COMMA':([22,24,25,29,30,31,32,33,34,],[-19,27,-20,-18,-21,-23,-25,-24,-22,]),'SIGNED':([0,1,3,12,17,19,20,27,],[13,-2,-3,13,-1,13,-4,13,]),'EXP_NUM':([28,],[33,]),'REAL_NUM':([28,],[32,]),'IDENTIFIER':([2,4,5,6,7,8,9,10,11,13,14,21,],[-8,15,-12,-6,-11,-14,-10,-7,-5,-13,-9,25,]),'HEX_NUM':([28,],[34,]),'$end':([1,3,12,17,20,],[-2,-3,0,-1,-4,]),}
 
 _lr_action = { }
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'function':([0,12,],[1,17,]),'argumentList':([16,],[18,]),'functionName':([4,],[16,]),'functionDeclaration':([0,12,],[3,3,]),'functionReturnType':([0,12,],[4,4,]),'oneArgument':([19,26,],[22,28,]),'value':([27,],[29,]),'dataType':([0,12,19,26,],[11,11,21,21,]),'program':([0,],[12,]),'arguments':([19,],[23,]),}
+_lr_goto_items = {'function':([0,12,],[1,17,]),'argumentList':([16,],[18,]),'functionName':([4,],[16,]),'functionDeclaration':([0,12,],[3,3,]),'functionReturnType':([0,12,],[4,4,]),'oneArgument':([19,27,],[22,29,]),'value':([28,],[30,]),'dataType':([0,12,19,27,],[11,11,21,21,]),'program':([0,],[12,]),'arguments':([19,],[24,]),}
 
 _lr_goto = { }
 for _k, _v in _lr_goto_items.items():
@@ -26,28 +26,29 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> program","S'",1,None,None,None),
-  ('program -> program function','program',2,'p_program_1','parser.py',9),
-  ('program -> function','program',1,'p_program_2','parser.py',13),
-  ('function -> functionDeclaration','function',1,'p_function_1','parser.py',17),
-  ('functionDeclaration -> functionReturnType functionName argumentList SEMICOLON','functionDeclaration',4,'p_functionDeclaration_1','parser.py',25),
-  ('functionReturnType -> dataType','functionReturnType',1,'p_functionReturnType_1','parser.py',29),
-  ('dataType -> VOID','dataType',1,'p_dataType_1','parser.py',34),
-  ('dataType -> CHAR','dataType',1,'p_dataType_1','parser.py',35),
-  ('dataType -> SHORT','dataType',1,'p_dataType_1','parser.py',36),
-  ('dataType -> INT','dataType',1,'p_dataType_1','parser.py',37),
-  ('dataType -> LONG','dataType',1,'p_dataType_1','parser.py',38),
-  ('dataType -> FLOAT','dataType',1,'p_dataType_1','parser.py',39),
-  ('dataType -> DOUBLE','dataType',1,'p_dataType_1','parser.py',40),
-  ('dataType -> SIGNED','dataType',1,'p_dataType_1','parser.py',41),
-  ('dataType -> UNSIGNED','dataType',1,'p_dataType_1','parser.py',42),
-  ('functionName -> IDENTIFIER','functionName',1,'p_functionName_1','parser.py',47),
-  ('argumentList -> LEFT_ROUND arguments RIGHT_ROUND','argumentList',3,'p_argumentList_1','parser.py',51),
-  ('arguments -> arguments COMMA oneArgument','arguments',3,'p_arguments_1','parser.py',55),
-  ('arguments -> oneArgument','arguments',1,'p_arguments_2','parser.py',59),
-  ('oneArgument -> dataType IDENTIFIER','oneArgument',2,'p_oneArgument_1','parser.py',63),
-  ('oneArgument -> dataType IDENTIFIER EQUAL value','oneArgument',4,'p_oneArgument_2','parser.py',67),
-  ('value -> HEX_NUM','value',1,'p_value_1','parser.py',71),
-  ('value -> INT_NUM','value',1,'p_value_1','parser.py',72),
-  ('value -> EXP_NUM','value',1,'p_value_1','parser.py',73),
-  ('value -> REAL_NUM','value',1,'p_value_1','parser.py',74),
+  ('program -> program function','program',2,'p_program_1','parser.py',38),
+  ('program -> function','program',1,'p_program_2','parser.py',43),
+  ('function -> functionDeclaration','function',1,'p_function_1','parser.py',49),
+  ('functionDeclaration -> functionReturnType functionName argumentList SEMICOLON','functionDeclaration',4,'p_functionDeclaration_1','parser.py',55),
+  ('functionReturnType -> dataType','functionReturnType',1,'p_functionReturnType_1','parser.py',60),
+  ('dataType -> VOID','dataType',1,'p_dataType_1','parser.py',67),
+  ('dataType -> CHAR','dataType',1,'p_dataType_1','parser.py',68),
+  ('dataType -> SHORT','dataType',1,'p_dataType_1','parser.py',69),
+  ('dataType -> INT','dataType',1,'p_dataType_1','parser.py',70),
+  ('dataType -> LONG','dataType',1,'p_dataType_1','parser.py',71),
+  ('dataType -> FLOAT','dataType',1,'p_dataType_1','parser.py',72),
+  ('dataType -> DOUBLE','dataType',1,'p_dataType_1','parser.py',73),
+  ('dataType -> SIGNED','dataType',1,'p_dataType_1','parser.py',74),
+  ('dataType -> UNSIGNED','dataType',1,'p_dataType_1','parser.py',75),
+  ('functionName -> IDENTIFIER','functionName',1,'p_functionName_1','parser.py',81),
+  ('argumentList -> LEFT_ROUND arguments RIGHT_ROUND','argumentList',3,'p_argumentList_1','parser.py',87),
+  ('argumentList -> LEFT_ROUND RIGHT_ROUND','argumentList',2,'p_argumentList_2','parser.py',92),
+  ('arguments -> arguments COMMA oneArgument','arguments',3,'p_arguments_1','parser.py',97),
+  ('arguments -> oneArgument','arguments',1,'p_arguments_2','parser.py',102),
+  ('oneArgument -> dataType IDENTIFIER','oneArgument',2,'p_oneArgument_1','parser.py',107),
+  ('oneArgument -> dataType IDENTIFIER EQUAL value','oneArgument',4,'p_oneArgument_2','parser.py',112),
+  ('value -> HEX_NUM','value',1,'p_value_1','parser.py',118),
+  ('value -> INT_NUM','value',1,'p_value_1','parser.py',119),
+  ('value -> EXP_NUM','value',1,'p_value_1','parser.py',120),
+  ('value -> REAL_NUM','value',1,'p_value_1','parser.py',121),
 ]
