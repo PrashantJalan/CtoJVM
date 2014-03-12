@@ -1,0 +1,606 @@
+Created by PLY version 3.4 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    EXCLAMATION
+    DIV_ASSIGN
+    MULTIPLY
+    MINUS
+    COMMENT
+    LE_OP
+    POWER
+    PLUS
+    ELLIPSIS
+    MODULO
+    GOTO
+    ENUM
+    LEFT_OP
+    COMMENTS
+    INC_OP
+    NE_OP
+    RETURN
+    DEC_OP
+    OR_ASSIGN
+    RIGHT_CURL
+    STATIC
+    EQ_OP
+    SIZEOF
+    OR_OP
+    HEADER
+    COLON
+    TILDA
+    DIVIDE
+    FOR
+    UNION
+    ELSE
+    AMPERSAND
+    SUB_ASSIGN
+    XOR_ASSIGN
+    CONTINUE
+    MUL_ASSIGN
+    RIGHT_OP
+    RIGHT_ASSIGN
+    DEFAULT
+    WHILE
+    EXTERN
+    DOT
+    CASE
+    G_OP
+    REGISTER
+    PIPE
+    L_OP
+    SWITCH
+    AND_ASSIGN
+    ADD_ASSIGN
+    HASH
+    GE_OP
+    MOD_ASSIGN
+    RIGHT_SQUARE
+    BREAK
+    VOLATILE
+    DO
+    CONST
+    CHARACTER
+    LEFT_SQUARE
+    QUESTION
+    PTR_OP
+    TYPEDEF
+    STRING
+    AUTO
+    AND_OP
+    IF
+    STRUCT
+    LEFT_CURL
+    LEFT_ASSIGN
+
+Grammar
+
+Rule 0     S' -> program
+Rule 1     program -> program function
+Rule 2     program -> function
+Rule 3     function -> functionDeclaration
+Rule 4     functionDeclaration -> functionReturnType functionName argumentList SEMICOLON
+Rule 5     functionReturnType -> dataType
+Rule 6     dataType -> VOID
+Rule 7     dataType -> CHAR
+Rule 8     dataType -> SHORT
+Rule 9     dataType -> INT
+Rule 10    dataType -> LONG
+Rule 11    dataType -> FLOAT
+Rule 12    dataType -> DOUBLE
+Rule 13    dataType -> SIGNED
+Rule 14    dataType -> UNSIGNED
+Rule 15    functionName -> IDENTIFIER
+Rule 16    argumentList -> LEFT_ROUND arguments RIGHT_ROUND
+Rule 17    arguments -> arguments COMMA oneArgument
+Rule 18    arguments -> oneArgument
+Rule 19    oneArgument -> dataType IDENTIFIER
+Rule 20    oneArgument -> dataType IDENTIFIER EQUAL value
+Rule 21    value -> HEX_NUM
+Rule 22    value -> INT_NUM
+Rule 23    value -> EXP_NUM
+Rule 24    value -> REAL_NUM
+
+Terminals, with rules where they appear
+
+ADD_ASSIGN           : 
+AMPERSAND            : 
+AND_ASSIGN           : 
+AND_OP               : 
+AUTO                 : 
+BREAK                : 
+CASE                 : 
+CHAR                 : 7
+CHARACTER            : 
+COLON                : 
+COMMA                : 17
+COMMENT              : 
+COMMENTS             : 
+CONST                : 
+CONTINUE             : 
+DEC_OP               : 
+DEFAULT              : 
+DIVIDE               : 
+DIV_ASSIGN           : 
+DO                   : 
+DOT                  : 
+DOUBLE               : 12
+ELLIPSIS             : 
+ELSE                 : 
+ENUM                 : 
+EQUAL                : 20
+EQ_OP                : 
+EXCLAMATION          : 
+EXP_NUM              : 23
+EXTERN               : 
+FLOAT                : 11
+FOR                  : 
+GE_OP                : 
+GOTO                 : 
+G_OP                 : 
+HASH                 : 
+HEADER               : 
+HEX_NUM              : 21
+IDENTIFIER           : 15 19 20
+IF                   : 
+INC_OP               : 
+INT                  : 9
+INT_NUM              : 22
+LEFT_ASSIGN          : 
+LEFT_CURL            : 
+LEFT_OP              : 
+LEFT_ROUND           : 16
+LEFT_SQUARE          : 
+LE_OP                : 
+LONG                 : 10
+L_OP                 : 
+MINUS                : 
+MODULO               : 
+MOD_ASSIGN           : 
+MULTIPLY             : 
+MUL_ASSIGN           : 
+NE_OP                : 
+OR_ASSIGN            : 
+OR_OP                : 
+PIPE                 : 
+PLUS                 : 
+POWER                : 
+PTR_OP               : 
+QUESTION             : 
+REAL_NUM             : 24
+REGISTER             : 
+RETURN               : 
+RIGHT_ASSIGN         : 
+RIGHT_CURL           : 
+RIGHT_OP             : 
+RIGHT_ROUND          : 16
+RIGHT_SQUARE         : 
+SEMICOLON            : 4
+SHORT                : 8
+SIGNED               : 13
+SIZEOF               : 
+STATIC               : 
+STRING               : 
+STRUCT               : 
+SUB_ASSIGN           : 
+SWITCH               : 
+TILDA                : 
+TYPEDEF              : 
+UNION                : 
+UNSIGNED             : 14
+VOID                 : 6
+VOLATILE             : 
+WHILE                : 
+XOR_ASSIGN           : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+argumentList         : 4
+arguments            : 16 17
+dataType             : 5 19 20
+function             : 1 2
+functionDeclaration  : 3
+functionName         : 4
+functionReturnType   : 4
+oneArgument          : 17 18
+program              : 1 0
+value                : 20
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . program
+    (1) program -> . program function
+    (2) program -> . function
+    (3) function -> . functionDeclaration
+    (4) functionDeclaration -> . functionReturnType functionName argumentList SEMICOLON
+    (5) functionReturnType -> . dataType
+    (6) dataType -> . VOID
+    (7) dataType -> . CHAR
+    (8) dataType -> . SHORT
+    (9) dataType -> . INT
+    (10) dataType -> . LONG
+    (11) dataType -> . FLOAT
+    (12) dataType -> . DOUBLE
+    (13) dataType -> . SIGNED
+    (14) dataType -> . UNSIGNED
+
+    VOID            shift and go to state 6
+    CHAR            shift and go to state 10
+    SHORT           shift and go to state 2
+    INT             shift and go to state 14
+    LONG            shift and go to state 9
+    FLOAT           shift and go to state 7
+    DOUBLE          shift and go to state 5
+    SIGNED          shift and go to state 13
+    UNSIGNED        shift and go to state 8
+
+    function                       shift and go to state 1
+    functionDeclaration            shift and go to state 3
+    functionReturnType             shift and go to state 4
+    dataType                       shift and go to state 11
+    program                        shift and go to state 12
+
+state 1
+
+    (2) program -> function .
+
+    VOID            reduce using rule 2 (program -> function .)
+    CHAR            reduce using rule 2 (program -> function .)
+    SHORT           reduce using rule 2 (program -> function .)
+    INT             reduce using rule 2 (program -> function .)
+    LONG            reduce using rule 2 (program -> function .)
+    FLOAT           reduce using rule 2 (program -> function .)
+    DOUBLE          reduce using rule 2 (program -> function .)
+    SIGNED          reduce using rule 2 (program -> function .)
+    UNSIGNED        reduce using rule 2 (program -> function .)
+    $end            reduce using rule 2 (program -> function .)
+
+
+state 2
+
+    (8) dataType -> SHORT .
+
+    IDENTIFIER      reduce using rule 8 (dataType -> SHORT .)
+
+
+state 3
+
+    (3) function -> functionDeclaration .
+
+    VOID            reduce using rule 3 (function -> functionDeclaration .)
+    CHAR            reduce using rule 3 (function -> functionDeclaration .)
+    SHORT           reduce using rule 3 (function -> functionDeclaration .)
+    INT             reduce using rule 3 (function -> functionDeclaration .)
+    LONG            reduce using rule 3 (function -> functionDeclaration .)
+    FLOAT           reduce using rule 3 (function -> functionDeclaration .)
+    DOUBLE          reduce using rule 3 (function -> functionDeclaration .)
+    SIGNED          reduce using rule 3 (function -> functionDeclaration .)
+    UNSIGNED        reduce using rule 3 (function -> functionDeclaration .)
+    $end            reduce using rule 3 (function -> functionDeclaration .)
+
+
+state 4
+
+    (4) functionDeclaration -> functionReturnType . functionName argumentList SEMICOLON
+    (15) functionName -> . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 15
+
+    functionName                   shift and go to state 16
+
+state 5
+
+    (12) dataType -> DOUBLE .
+
+    IDENTIFIER      reduce using rule 12 (dataType -> DOUBLE .)
+
+
+state 6
+
+    (6) dataType -> VOID .
+
+    IDENTIFIER      reduce using rule 6 (dataType -> VOID .)
+
+
+state 7
+
+    (11) dataType -> FLOAT .
+
+    IDENTIFIER      reduce using rule 11 (dataType -> FLOAT .)
+
+
+state 8
+
+    (14) dataType -> UNSIGNED .
+
+    IDENTIFIER      reduce using rule 14 (dataType -> UNSIGNED .)
+
+
+state 9
+
+    (10) dataType -> LONG .
+
+    IDENTIFIER      reduce using rule 10 (dataType -> LONG .)
+
+
+state 10
+
+    (7) dataType -> CHAR .
+
+    IDENTIFIER      reduce using rule 7 (dataType -> CHAR .)
+
+
+state 11
+
+    (5) functionReturnType -> dataType .
+
+    IDENTIFIER      reduce using rule 5 (functionReturnType -> dataType .)
+
+
+state 12
+
+    (0) S' -> program .
+    (1) program -> program . function
+    (3) function -> . functionDeclaration
+    (4) functionDeclaration -> . functionReturnType functionName argumentList SEMICOLON
+    (5) functionReturnType -> . dataType
+    (6) dataType -> . VOID
+    (7) dataType -> . CHAR
+    (8) dataType -> . SHORT
+    (9) dataType -> . INT
+    (10) dataType -> . LONG
+    (11) dataType -> . FLOAT
+    (12) dataType -> . DOUBLE
+    (13) dataType -> . SIGNED
+    (14) dataType -> . UNSIGNED
+
+    VOID            shift and go to state 6
+    CHAR            shift and go to state 10
+    SHORT           shift and go to state 2
+    INT             shift and go to state 14
+    LONG            shift and go to state 9
+    FLOAT           shift and go to state 7
+    DOUBLE          shift and go to state 5
+    SIGNED          shift and go to state 13
+    UNSIGNED        shift and go to state 8
+
+    function                       shift and go to state 17
+    functionDeclaration            shift and go to state 3
+    functionReturnType             shift and go to state 4
+    dataType                       shift and go to state 11
+
+state 13
+
+    (13) dataType -> SIGNED .
+
+    IDENTIFIER      reduce using rule 13 (dataType -> SIGNED .)
+
+
+state 14
+
+    (9) dataType -> INT .
+
+    IDENTIFIER      reduce using rule 9 (dataType -> INT .)
+
+
+state 15
+
+    (15) functionName -> IDENTIFIER .
+
+    LEFT_ROUND      reduce using rule 15 (functionName -> IDENTIFIER .)
+
+
+state 16
+
+    (4) functionDeclaration -> functionReturnType functionName . argumentList SEMICOLON
+    (16) argumentList -> . LEFT_ROUND arguments RIGHT_ROUND
+
+    LEFT_ROUND      shift and go to state 19
+
+    argumentList                   shift and go to state 18
+
+state 17
+
+    (1) program -> program function .
+
+    VOID            reduce using rule 1 (program -> program function .)
+    CHAR            reduce using rule 1 (program -> program function .)
+    SHORT           reduce using rule 1 (program -> program function .)
+    INT             reduce using rule 1 (program -> program function .)
+    LONG            reduce using rule 1 (program -> program function .)
+    FLOAT           reduce using rule 1 (program -> program function .)
+    DOUBLE          reduce using rule 1 (program -> program function .)
+    SIGNED          reduce using rule 1 (program -> program function .)
+    UNSIGNED        reduce using rule 1 (program -> program function .)
+    $end            reduce using rule 1 (program -> program function .)
+
+
+state 18
+
+    (4) functionDeclaration -> functionReturnType functionName argumentList . SEMICOLON
+
+    SEMICOLON       shift and go to state 20
+
+
+state 19
+
+    (16) argumentList -> LEFT_ROUND . arguments RIGHT_ROUND
+    (17) arguments -> . arguments COMMA oneArgument
+    (18) arguments -> . oneArgument
+    (19) oneArgument -> . dataType IDENTIFIER
+    (20) oneArgument -> . dataType IDENTIFIER EQUAL value
+    (6) dataType -> . VOID
+    (7) dataType -> . CHAR
+    (8) dataType -> . SHORT
+    (9) dataType -> . INT
+    (10) dataType -> . LONG
+    (11) dataType -> . FLOAT
+    (12) dataType -> . DOUBLE
+    (13) dataType -> . SIGNED
+    (14) dataType -> . UNSIGNED
+
+    VOID            shift and go to state 6
+    CHAR            shift and go to state 10
+    SHORT           shift and go to state 2
+    INT             shift and go to state 14
+    LONG            shift and go to state 9
+    FLOAT           shift and go to state 7
+    DOUBLE          shift and go to state 5
+    SIGNED          shift and go to state 13
+    UNSIGNED        shift and go to state 8
+
+    dataType                       shift and go to state 21
+    oneArgument                    shift and go to state 22
+    arguments                      shift and go to state 23
+
+state 20
+
+    (4) functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .
+
+    VOID            reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+    CHAR            reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+    SHORT           reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+    INT             reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+    LONG            reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+    FLOAT           reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+    DOUBLE          reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+    SIGNED          reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+    UNSIGNED        reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+    $end            reduce using rule 4 (functionDeclaration -> functionReturnType functionName argumentList SEMICOLON .)
+
+
+state 21
+
+    (19) oneArgument -> dataType . IDENTIFIER
+    (20) oneArgument -> dataType . IDENTIFIER EQUAL value
+
+    IDENTIFIER      shift and go to state 24
+
+
+state 22
+
+    (18) arguments -> oneArgument .
+
+    RIGHT_ROUND     reduce using rule 18 (arguments -> oneArgument .)
+    COMMA           reduce using rule 18 (arguments -> oneArgument .)
+
+
+state 23
+
+    (16) argumentList -> LEFT_ROUND arguments . RIGHT_ROUND
+    (17) arguments -> arguments . COMMA oneArgument
+
+    RIGHT_ROUND     shift and go to state 25
+    COMMA           shift and go to state 26
+
+
+state 24
+
+    (19) oneArgument -> dataType IDENTIFIER .
+    (20) oneArgument -> dataType IDENTIFIER . EQUAL value
+
+    RIGHT_ROUND     reduce using rule 19 (oneArgument -> dataType IDENTIFIER .)
+    COMMA           reduce using rule 19 (oneArgument -> dataType IDENTIFIER .)
+    EQUAL           shift and go to state 27
+
+
+state 25
+
+    (16) argumentList -> LEFT_ROUND arguments RIGHT_ROUND .
+
+    SEMICOLON       reduce using rule 16 (argumentList -> LEFT_ROUND arguments RIGHT_ROUND .)
+
+
+state 26
+
+    (17) arguments -> arguments COMMA . oneArgument
+    (19) oneArgument -> . dataType IDENTIFIER
+    (20) oneArgument -> . dataType IDENTIFIER EQUAL value
+    (6) dataType -> . VOID
+    (7) dataType -> . CHAR
+    (8) dataType -> . SHORT
+    (9) dataType -> . INT
+    (10) dataType -> . LONG
+    (11) dataType -> . FLOAT
+    (12) dataType -> . DOUBLE
+    (13) dataType -> . SIGNED
+    (14) dataType -> . UNSIGNED
+
+    VOID            shift and go to state 6
+    CHAR            shift and go to state 10
+    SHORT           shift and go to state 2
+    INT             shift and go to state 14
+    LONG            shift and go to state 9
+    FLOAT           shift and go to state 7
+    DOUBLE          shift and go to state 5
+    SIGNED          shift and go to state 13
+    UNSIGNED        shift and go to state 8
+
+    dataType                       shift and go to state 21
+    oneArgument                    shift and go to state 28
+
+state 27
+
+    (20) oneArgument -> dataType IDENTIFIER EQUAL . value
+    (21) value -> . HEX_NUM
+    (22) value -> . INT_NUM
+    (23) value -> . EXP_NUM
+    (24) value -> . REAL_NUM
+
+    HEX_NUM         shift and go to state 33
+    INT_NUM         shift and go to state 30
+    EXP_NUM         shift and go to state 32
+    REAL_NUM        shift and go to state 31
+
+    value                          shift and go to state 29
+
+state 28
+
+    (17) arguments -> arguments COMMA oneArgument .
+
+    RIGHT_ROUND     reduce using rule 17 (arguments -> arguments COMMA oneArgument .)
+    COMMA           reduce using rule 17 (arguments -> arguments COMMA oneArgument .)
+
+
+state 29
+
+    (20) oneArgument -> dataType IDENTIFIER EQUAL value .
+
+    RIGHT_ROUND     reduce using rule 20 (oneArgument -> dataType IDENTIFIER EQUAL value .)
+    COMMA           reduce using rule 20 (oneArgument -> dataType IDENTIFIER EQUAL value .)
+
+
+state 30
+
+    (22) value -> INT_NUM .
+
+    RIGHT_ROUND     reduce using rule 22 (value -> INT_NUM .)
+    COMMA           reduce using rule 22 (value -> INT_NUM .)
+
+
+state 31
+
+    (24) value -> REAL_NUM .
+
+    RIGHT_ROUND     reduce using rule 24 (value -> REAL_NUM .)
+    COMMA           reduce using rule 24 (value -> REAL_NUM .)
+
+
+state 32
+
+    (23) value -> EXP_NUM .
+
+    RIGHT_ROUND     reduce using rule 23 (value -> EXP_NUM .)
+    COMMA           reduce using rule 23 (value -> EXP_NUM .)
+
+
+state 33
+
+    (21) value -> HEX_NUM .
+
+    RIGHT_ROUND     reduce using rule 21 (value -> HEX_NUM .)
+    COMMA           reduce using rule 21 (value -> HEX_NUM .)
+
