@@ -1,1 +1,5 @@
-void function(int a);
+int main()	{
+	int i;
+	i=0;
+	return 0;
+}
