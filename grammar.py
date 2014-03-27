@@ -35,9 +35,9 @@ while k < len(lines):
     #print"LIST1", list1
     for j in range(0,len(list1)):
         if(list1[j][0]== '\'' or list1[j] in tokens):
-            func=func+'Node(t['+str(j)+'],\'\'),'
+            func=func+'Node(t['+str(j+1)+'], []),'
         else:
-            func=func+'t['+str(j)+'],'
+            func=func+'t['+str(j+1)+'],'
     func=func[:-1]+'])'
     print func
     while(flag):
@@ -61,9 +61,9 @@ while k < len(lines):
             func= func[:-1] +'\'\n\tt[0]=Node(\''+x+'\', ['
             for j in range(0,len(list1)):
                 if(list1[j][0]== '\'' or list1[j] in tokens):
-                    func=func+'Node(t['+str(j)+'],\'\'),'
+                    func=func+'Node(t['+str(j+1)+'], []),'
                 else:
-                    func=func+'t['+str(j)+'],'
+                    func=func+'t['+str(j+1)+'],'
             func=func[:-1]+'])'
             print func
         

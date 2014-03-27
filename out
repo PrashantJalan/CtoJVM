@@ -1,68 +1,13 @@
-import sys
-from lexer import tokens
-import ply.yacc as yacc
-import pydot
-import os
-
-#Printing AST; Debugging purpose
-
-precedence = (
-	('nonassoc','else_priority'), 
-	('nonassoc','ELSE'),
-)
-
-class Node:
-	count  = 0
-	type = 'Node(unspecified)'
-	shape = 'ellipse'
-	def __init__(self, type, children=None):
-		self.ID = str(Node.count)
-		self.type = type
-		Node.count+=1
-		if not children: self.children = []
-		elif hasattr(children,'__len__'):
-			self.children = children
-		else:
-			self.children = [children]
-		self.next = []
-
-	def makegraphicaltree(self, dot=None, edgeLabels=True):
-		if not dot: dot = pydot.Dot()
-		dot.add_node(pydot.Node(self.ID, label=self.type, shape=self.shape))
-		label = edgeLabels and len(self.children)-1
-		for i,c in enumerate(self.children):
-			c.makegraphicaltree(dot, edgeLabels)
-			edge = pydot.Edge(self.ID,c.ID)
-			if label:
-				edge.set_label(str(i))
-			dot.add_edge(edge)
-		return dot
-
-start = 'translation_unit'
-
-#Grammar definitions
 def p_primary_expression_1(t):
 	'primary_expression : IDENTIFIER'
 	t[0]=Node('primary_expression', [Node(t[1], [])])
 def p_primary_expression_2(t):
-	'primary_expression : STRING'
+	'primary_expression : CONSTANT'
 	t[0]=Node('primary_expression', [Node(t[1], [])])
 def p_primary_expression_3(t):
-	'primary_expression : INT_NUM'
-	t[0]=Node('primary_expression', [Node(t[1], [])])
+	'primary_expression : STRING_LITERAL'
+	t[0]=Node('primary_expression', [t[1]])
 def p_primary_expression_4(t):
-	'primary_expression : HEX_NUM'
-	t[0]=Node('primary_expression', [Node(t[1], [])])
-def p_primary_expression_5(t):
-	'primary_expression : EXP_NUM'
-	t[0]=Node('primary_expression', [Node(t[1], [])])
-def p_primary_expression_6(t):
-	'primary_expression : REAL_NUM'
-	t[0]=Node('primary_expression', [Node(t[1], [])])
-def p_primary_expression_7(t):
-	'primary_expression : CHARACTER'
-	t[0]=Node('primary_expression', [Node(t[1], [])])
-def p_primary_expression_8(t):
 	'primary_expression : LEFT_ROUND expression RIGHT_ROUND'
 	t[0]=Node('primary_expression', [Node(t[1], []),t[2],Node(t[3], [])])
 def p_postfix_expression_1(t):
@@ -359,6 +304,9 @@ def p_type_specifier_10(t):
 def p_type_specifier_11(t):
 	'type_specifier : enum_specifier'
 	t[0]=Node('type_specifier', [t[1]])
+def p_type_specifier_12(t):
+	'type_specifier : TYPE_NAME'
+	t[0]=Node('type_specifier', [t[1]])
 def p_struct_or_union_specifier_1(t):
 	'struct_or_union_specifier : struct_or_union IDENTIFIER LEFT_CURL struct_declaration_list RIGHT_CURL'
 	t[0]=Node('struct_or_union_specifier', [t[1],Node(t[2], []),Node(t[3], []),t[4],Node(t[5], [])])
@@ -482,11 +430,14 @@ def p_type_qualifier_list_1(t):
 def p_type_qualifier_list_2(t):
 	'type_qualifier_list : type_qualifier_list type_qualifier'
 	t[0]=Node('type_qualifier_list', [t[1],t[2]])
-def p_parameter_type_list_1(t):
-	'parameter_type_list : parameter_list'
+def p__1(t):
+	' : arameter_type_list'
 	t[0]=Node('', [t[1]])
-def p_parameter_type_list_2(t):
-	'parameter_type_list : parameter_list COMMA ELLIPSIS'
+def p__2(t):
+	' : parameter_list'
+	t[0]=Node('', [t[1]])
+def p__3(t):
+	' : parameter_list COMMA ELLIPSIS'
 	t[0]=Node('', [t[1],Node(t[2], []),Node(t[3], [])])
 def p_parameter_list_1(t):
 	'parameter_list : parameter_declaration'
@@ -624,7 +575,7 @@ def p_expression_statement_2(t):
 	'expression_statement : expression SEMICOLON'
 	t[0]=Node('expression_statement', [t[1],Node(t[2], [])])
 def p_selection_statement_1(t):
-	'selection_statement : IF LEFT_ROUND expression RIGHT_ROUND statement %prec else_priority'
+	'selection_statement : IF LEFT_ROUND expression RIGHT_ROUND statement'
 	t[0]=Node('selection_statement', [Node(t[1], []),Node(t[2], []),t[3],Node(t[4], []),t[5]])
 def p_selection_statement_2(t):
 	'selection_statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement'
@@ -683,28 +634,3 @@ def p_function_definition_3(t):
 def p_function_definition_4(t):
 	'function_definition : declarator compound_statement'
 	t[0]=Node('function_definition', [t[1],t[2]])
-
-def p_error(p):
-	sys.stdout.write("At Line "+str(p.lineno)+": ")
-	print "Syntax error at token", p.value
-	yacc.errok()
-
-
-# Build the parser
-parser = yacc.yacc()
-
-def myParser():
-	#Debugging purposes
-
-	#Take input from the user
-	if len(sys.argv)>1:
-		data = sys.argv[1]
-	else:
-		data = raw_input('Enter a file path: ')
-
-	ast = parser.parse(open(data).read(), debug=0)
-	t = ast.makegraphicaltree()
-	t.write_pdf('AST.pdf')
-
-if __name__=='__main__':
-	myParser()
