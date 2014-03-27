@@ -4,11 +4,6 @@ import ply.yacc as yacc
 import pydot
 import os
 
-precedence = (
-	('nonassoc', 'else_priority'),
-	('nonassoc', 'ELSE'),
-)
-
 #Symbol Table
 class SymbolTable:
     """A symbol table class. There is a separate symbol table for 
@@ -87,6 +82,20 @@ class Node:
 
 currentSymbolTable = SymbolTable()
 
+#Defining precedence
+precedence = (
+	('nonassoc', 'else_priority'),
+	('nonassoc', 'ELSE'),
+	('right', 'EQUAL', 'ADD_ASSIGN', 'SUB_ASSIGN', 'MUL_ASSIGN', 'DIV_ASSIGN', 'MOD_ASSIGN'),
+	('left', 'OR_OP'),
+	('left', 'AND_OP'),
+	('left', 'EQ_OP', 'NE_OP'),
+	('left', 'G_OP', 'GE_OP', 'LE_OP', 'L_OP'),
+	('left', 'PLUS', 'MINUS'),
+	('left', 'MULTIPLY', 'DIVIDE', 'MODULO'),
+	('left', 'INC_OP', 'DEC_OP'),
+)
+
 #Grammar definitions
 start = 'program'
 
@@ -163,45 +172,81 @@ def p_statement_list_1(t):
 def p_statement_list_2(t):
 	'statement_list : statement'
 	t[0] = Node('statement_list', [t[1]])
-'''
+
 def p_statement_1(t):
-	'statement : assignment_statement'
-	t[0] = t[1]
-'''
-def p_statement_2(t):
 	'statement : IF LEFT_ROUND expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL %prec else_priority'
 	t[0] = Node('if_statement', [t[3], t[6]])
 
-def p_statement_3(t):
+def p_statement_2(t):
 	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement %prec else_priority'
-	t[0] = Node('if_statement', [t[3], t[5]])
+	t[0] = Node('if_statement', [t[3], Node('statement_list', [t[5]])])
+
+def p_statement_3(t):
+	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement'
+	t[0] = Node('if_else_statement', [t[3], Node('statement_list', [t[5]]), Node('statement_list', [t[7]])])
 
 def p_statement_4(t):
-	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement'
-	t[0] = Node('if_else_statement', [t[3], t[5], t[7]])
+	'statement : IF LEFT_ROUND expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL ELSE statement'
+	t[0] = Node('if_else_statement', [t[3], t[6], Node('statement_list', [t[9]])])
 
 def p_statement_5(t):
-	'statement : IF LEFT_ROUND expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL ELSE statement'
-	t[0] = Node('if_else_statement', [t[3], t[6], t[9]])
+	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE LEFT_CURL statement_list RIGHT_CURL'
+	t[0] = Node('if_else_statement', [t[3], Node('statement_list', [t[5]]), t[8]])
 
 def p_statement_6(t):
-	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE LEFT_CURL statement_list RIGHT_CURL'
-	t[0] = Node('if_else_statement', [t[3], t[5], t[8]])
-
-def p_statement_7(t):
 	'statement : IF LEFT_ROUND expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL ELSE LEFT_CURL statement_list RIGHT_CURL'
 	t[0] = Node('if_else_statement', [t[3], t[6], t[10]])
 
-def p_statement_8(t):
+def p_statement_7(t):
 	'statement : FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
 	t[0] = Node('for_statement', [t[3], t[4], t[5], t[8]])
 
-def p_statement_9(t):
+def p_statement_8(t):
 	'statement : FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement'
-	t[0] = Node('for_statement', [t[3], t[4], t[5], t[7]])
+	t[0] = Node('for_statement', [t[3], t[4], t[5], Node('statement_list', [t[7]])])
+
+def p_statement_9(t):
+	'statement : expression_statement'
+	t[0] = t[1]
 
 def p_statement_10(t):
-	'statement : expression_statement'
+	'statement : WHILE LEFT_ROUND expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
+	t[0]=Node('while_statement', [t[3], t[6]])
+
+def p_statement_11(t):
+	'statement : WHILE LEFT_ROUND expression RIGHT_ROUND statement'
+	t[0]=Node('while_statement', [t[3], Node('statement_list', [t[5]])])
+
+def p_statement_12(t):
+	'''statement : CONTINUE SEMICOLON
+					| BREAK SEMICOLON
+					| RETURN SEMICOLON'''
+	t[0] = Node(t[1], [])
+
+def p_statement_13(t):
+	'statement : RETURN expression SEMICOLON'
+	t[0] = Node('return_expression', [t[2]])
+ 
+def p_statement_14(t):
+	'statement : type_specifier declaration_list SEMICOLON'
+	t[0] = Node('Declaration', [t[1], t[2]])
+
+def p_declaration_list_1(t):
+	'declaration_list : declaration'
+	t[0] = Node('declaration_list', [t[1]])
+
+def p_declaration_list_2(t):
+	'declaration_list : declaration_list COMMA declaration'
+	t[1].add(t[3])
+	t[0] = t[1]
+
+def p_declaration_1(t):
+	'declaration : IDENTIFIER'
+	t[0] = Node(t[1], [])
+
+def p_declaration_2(t):
+	'''declaration : array
+					| equal_or_initialise'''
 	t[0] = t[1]
 
 def p_constant(t):
@@ -213,25 +258,199 @@ def p_constant(t):
 				| EXP_NUM'''
 	t[0] = Node(t[1], [])
 
-def p_expression_statement(t):
-	'expression_statement : SEMICOLON'
-	t[0] = Node(t[1],[])
-
-def p_expression(t):
-	'expression : SEMICOLON'
-	t[0] = Node(t[1],[])
-
 def p_array(t):
 	'array : IDENTIFIER array_index'
 	t[0]= Node('array',[Node(t[1], []), t[2]])
 
 def p_array_index_1(t):
-	'array_index : LEFT_SQUARE INT_NUM RIGHT_SQUARE array_index'
-	t[0]= Node('array_index',[Node(t[2], []), t[4]])
+	'array_index : array_index LEFT_SQUARE INT_NUM RIGHT_SQUARE'
+	t[1].add(Node(t[3],[]))
+	t[0] = t[1]
 
 def p_array_index_2(t):
 	'array_index : LEFT_SQUARE INT_NUM RIGHT_SQUARE'
-	t[0]=Node(t[2],[])
+	t[0] = Node('array_index', [Node(t[2],[])])
+
+def p_expression_statement_1(t):
+	'expression_statement : SEMICOLON'
+	t[0] = Node(t[1],[])
+
+def p_expression_statement_2(t):
+	'expression_statement : expression SEMICOLON'
+	t[0] = t[1]
+
+def p_expression_1(t):
+	'expression : expression PLUS expression'
+	t[0]=Node('PLUS', [t[1], t[3]])
+
+def p_expression_2(t):
+	'expression : expression MINUS expression'
+	t[0]=Node('MINUS', [t[1], t[3]])
+
+def p_expression_3(t):
+	'expression : expression MULTIPLY expression'
+	t[0]=Node('MULTIPLY', [t[1], t[3]])
+
+def p_expression_4(t):
+	'expression : expression DIVIDE expression'
+	t[0]=Node('DIVIDE', [t[1], t[3]])
+
+def p_expression_5(t):
+	'expression : expression L_OP expression'
+	t[0]=Node('L_OP', [t[1], t[3]])
+
+def p_expression_6(t):
+	'expression : expression G_OP expression'
+	t[0]=Node('G_OP', [t[1], t[3]])
+
+def p_expression_7(t):
+	'expression : expression NE_OP expression'
+	t[0]=Node('NE_OP', [t[1], t[3]])
+
+def p_expression_8(t):
+	'expression : expression EQ_OP expression'
+	t[0]=Node('EQ_OP', [t[1], t[3]])
+
+def p_expression_9(t):
+	'expression : expression GE_OP expression'
+	t[0]=Node('GE_OP', [t[1], t[3]])
+
+def p_expression_10(t):
+	'expression : expression LE_OP expression'
+	t[0]=Node('LE_OP', [t[1], t[3]])
+
+def p_expression_11(t):
+	'expression : expression AND_OP expression'
+	t[0]=Node('AND_OP', [t[1], t[3]])
+
+def p_expression_12(t):
+	'expression : expression OR_OP expression'
+	t[0]=Node('OR_OP', [t[1], t[3]])
+
+def p_expression_13(t):
+	'expression : LEFT_ROUND expression RIGHT_ROUND'
+	t[0]=t[1]
+
+def p_expression_14(t):
+	'expression : IDENTIFIER'
+	t[0] = Node(t[1], [])
+
+def p_expression_15(t):
+	'''expression : array
+				  | constant '''
+	t[0] = t[1]
+
+def p_expression_16(t):
+	'''expression : assignment
+				  | unary_expression
+				  | function_call'''
+	t[0] = t[1]
+
+def p_assignment_1(t):
+	'assignment : equal_or_initialise'
+	t[0] = t[1]
+
+def p_equal_or_initialise(t):
+	'equal_or_initialise : IDENTIFIER EQUAL expression'
+	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
+
+def p_assignment_2(t):
+	'assignment : array EQUAL expression'
+	t[0] = Node('EQUAL', [t[1], t[3]])
+	
+def p_assignment_3(t):
+	'assignment : IDENTIFIER ADD_ASSIGN expression'
+	t[0] = Node('ADD_ASSIGN', [Node(t[1], []), t[3]])
+
+def p_assignment_4(t):
+	'assignment : IDENTIFIER SUB_ASSIGN expression'
+	t[0] = Node('SUB_ASSIGN', [Node(t[1], []), t[3]])
+
+def p_assignment_5(t):
+	'assignment : IDENTIFIER DIV_ASSIGN expression'
+	t[0] = Node('DIV_ASSIGN', [Node(t[1], []), t[3]])
+
+def p_assignment_6(t):
+	'assignment : IDENTIFIER MUL_ASSIGN expression'
+	t[0] = Node('MUL_ASSIGN', [Node(t[1], []), t[3]])
+
+def p_assignment_7(t):
+	'assignment : IDENTIFIER MOD_ASSIGN expression'
+	t[0] = Node('MOD_ASSIGN', [Node(t[1], []), t[3]])
+
+def p_assignment_8(t):
+	'assignment : array ADD_ASSIGN expression'
+	t[0] = Node('ADD_ASSIGN', [t[1], t[3]])
+
+def p_assignment_9(t):
+	'assignment : array SUB_ASSIGN expression'
+	t[0] = Node('SUB_ASSIGN', [t[1], t[3]])
+
+def p_assignment_10(t):
+	'assignment : array DIV_ASSIGN expression'
+	t[0] = Node('DIV_ASSIGN', [t[1], t[3]])
+
+def p_assignment_11(t):
+	'assignment : array MUL_ASSIGN expression'
+	t[0] = Node('MUL_ASSIGN', [t[1], t[3]])
+
+def p_assignment_11(t):
+	'assignment : array MOD_ASSIGN expression'
+	t[0] = Node('MOD_ASSIGN', [t[1], t[3]])
+
+def p_unary_expression_1(t):
+	'unary_expression : IDENTIFIER INC_OP'
+	t[0]= Node('post_increment', [Node(t[1],[])])
+
+def p_unary_expression_2(t):
+	'unary_expression : IDENTIFIER DEC_OP'
+	t[0]= Node('post_decrement', [Node(t[1],[])])
+
+def p_unary_expression_3(t):
+	'unary_expression : array INC_OP'
+	t[0]= Node('post_increment', [t[1]])
+
+def p_unary_expression_4(t):
+	'unary_expression : array DEC_OP'
+	t[0]= Node('post_decrement', [t[1]])
+
+def p_unary_expression_5(t):
+	'unary_expression : INC_OP IDENTIFIER'
+	t[0]= Node('pre_increment', [Node(t[2],[])])
+
+def p_unary_expression_6(t):
+	'unary_expression : INC_OP array'
+	t[0]= Node('pre_increment', [t[2]])
+
+def p_unary_expression_7(t):
+	'unary_expression : DEC_OP IDENTIFIER'
+	t[0]= Node('pre_decrement', [Node(t[2],[])])
+
+def p_unary_expression_8(t):
+	'unary_expression : DEC_OP array'
+	t[0]= Node('pre_decrement', [t[2]])
+
+def p_function_call(t):
+	'function_call : IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND'
+	t[0] = Node('function_call',[Node(t[1],[]), t[3]])
+
+def p_function_call_list_1(t):
+	'function_call_list : function_argument'
+	t[0] = Node('function_call_list',[t[1]])
+
+def p_function_call_list_2(t):
+	'function_call_list : function_call_list COMMA function_argument'
+	t[1].add(t[3])
+	t[0] = t[1]
+
+def p_function_argument_1(t):
+	'function_argument : IDENTIFIER'
+	t[0]= Node(t[1], [])
+
+def p_function_argument_2(t):
+	'''function_argument : array
+				| constant'''
+	t[0] = t[1]
 
 def p_error(p):
 	sys.stdout.write("At Line "+str(p.lineno)+": ")
