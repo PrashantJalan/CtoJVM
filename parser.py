@@ -28,7 +28,7 @@ class Node:
 
 	def makegraphicaltree(self, dot=None, edgeLabels=True):
 		if not dot: dot = pydot.Dot()
-		dot.add_node(pydot.Node(self.ID, label=self.type, shape=self.shape))
+		dot.add_node(pydot.Node(self.ID, label='"'+self.type+'"', shape=self.shape))
 		label = edgeLabels and len(self.children)-1
 		for i,c in enumerate(self.children):
 			c.makegraphicaltree(dot, edgeLabels)
@@ -704,6 +704,7 @@ def myParser():
 
 	ast = parser.parse(open(data).read(), debug=0)
 	t = ast.makegraphicaltree()
+	#t.write('graph.dot', format='raw', prog='dot')
 	t.write_pdf('AST.pdf')
 
 if __name__=='__main__':
