@@ -28,7 +28,14 @@ class Node:
 
 	def makegraphicaltree(self, dot=None, edgeLabels=True):
 		if not dot: dot = pydot.Dot()
-		dot.add_node(pydot.Node(self.ID, label='"'+self.type+'"', shape=self.shape))
+		customLabel = self.type
+		if customLabel[0] == '"':
+			customLabel = '\\' + customLabel
+		if customLabel[-1] == '"':
+			customLabel = customLabel[:-1] + '''\\"'''
+		customLabel = '"'+customLabel+'"'
+
+		dot.add_node(pydot.Node(self.ID, label=customLabel, shape=self.shape))
 		label = edgeLabels and len(self.children)-1
 		for i,c in enumerate(self.children):
 			c.makegraphicaltree(dot, edgeLabels)
