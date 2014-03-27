@@ -6,6 +6,11 @@ import os
 
 #Printing AST; Debugging purpose
 
+precedence = (
+	('nonassoc','else_priority'), 
+	('nonassoc','ELSE'),
+)
+
 class Node:
 	count  = 0
 	type = 'Node(unspecified)'
@@ -25,7 +30,9 @@ class Node:
 		if not dot: dot = pydot.Dot()
 		dot.add_node(pydot.Node(self.ID, label=self.type, shape=self.shape))
 		label = edgeLabels and len(self.children)-1
+		print self.type
 		for i,c in enumerate(self.children):
+			print i,c
 			c.makegraphicaltree(dot, edgeLabels)
 			edge = pydot.Edge(self.ID,c.ID)
 			if label:
@@ -33,7 +40,14 @@ class Node:
 			dot.add_edge(edge)
 		return dot
 
+
 #Grammar definitions
+def p_translation_unit_1(t):
+	'translation_unit : external_declaration'
+	t[0]=Node('translation_unit', [t[0]])
+def p_translation_unit_2(t):
+	'translation_unit : translation_unit external_declaration'
+	t[0]=Node('translation_unit', [t[0],t[1]])
 def p_primary_expression_1(t):
 	'primary_expression : IDENTIFIER'
 	t[0]=Node('primary_expression', [Node(t[0],'')])
@@ -42,7 +56,7 @@ def p_primary_expression_2(t):
 	t[0]=Node('primary_expression', [Node(t[0],'')])
 def p_primary_expression_3(t):
 	'primary_expression : STRING'
-	t[0]=Node('primary_expression', [t[0]])
+	t[0]=Node('primary_expression', [Node(t[0],'')])
 def p_primary_expression_4(t):
 	'primary_expression : LEFT_ROUND expression RIGHT_ROUND'
 	t[0]=Node('primary_expression', [Node(t[0],''),t[1],Node(t[2],'')])
@@ -617,7 +631,7 @@ def p_expression_statement_2(t):
 	'expression_statement : expression SEMICOLON'
 	t[0]=Node('expression_statement', [t[0],Node(t[1],'')])
 def p_selection_statement_1(t):
-	'selection_statement : IF LEFT_ROUND expression RIGHT_ROUND statement'
+	'selection_statement : IF LEFT_ROUND expression RIGHT_ROUND statement %prec else_priority'
 	t[0]=Node('selection_statement', [Node(t[0],''),Node(t[1],''),t[2],Node(t[3],''),t[4]])
 def p_selection_statement_2(t):
 	'selection_statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement'
@@ -652,12 +666,6 @@ def p_jump_statement_4(t):
 def p_jump_statement_5(t):
 	'jump_statement : RETURN expression SEMICOLON'
 	t[0]=Node('jump_statement', [Node(t[0],''),t[1],Node(t[2],'')])
-def p_translation_unit_1(t):
-	'translation_unit : external_declaration'
-	t[0]=Node('translation_unit', [t[0]])
-def p_translation_unit_2(t):
-	'translation_unit : translation_unit external_declaration'
-	t[0]=Node('translation_unit', [t[0],t[1]])
 def p_external_declaration_1(t):
 	'external_declaration : function_definition'
 	t[0]=Node('external_declaration', [t[0]])
@@ -695,7 +703,7 @@ def myParser():
 	else:
 		data = raw_input('Enter a file path: ')
 
-	ast = parser.parse(open(data).read())
+	ast = parser.parse(open(data).read(), debug=0)
 	t = ast.makegraphicaltree()
 	t.write_pdf('AST.pdf')
 
