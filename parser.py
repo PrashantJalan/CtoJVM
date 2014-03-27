@@ -120,9 +120,13 @@ def p_function_2(t):
 	'function : function_definition'
 	t[0]=t[1]
 
-def p_function_declaration(t):
+def p_function_declaration_1(t):
 	'function_declaration : return_type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND SEMICOLON'
 	t[0] = Node('function_declaration',[t[1], Node(t[2], []), t[4]])
+
+def p_function_declaration_2(t):
+	'function_declaration : return_type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND SEMICOLON'
+	t[0] = Node('function_declaration',[t[1], Node(t[2], []), Node('argument_list', [])])
 
 def p_return_type_specifier_1(t):
 	'return_type_specifier : type_specifier'
@@ -160,9 +164,13 @@ def p_argument_2(t):
 	'argument : type_specifier array'
 	t[0]= Node('argument',[t[1], t[2]])
 
-def p_function_definition(t):
+def p_function_definition_1(t):
 	'function_definition : return_type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), t[4], t[7]])
+
+def p_function_definition_2(t):
+	'function_definition : return_type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
+	t[0] = Node('function_definition', [t[1], Node(t[2], []), Node('argument_list', []), t[6]])
 
 def p_statement_list_1(t):
 	'statement_list : statement_list statement'

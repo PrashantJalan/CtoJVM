@@ -9,34 +9,6 @@ int f_n=0,f_p=0;
 
 for(i=0;i<t;i++)
 	{
-	res_n=0;res_p=0;f_n=0;f_p=0;x=0;
-	for(j=0;j<s;j++)	
-
-	for(j=0;j<s;j++){
-		if(res_p+n[j]<=p)
-			{
-			res_p+=n[j];
-			res_n+=1;
-			}
-
-		else
-			{
-			while(res_p+n[j]>p)
-				{
-				res_p-=n[x];
-				res_n-=1;
-				x++;
-				}
-			res_p+=n[j];
-			res_n+=1;	
-			}
-
-		if((f_n<res_n) || (f_n==res_n && f_p>res_p))
-			{
-			f_n = res_n;
-			f_p = res_p;	
-			}
-		}
-	}
 return 0;
+}
 }
