@@ -249,7 +249,7 @@ def p_declaration_2(t):
 					| equal_or_initialise'''
 	t[0] = t[1]
 
-def p_constant(t):
+def p_constant_1(t):
 	'''constant : HEX_NUM
 				| REAL_NUM
 				| INT_NUM
@@ -257,6 +257,14 @@ def p_constant(t):
 				| STRING
 				| EXP_NUM'''
 	t[0] = Node(t[1], [])
+	print t[1]
+
+def p_constant_2(t):
+	'''constant : PLUS HEX_NUM
+				| PLUS REAL_NUM
+				| PLUS INT_NUM
+				| PLUS EXP_NUM'''
+	t[0] = Node(t[2], [])
 
 def p_array(t):
 	'array : IDENTIFIER array_index'
