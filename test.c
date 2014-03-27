@@ -8,5 +8,5 @@ for(i=0;i<4;i++){
 }
 return 2*3-3;
 int a = func(a,b,6,g[6][8]);
-int b, c=9, c[100][67];
+int b, c=-9.42E324, c[100][67];
 }

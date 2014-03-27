@@ -257,13 +257,20 @@ def p_constant_1(t):
 				| STRING
 				| EXP_NUM'''
 	t[0] = Node(t[1], [])
-	print t[1]
 
 def p_constant_2(t):
 	'''constant : PLUS HEX_NUM
 				| PLUS REAL_NUM
 				| PLUS INT_NUM
 				| PLUS EXP_NUM'''
+	t[0] = Node(t[2], [])
+
+def p_constant_3(t):
+	'''constant : MINUS HEX_NUM
+				| MINUS REAL_NUM
+				| MINUS INT_NUM
+				| MINUS EXP_NUM'''
+	t[2] = '-'+t[2]
 	t[0] = Node(t[2], [])
 
 def p_array(t):
