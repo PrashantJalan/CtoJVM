@@ -22,18 +22,25 @@ class SymbolTable:
             self.parent.children.append(self)
         self.children = []
     
-    def add(self, token, type, value=None):
-        if self.entries.has_key(name):
-            sys.stdout.write("At Line "+str(token.lineno)+": Variable "+p.value+"redefined.\n")
+    def add(self, name, type, attribute=None, value=None):
+    	#name, type and value are token objects 
+        if self.entries.has_key(name.value):
+            sys.stdout.write("At Line "+str(name.lineno)+": Variable "+name.value+" redefined.\n")
         else:
-        	self.entries[token.value] = [value, type, attribute]
+        	self.entries[name.value] = [value, type, attribute]
+
+    def modify(self, name, value):
+    	if self.entries.has_key(name.value):
+    		self.entries[name.value][0] = value
+    	else:
+    		sys.stdout.write("At Line "+str(name.lineno)+": Variable "+name.value+" not declared.\n")
 
     def get(self, name):
-        if self.entries.has_key(name):
-            return self.entries[name]
+        if self.entries.has_key(name.value):
+            return self.entries[name.value]
         else:
             if self.parent != None:
-                return self.parent.get(name)
+                return self.parent.get(name.value)
             else:
                 return None
 

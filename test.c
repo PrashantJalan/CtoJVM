@@ -1,3 +1,3 @@
 int main(){
-	f() = 3;
+	int a=0,b=2,c;
 }
