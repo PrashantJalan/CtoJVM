@@ -66,10 +66,9 @@ def t_CHARACTER(t):	r"'(\\.|[^\\'])'"; return t
 # Regular expression rules for COMMENTS
 def t_COMMENT(t):
 	r'//.*'
-	return t
+	
 def t_COMMENTS(t):
 	r'/\*(.|\n)*\*/'
-	return t
 
 # Regular expression rules for HEADER FILES
 def t_HEADER(t):
