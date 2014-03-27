@@ -204,6 +204,15 @@ def p_statement_10(t):
 	'statement : expression_statement'
 	t[0] = t[1]
 
+def p_constant(t):
+	'''constant : HEX_NUM
+				| REAL_NUM
+				| INT_NUM
+				| CHARACTER
+				| STRING
+				| EXP_NUM'''
+	t[0] = Node(t[1], [])
+
 def p_expression_statement(t):
 	'expression_statement : SEMICOLON'
 	t[0] = Node(t[1],[])
