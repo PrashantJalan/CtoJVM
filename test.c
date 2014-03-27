@@ -1,3 +1,5 @@
-int main(){
-	long int char a=0,b=2,c;
-}
+int f(int a, char c[5], float b);
+int f(int a, char c[5], float b){
+
+for(;;;);
+if(;);}
