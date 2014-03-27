@@ -4,13 +4,40 @@ import ply.yacc as yacc
 import pydot
 import os
 
-#Printing AST; Debugging purpose
-
 precedence = (
 	('nonassoc','else_priority'), 
 	('nonassoc','ELSE'),
 )
 
+#Symbol Table
+class SymbolTable:
+    """A symbol table class. There is a separate symbol table for 
+    each code element that has its own scope."""
+
+    def __init__(self, parent=None):
+        self.entries = {}
+        self
+        self.parent = parent
+        if self.parent != None:
+            self.parent.children.append(self)
+        self.children = []
+    
+    def add(self, token, type, value=None):
+        if self.entries.has_key(name):
+            sys.stdout.write("At Line "+str(token.lineno)+": Variable "+p.value+"redefined.\n")
+        else:
+        	self.entries[token.value] = [value, type, attribute]
+
+    def get(self, name):
+        if self.entries.has_key(name):
+            return self.entries[name]
+        else:
+            if self.parent != None:
+                return self.parent.get(name)
+            else:
+                return None
+
+#Tree Node for AST
 class Node:
 	count  = 0
 	type = 'Node(unspecified)'
@@ -46,6 +73,7 @@ class Node:
 		return dot
 
 start = 'translation_unit'
+currentSymbolTable = SymbolTable()
 
 #Grammar definitions
 def p_primary_expression_1(t):
