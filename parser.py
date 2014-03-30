@@ -4,6 +4,35 @@ import ply.yacc as yacc
 import pydot
 import os
 
+def checkIdentifierError(t):
+	res = currentSymbolTable.get(t)
+	if res==None:
+		sys.stdout.write("Error! "+t+" not declared.\n")
+	else:
+		if res[1].type=="argument_list":
+			sys.stdout.write("Error! "+t+" declared as a function.\n")
+
+def checkFunctionError(t):
+	res = currentSymbolTable.get(t.children[0].type)
+	if res==None:
+		sys.stdout.write("Error! "+t.children[0].type+" function not declared.\n")
+	else:
+		if res[1].type!="argument_list":
+			sys.stdout.write("Error! "+t.children[0].type+" not declared as a function.\n")
+		else:
+			if len(res[1].children)!=len(t.children[1].children):
+				sys.stdout.write("Error! Function argument length mismatch for "+t.children[0].type+".\n")
+
+def checkArrayError(t):
+	res = currentSymbolTable.get(t.children[0].type)
+	if res==None:
+		sys.stdout.write("Error! Array "+t.children[0].type+" not declared.\n")
+	else:
+		if res[1].type=="argument_list":
+			sys.stdout.write("Error! "+t+" declared as a function.\n")
+		elif len(res[1].children)!=len(t.children[1].children):
+			sys.stdout.write("Error! Array index length mismatch for "+t.children[0].type+".\n")
+
 #Symbol Table
 class SymbolTable:
     """A symbol table class. There is a separate symbol table for 
@@ -17,25 +46,21 @@ class SymbolTable:
             self.parent.children.append(self)
         self.children = []
     
-    def add(self, name, type, attribute=None, value=None):
-    	#name, type and value are token objects 
-        if self.entries.has_key(name.value):
-            sys.stdout.write("At Line "+str(name.lineno)+": Variable "+name.value+" redefined.\n")
+    def add(self, name, type, attribute=None):
+    	if self.get(name)!=None:
+            sys.stdout.write("Error! Variable "+name+" redefined.\n")
         else:
-        	self.entries[name.value] = [value, type, attribute]
-
-    def modify(self, name, value):
-    	if self.entries.has_key(name.value):
-    		self.entries[name.value][0] = value
-    	else:
-    		sys.stdout.write("At Line "+str(name.lineno)+": Variable "+name.value+" not declared.\n")
+        	if attribute==None:
+        		self.entries[name] = [type, Node('',[])]
+        	else:
+        		self.entries[name] = [type, attribute]
 
     def get(self, name):
-        if self.entries.has_key(name.value):
-            return self.entries[name.value]
+        if self.entries.has_key(name):
+            return self.entries[name]
         else:
             if self.parent != None:
-                return self.parent.get(name.value)
+                return self.parent.get(name)
             else:
                 return None
 
@@ -98,6 +123,7 @@ precedence = (
 
 #Grammar definitions
 start = 'program'
+currentSymbolTable = SymbolTable()
 
 def p_program(t):
 	'program : function_list'
@@ -120,24 +146,21 @@ def p_function_2(t):
 	'function : function_definition'
 	t[0]=t[1]
 
+def p_function_3(t):
+	'function : declaration_statement'
+	t[0]=t[1]
+
 def p_function_declaration_1(t):
-	'function_declaration : return_type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND SEMICOLON'
+	'function_declaration : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND SEMICOLON'
 	t[0] = Node('function_declaration',[t[1], Node(t[2], []), t[4]])
 
 def p_function_declaration_2(t):
-	'function_declaration : return_type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND SEMICOLON'
+	'function_declaration : type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND SEMICOLON'
 	t[0] = Node('function_declaration',[t[1], Node(t[2], []), Node('argument_list', [])])
 
-def p_return_type_specifier_1(t):
-	'return_type_specifier : type_specifier'
-	t[0] = t[1]
-
-def p_return_type_specifier_2(t):
-	'return_type_specifier : VOID'
-	t[0] = Node(t[1],[])
-
-def p_type_specifier_1(t):
+def p_type_specifier(t):
 	'''type_specifier : CHAR
+						| VOID
 						| SHORT
 						| INT 
 						| LONG 
@@ -159,18 +182,22 @@ def p_argument_list_2(t):
 def p_argument_1(t):
 	'argument : type_specifier IDENTIFIER'
 	t[0]= Node('argument',[t[1], Node(t[2], [])])
-
+	currentSymbolTable.add(t[2], t[1].type)
+	
 def p_argument_2(t):
 	'argument : type_specifier array'
 	t[0]= Node('argument',[t[1], t[2]])
+	currentSymbolTable.add(t[2].children[0].type, t[1].type, t[2].children[1])
 
 def p_function_definition_1(t):
-	'function_definition : return_type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
+	'function_definition : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), t[4], t[7]])
+	currentSymbolTable.add(t[2], t[1].type, t[4])
 
 def p_function_definition_2(t):
-	'function_definition : return_type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
+	'function_definition : type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), Node('argument_list', []), t[6]])
+	currentSymbolTable.add(t[2], t[1].type, Node('argument_list', []))
 
 def p_statement_list_1(t):
 	'statement_list : statement_list statement'
@@ -236,8 +263,20 @@ def p_statement_13(t):
 	t[0] = Node('return_expression', [t[2]])
  
 def p_statement_14(t):
-	'statement : type_specifier declaration_list SEMICOLON'
+	'statement : declaration_statement'
+	t[0] = t[1]
+
+def p_declaration_statement(t):
+	'declaration_statement : type_specifier declaration_list SEMICOLON'
 	t[0] = Node('Declaration', [t[1], t[2]])
+	for item in t[2].children:
+		if len(item.children)==0:
+			currentSymbolTable.add(item.type, t[1].type)
+		else:
+			if item.type=="array":
+				currentSymbolTable.add(item.children[0].type, t[1].type, item.children[1])
+			else:
+				currentSymbolTable.add(item.children[0].type, t[1].type)
 
 def p_declaration_list_1(t):
 	'declaration_list : declaration'
@@ -254,8 +293,12 @@ def p_declaration_1(t):
 
 def p_declaration_2(t):
 	'''declaration : array
-					| equal_or_initialise'''
+					| declaration_assignment'''
 	t[0] = t[1]
+
+def p_declaration_assignment(t):
+	'declaration_assignment : IDENTIFIER EQUAL expression'
+	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
 
 def p_constant_1(t):
 	'''constant : HEX_NUM
@@ -357,105 +400,129 @@ def p_expression_13(t):
 def p_expression_14(t):
 	'expression : IDENTIFIER'
 	t[0] = Node(t[1], [])
+	checkIdentifierError(t[1])
 
 def p_expression_15(t):
-	'''expression : array
-				  | constant '''
+	'''expression : array'''
 	t[0] = t[1]
+	checkArrayError(t[1])
 
 def p_expression_16(t):
 	'''expression : assignment
 				  | unary_expression
-				  | function_call'''
+				  | function_call
+				  | constant '''
 	t[0] = t[1]
 
 def p_assignment_1(t):
-	'assignment : equal_or_initialise'
-	t[0] = t[1]
-
-def p_equal_or_initialise(t):
-	'equal_or_initialise : IDENTIFIER EQUAL expression'
-	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
-
-def p_assignment_2(t):
 	'assignment : array EQUAL expression'
 	t[0] = Node('EQUAL', [t[1], t[3]])
+	checkArrayError(t[1])
+	
+def p_assignment_2(t):
+	'assignment : IDENTIFIER EQUAL expression'
+	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
+	checkIdentifierError(t[1])
 	
 def p_assignment_3(t):
 	'assignment : IDENTIFIER ADD_ASSIGN expression'
 	t[0] = Node('ADD_ASSIGN', [Node(t[1], []), t[3]])
+	checkIdentifierError(t[1])
 
 def p_assignment_4(t):
 	'assignment : IDENTIFIER SUB_ASSIGN expression'
 	t[0] = Node('SUB_ASSIGN', [Node(t[1], []), t[3]])
+	checkIdentifierError(t[1])
 
 def p_assignment_5(t):
 	'assignment : IDENTIFIER DIV_ASSIGN expression'
 	t[0] = Node('DIV_ASSIGN', [Node(t[1], []), t[3]])
+	checkIdentifierError(t[1])
 
 def p_assignment_6(t):
 	'assignment : IDENTIFIER MUL_ASSIGN expression'
 	t[0] = Node('MUL_ASSIGN', [Node(t[1], []), t[3]])
+	checkIdentifierError(t[1])
 
 def p_assignment_7(t):
 	'assignment : IDENTIFIER MOD_ASSIGN expression'
 	t[0] = Node('MOD_ASSIGN', [Node(t[1], []), t[3]])
+	checkIdentifierError(t[1])
 
 def p_assignment_8(t):
 	'assignment : array ADD_ASSIGN expression'
 	t[0] = Node('ADD_ASSIGN', [t[1], t[3]])
+	checkArrayError(t[1])
 
 def p_assignment_9(t):
 	'assignment : array SUB_ASSIGN expression'
 	t[0] = Node('SUB_ASSIGN', [t[1], t[3]])
+	checkArrayError(t[1])
 
 def p_assignment_10(t):
 	'assignment : array DIV_ASSIGN expression'
 	t[0] = Node('DIV_ASSIGN', [t[1], t[3]])
+	checkArrayError(t[1])
 
 def p_assignment_11(t):
 	'assignment : array MUL_ASSIGN expression'
 	t[0] = Node('MUL_ASSIGN', [t[1], t[3]])
+	checkArrayError(t[1])
 
-def p_assignment_11(t):
+def p_assignment_12(t):
 	'assignment : array MOD_ASSIGN expression'
 	t[0] = Node('MOD_ASSIGN', [t[1], t[3]])
+	checkArrayError(t[1])
 
 def p_unary_expression_1(t):
 	'unary_expression : IDENTIFIER INC_OP'
 	t[0]= Node('post_increment', [Node(t[1],[])])
+	checkIdentifierError(t[1])
 
 def p_unary_expression_2(t):
 	'unary_expression : IDENTIFIER DEC_OP'
 	t[0]= Node('post_decrement', [Node(t[1],[])])
+	checkIdentifierError(t[1])
 
 def p_unary_expression_3(t):
 	'unary_expression : array INC_OP'
 	t[0]= Node('post_increment', [t[1]])
+	checkArrayError(t[1])
 
 def p_unary_expression_4(t):
 	'unary_expression : array DEC_OP'
 	t[0]= Node('post_decrement', [t[1]])
+	checkArrayError(t[1])
 
 def p_unary_expression_5(t):
 	'unary_expression : INC_OP IDENTIFIER'
 	t[0]= Node('pre_increment', [Node(t[2],[])])
+	checkIdentifierError(t[2])
 
 def p_unary_expression_6(t):
 	'unary_expression : INC_OP array'
 	t[0]= Node('pre_increment', [t[2]])
+	checkArrayError(t[2])
 
 def p_unary_expression_7(t):
 	'unary_expression : DEC_OP IDENTIFIER'
 	t[0]= Node('pre_decrement', [Node(t[2],[])])
+	checkIdentifierError(t[2])
 
 def p_unary_expression_8(t):
 	'unary_expression : DEC_OP array'
 	t[0]= Node('pre_decrement', [t[2]])
+	checkArrayError(t[2])
 
-def p_function_call(t):
+def p_function_call_1(t):
 	'function_call : IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND'
 	t[0] = Node('function_call',[Node(t[1],[]), t[3]])
+	checkFunctionError(t[0])
+
+def p_function_call_2(t):
+	'function_call : IDENTIFIER LEFT_ROUND RIGHT_ROUND'
+	t[0] = Node('function_call',[Node(t[1],[]), Node('function_call_list', [])])
+	checkFunctionError(t[0])
 
 def p_function_call_list_1(t):
 	'function_call_list : function_argument'
@@ -469,10 +536,15 @@ def p_function_call_list_2(t):
 def p_function_argument_1(t):
 	'function_argument : IDENTIFIER'
 	t[0]= Node(t[1], [])
+	checkIdentifierError(t[1])
 
 def p_function_argument_2(t):
-	'''function_argument : array
-				| constant'''
+	'''function_argument : array'''
+	t[0] = t[1]
+	checkArrayError(t[1])
+
+def p_function_argument_3(t):
+	'''function_argument : constant'''
 	t[0] = t[1]
 
 def p_error(p):

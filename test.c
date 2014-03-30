@@ -1,6 +1,11 @@
-#include<stdio.h>
+
+int i;
+
+void b(){
+	kld=0;
+}
 
 int main()
 {
-return 0;
+	b();
 }
