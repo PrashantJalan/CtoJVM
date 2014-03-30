@@ -1,7 +1,5 @@
 #include<stdio.h>
 
-int  b();
-
 int main()
 {
 int s,p,t,i,j;

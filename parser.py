@@ -139,24 +139,12 @@ def p_function_list_2(t):
 	t[0] = Node('function_list', [t[1]])
 
 def p_function_1(t):
-	'function : function_declaration'
-	t[0] = t[1]
-
-def p_function_2(t):
 	'function : function_definition'
 	t[0]=t[1]
 
-def p_function_3(t):
+def p_function_2(t):
 	'function : declaration_statement'
 	t[0]=t[1]
-
-def p_function_declaration_1(t):
-	'function_declaration : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND SEMICOLON'
-	t[0] = Node('function_declaration',[t[1], Node(t[2], []), t[4]])
-
-def p_function_declaration_2(t):
-	'function_declaration : type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND SEMICOLON'
-	t[0] = Node('function_declaration',[t[1], Node(t[2], []), Node('argument_list', [])])
 
 def p_type_specifier(t):
 	'''type_specifier : CHAR
