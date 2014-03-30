@@ -2,7 +2,7 @@
 
 int main()
 {
-int t,i,j,n,k,flag,res,match;
+int t=0,i,j,n,k,flag,res,match;
 char ch[20000];
 
 for(i=0;i<t;i++)

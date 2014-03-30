@@ -286,13 +286,13 @@ def p_array(t):
 	t[0]= Node('array',[Node(t[1], []), t[2]])
 
 def p_array_index_1(t):
-	'array_index : array_index LEFT_SQUARE INT_NUM RIGHT_SQUARE'
-	t[1].add(Node(t[3],[]))
+	'array_index : array_index LEFT_SQUARE expression RIGHT_SQUARE'
+	t[1].add(t[3])
 	t[0] = t[1]
 
 def p_array_index_2(t):
-	'array_index : LEFT_SQUARE INT_NUM RIGHT_SQUARE'
-	t[0] = Node('array_index', [Node(t[2],[])])
+	'array_index : LEFT_SQUARE expression RIGHT_SQUARE'
+	t[0] = Node('array_index', [t[2]])
 
 def p_expression_statement_1(t):
 	'expression_statement : SEMICOLON'
