@@ -34,18 +34,54 @@ def checkArrayError(t):
 			sys.stdout.write("Error! Array index length mismatch for "+t.children[0].type+".\n")
 
 #Symbol Table
+SymbolTableCount = 0
 class SymbolTable:
     """A symbol table class. There is a separate symbol table for 
     each code element that has its own scope."""
 
     def __init__(self, parent=None):
+    	global SymbolTableCount
         self.entries = {}
-        self
+        self.ID = str(SymbolTableCount)
+        SymbolTableCount += 1
         self.parent = parent
         if self.parent != None:
             self.parent.children.append(self)
         self.children = []
     
+    def makegraphicaltree2(self, dot=None):
+    	global SymbolTableCount
+    	if not dot: dot = pydot.Dot()
+    	dot.add_node(pydot.Node(self.ID, label='table', shape='ellipse'))
+    	for c in self.children:
+    		c.makegraphicaltree2(dot)
+    		edge = pydot.Edge(self.ID,c.ID)
+    		dot.add_edge(edge)
+    	entryID = SymbolTableCount
+    	dot.add_node(pydot.Node(entryID, label='entries', shape='ellipse'))
+    	edge = pydot.Edge(self.ID,entryID)
+    	dot.add_edge(edge)
+    	SymbolTableCount += 1
+    	for item in self.entries:
+    		temp = SymbolTableCount
+    		dot.add_node(pydot.Node(temp, label=item, shape='ellipse'))
+    		edge = pydot.Edge(entryID,temp)
+    		dot.add_edge(edge)
+    		SymbolTableCount += 1
+    		temp2 = SymbolTableCount
+    		dot.add_node(pydot.Node(temp2, label=self.entries[item][0], shape='ellipse'))
+    		edge = pydot.Edge(temp,temp2)
+    		dot.add_edge(edge)
+    		SymbolTableCount += 1
+    		if self.entries[item][1].type:
+    			temp3 = SymbolTableCount
+    			dot.add_node(pydot.Node(temp3, label=self.entries[item][1].type, shape='ellipse'))
+    			edge = pydot.Edge(temp,temp3)
+    			dot.add_edge(edge)
+    			SymbolTableCount += 1
+    	return dot
+
+
     def add(self, name, type, attribute=None):
     	if self.get(name)!=None:
             sys.stdout.write("Error! Variable "+name+" redefined.\n")
@@ -63,6 +99,8 @@ class SymbolTable:
                 return self.parent.get(name)
             else:
                 return None
+
+	
 
 #Tree Node for AST
 class Node:
@@ -178,12 +216,12 @@ def p_argument_2(t):
 	currentSymbolTable.add(t[2].children[0].type, t[1].type, t[2].children[1])
 
 def p_function_definition_1(t):
-	'function_definition : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
+	'function_definition : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND left_curl statement_list right_curl'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), t[4], t[7]])
 	currentSymbolTable.add(t[2], t[1].type, t[4])
 
 def p_function_definition_2(t):
-	'function_definition : type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
+	'function_definition : type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND left_curl statement_list right_curl'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), Node('argument_list', []), t[6]])
 	currentSymbolTable.add(t[2], t[1].type, Node('argument_list', []))
 
@@ -197,7 +235,7 @@ def p_statement_list_2(t):
 	t[0] = Node('statement_list', [t[1]])
 
 def p_statement_1(t):
-	'statement : IF LEFT_ROUND expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL %prec else_priority'
+	'statement : IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl %prec else_priority'
 	t[0] = Node('if_statement', [t[3], t[6]])
 
 def p_statement_2(t):
@@ -209,19 +247,19 @@ def p_statement_3(t):
 	t[0] = Node('if_else_statement', [t[3], Node('statement_list', [t[5]]), Node('statement_list', [t[7]])])
 
 def p_statement_4(t):
-	'statement : IF LEFT_ROUND expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL ELSE statement'
+	'statement : IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE statement'
 	t[0] = Node('if_else_statement', [t[3], t[6], Node('statement_list', [t[9]])])
 
 def p_statement_5(t):
-	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE LEFT_CURL statement_list RIGHT_CURL'
+	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl statement_list right_curl'
 	t[0] = Node('if_else_statement', [t[3], Node('statement_list', [t[5]]), t[8]])
 
 def p_statement_6(t):
-	'statement : IF LEFT_ROUND expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL ELSE LEFT_CURL statement_list RIGHT_CURL'
+	'statement : IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE left_curl statement_list right_curl'
 	t[0] = Node('if_else_statement', [t[3], t[6], t[10]])
 
 def p_statement_7(t):
-	'statement : FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
+	'statement : FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND left_curl statement_list right_curl'
 	t[0] = Node('for_statement', [t[3], t[4], t[5], t[8]])
 
 def p_statement_8(t):
@@ -233,7 +271,7 @@ def p_statement_9(t):
 	t[0] = t[1]
 
 def p_statement_10(t):
-	'statement : WHILE LEFT_ROUND expression RIGHT_ROUND LEFT_CURL statement_list RIGHT_CURL'
+	'statement : WHILE LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl'
 	t[0]=Node('while_statement', [t[3], t[6]])
 
 def p_statement_11(t):
@@ -535,6 +573,16 @@ def p_function_argument_3(t):
 	'''function_argument : constant'''
 	t[0] = t[1]
 
+def p_left_curl(t):
+	'left_curl :  LEFT_CURL'
+	global currentSymbolTable
+	currentSymbolTable = SymbolTable(currentSymbolTable)
+
+def p_right_curl(t):
+	'right_curl :  RIGHT_CURL'
+	global currentSymbolTable
+	currentSymbolTable = currentSymbolTable.parent
+
 def p_error(p):
 	sys.stdout.write("At Line "+str(p.lineno)+": ")
 	print "Syntax error at token", p.value
@@ -555,8 +603,10 @@ def myParser():
 
 	ast = parser.parse(open(data).read(), debug=0)
 	t = ast.makegraphicaltree()
+	s = currentSymbolTable.makegraphicaltree2()
 	#t.write('graph.dot', format='raw', prog='dot')
 	t.write_pdf('AST.pdf')
+	s.write_pdf('SymbolTable.pdf')
 
 if __name__=='__main__':
 	myParser()

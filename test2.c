@@ -10,8 +10,13 @@ int f_n=0,f_p=0;
 n[2][3] = 0;
 
 for(i=0;i<t;i++)
-	{
+	{ int pf;
+		pf = 6;
 return 0;
 }
+pf =0;
 b();
+}
+int sm(){
+	return 0;
 }

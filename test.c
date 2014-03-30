@@ -2,11 +2,15 @@
 int i;
 
 void b(){
+	int kld;
 	kld=0;
 }
 
 int main()
 {
-	b(3,4);
-	c(v);
+	for (i=0;i<10;i++)	{
+		int c;
+		c =0;
+	}
+	return 0;
 }
