@@ -8,4 +8,5 @@ void b(){
 int main()
 {
 	b(3,4);
+	c(v);
 }
