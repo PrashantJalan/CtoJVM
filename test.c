@@ -7,5 +7,5 @@ void b(){
 
 int main()
 {
-	b();
+	b(3,4);
 }
