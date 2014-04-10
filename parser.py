@@ -683,7 +683,7 @@ def p_expression_14(t):
 	t[0] = Node(t[1], [])
 	checkIdentifierError(t[1])
 	nvar = t[0].newVar()
-	t[0].addCode(["load "+t[1]+" from memory"])
+	t[0].addCode(["load "+t[1].var+" from memory"])
 	gen = nvar+"="+t[1]
 	t[0].addCode([gen])
 
@@ -707,6 +707,20 @@ def p_expression_17(t):
 				  | unary_expression
 				  | function_call'''
 	t[0] = t[1]
+
+def p_expression_18(t):
+	'expression : TILDA expression'
+	t[0] = Node('NOT', [t[1]])
+	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
+	t[0].addCode(t[1].code)
+	t[0].addCode(["if "+t[1].var+"==0 goto "+true])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
+	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
 
 def p_assignment_1(t):
 	'assignment : array EQUAL expression'
@@ -793,24 +807,20 @@ def p_assignment_12(t):
 	checkArrayError(t[1])
 
 def p_unary_expression_1(t):
-	#Todo
 	'unary_expression : IDENTIFIER INC_OP'
 	t[0]= Node('post_increment', [Node(t[1],[])])
 	checkIdentifierError(t[1])
-	#nvar = t[0].newVar()
-	#t[0].addCode(["load "+t[1]+" from memory"])
-	#gen = nvar+"="+t[1]+"+"+"1"
-	#t[0].addCode([gen])
+	nvar = t[0].newVar()
+	t[0].addCode([nvar+"="+t[1].var])
+	t[0].addCode([t[1].var+"="+t[1].var+"+1"])
 
 def p_unary_expression_2(t):
-	#Todo
 	'unary_expression : IDENTIFIER DEC_OP'
 	t[0]= Node('post_decrement', [Node(t[1],[])])
 	checkIdentifierError(t[1])
-	#nvar = t[0].newVar()
-	#t[0].addCode(["load "+t[1]+" from memory"])
-	#gen = nvar+"="+t[1]+"-"+"1"
-	#t[0].addCode([gen])
+	nvar = t[0].newVar()
+	t[0].addCode([nvar+"="+t[1].var])
+	t[0].addCode([t[1].var+"="+t[1].var+"-1"])
 
 def p_unary_expression_3(t):
 	'unary_expression : array INC_OP'
@@ -827,9 +837,8 @@ def p_unary_expression_5(t):
 	t[0]= Node('pre_increment', [Node(t[2],[])])
 	checkIdentifierError(t[2])
 	nvar = t[0].newVar()
-	t[0].addCode(["load "+t[2]+" from memory"])
-	gen = nvar+"="+t[2]+"+"+"1"
-	t[0].addCode([gen])
+	t[0].addCode([nvar+"="+t[2].var+"+1"])
+	t[0].addCode([t[2].var+"="+nvar])
 
 def p_unary_expression_6(t):
 	'unary_expression : INC_OP array'
@@ -841,9 +850,8 @@ def p_unary_expression_7(t):
 	t[0]= Node('pre_decrement', [Node(t[2],[])])
 	checkIdentifierError(t[2])
 	nvar = t[0].newVar()
-	t[0].addCode(["load "+t[2]+" from memory"])
-	gen = nvar+"="+t[2]+"-"+"1"
-	t[0].addCode([gen])
+	t[0].addCode([nvar+"="+t[2].var+"-1"])
+	t[0].addCode([t[2].var+"="+nvar])
 
 def p_unary_expression_8(t):
 	'unary_expression : DEC_OP array'
