@@ -1,9 +1,18 @@
-#problem with post increment
+"""
+TODO-
+Code genration
+Switch case
+Type checking
+struct
+"""
+
 import sys
 from lexer import tokens
 import ply.yacc as yacc
 import pydot
 import os
+
+DEBUG = 1
 
 def checkIdentifierError(t):
 	res = currentSymbolTable.get(t)
@@ -944,12 +953,13 @@ def myParser():
 		data = raw_input('Enter a file path: ')
 
 	ast = parser.parse(open(data).read(), debug=0)
-	t = ast.makegraphicaltree()
-	s = currentSymbolTable.makegraphicaltree2()
-	#t.write('graph.dot', format='raw', prog='dot')
-	t.write_pdf('AST.pdf')
-	s.write_pdf('SymbolTable.pdf')
-	mir = open("3AddressCode.txt",'w')
+	if DEBUG:
+		t = ast.makegraphicaltree()
+		s = currentSymbolTable.makegraphicaltree2()
+		#t.write('graph.dot', format='raw', prog='dot')
+		t.write_pdf('AST.pdf')
+		s.write_pdf('SymbolTable.pdf')
+	mir = open(data[:-2]+".j",'w')
 	for c in ast.code:
 		if c=="goto continue" or c=="goto break":
 			print "ERROR! break or continue not in loop."
