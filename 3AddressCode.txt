@@ -9,25 +9,39 @@ var5=0
 f_n=var5
 var6=0
 f_p=var6
-var10=0
-i=var10
-save i to memory
-label1:
-load i from memory
-var11=i
-load t from memory
-var12=t
-if var11 < var12 goto +3
+var7=9
+x=var7
+var11=x
+var12=9
+if var11 == var12 goto label1
 var13=0
-goto +2
+goto label2
+label1:
 var13=1
-if var13==0 goto label2
-var14=6
-pf=var14
-save pf to memory
-goto label1
 label2:
-var16=0
-pf=var16
-save pf to memory
+if var13==0 goto label3
+goto break
+label3:
+var14=0
+i=var14
+label6:
+var15=i
+var16=t
+if var15 < var16 goto label4
+var17=0
+goto label5
+label4:
+var17=1
+label5:
+if var17==0 goto label7
+goto label7
+var19=6
+pf=var19
+goto label6
+var18=i
+i=i+1
+goto label6
+label7:
+var21=0
+pf=var21
 sm:

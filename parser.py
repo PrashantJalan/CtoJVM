@@ -354,11 +354,17 @@ def p_statement_7(t):
 	t[0].addCode([Sb+":"])
 	t[0].addCode(t[4].code)
 	t[0].addCode(["if "+t[4].var+"==0 goto "+Ef])
+	j = 0
+	while j<len(t[8].code):
+		if t[8].code[j]=="goto continue":
+			t[8].code[j]="goto "+Sb
+		elif t[8].code[j]=="goto break":
+			t[8].code[j]="goto "+Ef
+		j+=1
 	t[0].addCode(t[8].code)
 	t[0].addCode(t[5].code)
 	t[0].addCode(["goto "+S1n])
-	gen = Ef+":"
-	t[0].addCode([gen])
+	t[0].addCode([Ef+":"])
 
 
 def p_statement_8(t):
@@ -373,11 +379,17 @@ def p_statement_8(t):
 	t[0].addCode([Sb+":"])
 	t[0].addCode(t[4].code)
 	t[0].addCode(["if "+t[4].var+"==0 goto "+Ef])
+	j = 0
+	while j<len(t[7].code):
+		if t[7].code[j]=="goto continue":
+			t[7].code[j]="goto "+Sb
+		elif t[7].code[j]=="goto break":
+			t[7].code[j]="goto "+Ef
+		j+=1
 	t[0].addCode(t[7].code)
 	t[0].addCode(t[5].code)
 	t[0].addCode(["goto "+S1n])
-	gen = Ef+":"
-	t[0].addCode([gen])
+	t[0].addCode([Ef+":"])
 
 def p_statement_9(t):
 	'statement : expression_statement'
@@ -394,10 +406,16 @@ def p_statement_10(t):
 	t[0].addCode([Sb+":"])
 	t[0].addCode(t[3].code)
 	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	j = 0
+	while j<len(t[6].code):
+		if t[6].code[j]=="goto continue":
+			t[6].code[j]="goto "+Sb
+		elif t[6].code[j]=="goto break":
+			t[6].code[j]="goto "+Ef
+		j+=1
 	t[0].addCode(t[6].code)
 	t[0].addCode(["goto "+S1n])
-	gen = Ef+":"
-	t[0].addCode([gen])
+	t[0].addCode([Ef+":"])
 
 def p_statement_11(t):
 	'statement : WHILE LEFT_ROUND expression RIGHT_ROUND statement'
@@ -410,15 +428,19 @@ def p_statement_11(t):
 	t[0].addCode([Sb+":"])
 	t[0].addCode(t[3].code)
 	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	j = 0
+	while j<len(t[5].code):
+		if t[5].code[j]=="goto continue":
+			t[5].code[j]="goto "+Sb
+		elif t[5].code[j]=="goto break":
+			t[5].code[j]="goto "+Ef
+		j+=1
 	t[0].addCode(t[5].code)
 	t[0].addCode(["goto "+S1n])
-	gen = Ef+":"
-	t[0].addCode([gen])
+	t[0].addCode([Ef+":"])
 
 def p_statement_12(t):
-	'''statement : CONTINUE SEMICOLON
-					| BREAK SEMICOLON
-					| RETURN SEMICOLON'''
+	'''statement : RETURN SEMICOLON'''
 	t[0] = Node(t[1], [])
 
 def p_statement_13(t):
@@ -428,6 +450,16 @@ def p_statement_13(t):
 def p_statement_14(t):
 	'statement : declaration_statement'
 	t[0] = t[1]
+
+def p_statement_15(t):
+	'''statement : CONTINUE SEMICOLON'''
+	t[0] = Node(t[1], [])
+	t[0].addCode(["goto continue"])
+
+def p_statement_16(t):
+	'''statement : BREAK SEMICOLON'''
+	t[0] = Node(t[1], [])
+	t[0].addCode(["goto break"])
 
 def p_declaration_statement(t):
 	'declaration_statement : type_specifier declaration_list SEMICOLON'
@@ -465,7 +497,6 @@ def p_declaration_2(t):
 def p_declaration_assignment(t):
 	'declaration_assignment : IDENTIFIER EQUAL expression'
 	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
-	checkIdentifierError(t[1])
 	t[0].addCode(t[3].code)
 	gen = t[1]+"="+t[3].var
 	t[0].addCode([gen])
@@ -683,7 +714,6 @@ def p_expression_14(t):
 	t[0] = Node(t[1], [])
 	checkIdentifierError(t[1])
 	nvar = t[0].newVar()
-	t[0].addCode(["load "+t[1].var+" from memory"])
 	gen = nvar+"="+t[1]
 	t[0].addCode([gen])
 
@@ -734,7 +764,6 @@ def p_assignment_2(t):
 	t[0].addCode(t[3].code)
 	gen = t[1]+"="+t[3].var
 	t[0].addCode([gen])
-	t[0].addCode(["save "+t[1]+" to memory"])
 	
 def p_assignment_3(t):
 	'assignment : IDENTIFIER ADD_ASSIGN expression'
@@ -743,7 +772,6 @@ def p_assignment_3(t):
 	t[0].addCode(t[3].code)
 	gen = t[1]+"="+t[1]+" + "+t[3].var
 	t[0].addCode([gen])
-	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_4(t):
 	'assignment : IDENTIFIER SUB_ASSIGN expression'
@@ -752,7 +780,6 @@ def p_assignment_4(t):
 	t[0].addCode(t[3].code)
 	gen = t[1]+"="+t[1]+" - "+t[3].var
 	t[0].addCode([gen])
-	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_5(t):
 	'assignment : IDENTIFIER DIV_ASSIGN expression'
@@ -761,7 +788,6 @@ def p_assignment_5(t):
 	t[0].addCode(t[3].code)
 	gen = t[1]+"="+t[1]+" / "+t[3].var
 	t[0].addCode([gen])
-	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_6(t):
 	'assignment : IDENTIFIER MUL_ASSIGN expression'
@@ -770,7 +796,6 @@ def p_assignment_6(t):
 	t[0].addCode(t[3].code)
 	gen = t[1]+"="+t[1]+" * "+t[3].var
 	t[0].addCode([gen])
-	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_7(t):
 	'assignment : IDENTIFIER MOD_ASSIGN expression'
@@ -779,7 +804,6 @@ def p_assignment_7(t):
 	t[0].addCode(t[3].code)
 	gen = t[1]+"="+t[1]+" % "+t[3].var
 	t[0].addCode([gen])
-	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_8(t):
 	'assignment : array ADD_ASSIGN expression'
@@ -811,16 +835,16 @@ def p_unary_expression_1(t):
 	t[0]= Node('post_increment', [Node(t[1],[])])
 	checkIdentifierError(t[1])
 	nvar = t[0].newVar()
-	t[0].addCode([nvar+"="+t[1].var])
-	t[0].addCode([t[1].var+"="+t[1].var+"+1"])
+	t[0].addCode([nvar+"="+t[1]])
+	t[0].addCode([t[1]+"="+t[1]+"+1"])
 
 def p_unary_expression_2(t):
 	'unary_expression : IDENTIFIER DEC_OP'
 	t[0]= Node('post_decrement', [Node(t[1],[])])
 	checkIdentifierError(t[1])
 	nvar = t[0].newVar()
-	t[0].addCode([nvar+"="+t[1].var])
-	t[0].addCode([t[1].var+"="+t[1].var+"-1"])
+	t[0].addCode([nvar+"="+t[1]])
+	t[0].addCode([t[1]+"="+t[1]+"-1"])
 
 def p_unary_expression_3(t):
 	'unary_expression : array INC_OP'
@@ -837,8 +861,8 @@ def p_unary_expression_5(t):
 	t[0]= Node('pre_increment', [Node(t[2],[])])
 	checkIdentifierError(t[2])
 	nvar = t[0].newVar()
-	t[0].addCode([nvar+"="+t[2].var+"+1"])
-	t[0].addCode([t[2].var+"="+nvar])
+	t[0].addCode([nvar+"="+t[2]+"+1"])
+	t[0].addCode([t[2]+"="+nvar])
 
 def p_unary_expression_6(t):
 	'unary_expression : INC_OP array'
@@ -850,8 +874,8 @@ def p_unary_expression_7(t):
 	t[0]= Node('pre_decrement', [Node(t[2],[])])
 	checkIdentifierError(t[2])
 	nvar = t[0].newVar()
-	t[0].addCode([nvar+"="+t[2].var+"-1"])
-	t[0].addCode([t[2].var+"="+nvar])
+	t[0].addCode([nvar+"="+t[2]+"-1"])
+	t[0].addCode([t[2]+"="+nvar])
 
 def p_unary_expression_8(t):
 	'unary_expression : DEC_OP array'
@@ -927,6 +951,8 @@ def myParser():
 	s.write_pdf('SymbolTable.pdf')
 	mir = open("3AddressCode.txt",'w')
 	for c in ast.code:
+		if c=="goto continue" or c=="goto break":
+			print "ERROR! break or continue not in loop."
 		mir.write(c+'\n')
 	mir.close()
 
