@@ -17,31 +17,28 @@
 
 .method public static main([Ljava/lang/String;)V
 
-       ; set limits used by this method
-       .limit locals 4
-       .limit stack 3
+    .limit locals 4
+    .limit stack 3
 
-       ; setup local variables:
+    bipush  9
+    istore_1
+    bipush  10
+    istore_2
+    iload_1
+    iload_2
+    iadd
+    istore_1
+    iload_1
 
-       ;    1 - the PrintStream object held in java.lang.System.out
-       getstatic java/lang/System/out Ljava/io/PrintStream;
-           astore_1
+    getstatic java/lang/System/out Ljava/io/PrintStream;
+    astore_1
+    invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
+    astore_3
+    ; ... and print it
+    aload_1    ; push the PrintStream object
+    aload_3    ; push the string we just created - then ...
+    invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
 
-        bipush  9
-        istore_3
-        bipush  10
-        istore_2
-        iload_2
-        iload_3
-        iadd
-        ; istore_1
-        invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
-       astore_3
-       ; ... and print it
-       aload_1    ; push the PrintStream object
-       aload_3    ; push the string we just created - then ...
-       invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
-
-       return
+    return
 
 .end method
