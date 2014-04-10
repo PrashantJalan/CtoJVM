@@ -278,7 +278,7 @@ def p_statement_2(t):
 	Ef = t[3].newLabel()
 	t[0].addCode(t[3].code)
 	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
-	t[0].addCode(t[6].code)
+	t[0].addCode(t[5].code)
 	t[0].addCode([Ef+":"])	
 
 def p_statement_3(t):
@@ -288,12 +288,12 @@ def p_statement_3(t):
 	Sn = t[0].newLabel()
 	t[0].addCode(t[3].code)
 	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
-	t[0].addCode(t[6].code)
+	t[0].addCode(t[5].code)
 	gen = "goto "+Sn
 	t[0].addCode([gen])
 	gen = Ef+":"
 	t[0].addCode([gen])
-	t[0].addCode(t[10].code)
+	t[0].addCode(t[7].code)
 	t[0].addCode([Sn+":"])
 
 def p_statement_4(t):
@@ -308,7 +308,7 @@ def p_statement_4(t):
 	t[0].addCode([gen])
 	gen = Ef+":"
 	t[0].addCode([gen])
-	t[0].addCode(t[10].code)
+	t[0].addCode(t[9].code)
 	t[0].addCode([Sn+":"])
 
 def p_statement_5(t):
@@ -318,12 +318,12 @@ def p_statement_5(t):
 	Sn = t[0].newLabel()
 	t[0].addCode(t[3].code)
 	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
-	t[0].addCode(t[6].code)
+	t[0].addCode(t[5].code)
 	gen = "goto "+Sn
 	t[0].addCode([gen])
 	gen = Ef+":"
 	t[0].addCode([gen])
-	t[0].addCode(t[10].code)
+	t[0].addCode(t[8].code)
 	t[0].addCode([Sn+":"])
 
 def p_statement_6(t):
@@ -373,7 +373,7 @@ def p_statement_8(t):
 	t[0].addCode([Sb+":"])
 	t[0].addCode(t[4].code)
 	t[0].addCode(["if "+t[4].var+"==0 goto "+Ef])
-	t[0].addCode(t[8].code)
+	t[0].addCode(t[7].code)
 	t[0].addCode(t[5].code)
 	t[0].addCode(["goto "+S1n])
 	gen = Ef+":"
@@ -410,7 +410,7 @@ def p_statement_11(t):
 	t[0].addCode([Sb+":"])
 	t[0].addCode(t[3].code)
 	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
-	t[0].addCode(t[6].code)
+	t[0].addCode(t[5].code)
 	t[0].addCode(["goto "+S1n])
 	gen = Ef+":"
 	t[0].addCode([gen])
@@ -555,89 +555,124 @@ def p_expression_5(t):
 	'expression : expression L_OP expression'
 	t[0]=Node('L_OP', [t[1], t[3]])
 	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
 	t[0].addCode(t[1].code)
 	t[0].addCode(t[3].code)
-	t[0].addCode(["if "+t[1].var+" < "+t[3].var+" goto +3"])
+	t[0].addCode(["if "+t[1].var+" < "+t[3].var+" goto "+true])
 	t[0].addCode([nvar+"=0"])
-	t[0].addCode(["goto +2"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
 	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
 
 def p_expression_6(t):
 	'expression : expression G_OP expression'
 	t[0]=Node('G_OP', [t[1], t[3]])
 	nvar = t[0].newVar()
+	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
 	t[0].addCode(t[1].code)
 	t[0].addCode(t[3].code)
-	t[0].addCode(["if "+t[1].var+" > "+t[3].var+" goto +3"])
+	t[0].addCode(["if "+t[1].var+" > "+t[3].var+" goto "+true])
 	t[0].addCode([nvar+"=0"])
-	t[0].addCode(["goto +2"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
 	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
 
 def p_expression_7(t):
 	'expression : expression NE_OP expression'
 	t[0]=Node('NE_OP', [t[1], t[3]])
 	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
 	t[0].addCode(t[1].code)
 	t[0].addCode(t[3].code)
-	t[0].addCode(["if "+t[1].var+" != "+t[3].var+" goto +3"])
+	t[0].addCode(["if "+t[1].var+" != "+t[3].var+" goto "+true])
 	t[0].addCode([nvar+"=0"])
-	t[0].addCode(["goto +2"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
 	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
 
 def p_expression_8(t):
 	'expression : expression EQ_OP expression'
 	t[0]=Node('EQ_OP', [t[1], t[3]])
 	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
 	t[0].addCode(t[1].code)
 	t[0].addCode(t[3].code)
-	t[0].addCode(["if "+t[1].var+" == "+t[3].var+" goto +3"])
+	t[0].addCode(["if "+t[1].var+" == "+t[3].var+" goto "+true])
 	t[0].addCode([nvar+"=0"])
-	t[0].addCode(["goto +2"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
 	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
 
 def p_expression_9(t):
 	'expression : expression GE_OP expression'
 	t[0]=Node('GE_OP', [t[1], t[3]])
 	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
 	t[0].addCode(t[1].code)
 	t[0].addCode(t[3].code)
-	t[0].addCode(["if "+t[1].var+" >= "+t[3].var+" goto +3"])
+	t[0].addCode(["if "+t[1].var+" >= "+t[3].var+" goto "+true])
 	t[0].addCode([nvar+"=0"])
-	t[0].addCode(["goto +2"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
 	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
 
 def p_expression_10(t):
 	'expression : expression LE_OP expression'
 	t[0]=Node('LE_OP', [t[1], t[3]])
 	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
 	t[0].addCode(t[1].code)
 	t[0].addCode(t[3].code)
-	t[0].addCode(["if "+t[1].var+" <= "+t[3].var+" goto +3"])
+	t[0].addCode(["if "+t[1].var+" <= "+t[3].var+" goto "+true])
 	t[0].addCode([nvar+"=0"])
-	t[0].addCode(["goto +2"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
 	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
 
 def p_expression_11(t):
 	'expression : expression AND_OP expression'
 	t[0]=Node('AND_OP', [t[1], t[3]])
 	nvar = t[0].newVar()
+	false = t[0].newLabel()
+	Sn = t[0].newLabel()
 	t[0].addCode(t[1].code)
+	t[0].addCode(["if "+t[1].var+"==0 goto "+false])
 	t[0].addCode(t[3].code)
-	t[0].addCode(["if "+t[1].var+" and "+t[3].var+" goto +3"])
-	t[0].addCode([nvar+"=0"])
-	t[0].addCode(["goto +2"])
+	t[0].addCode(["if "+t[1].var+"==0 goto "+false])
 	t[0].addCode([nvar+"=1"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([false+":"])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode([Sn+":"])
 
 def p_expression_12(t):
 	'expression : expression OR_OP expression'
 	t[0]=Node('OR_OP', [t[1], t[3]])
 	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
 	t[0].addCode(t[1].code)
+	t[0].addCode(["if "+t[1].var+"==1 goto "+true])
 	t[0].addCode(t[3].code)
-	t[0].addCode(["if "+t[1].var+" or "+t[3].var+" goto +3"])
+	t[0].addCode(["if "+t[1].var+"==1 goto "+true])
 	t[0].addCode([nvar+"=0"])
-	t[0].addCode(["goto +2"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
 	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
 
 def p_expression_13(t):
 	'expression : LEFT_ROUND expression RIGHT_ROUND'
