@@ -1,16 +1,9 @@
-
-int i;
-
-void b(){
-	int kld;
-	kld=0;
-}
+#include<stdio.h>
 
 int main()
 {
-	for (i=0;i<10;i++)	{
-		int c;
-		c =0;
-	}
-	return 0;
+	int a,b,d;
+	a = 1;
+	a=++a;
+	b=a-2;
 }

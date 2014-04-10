@@ -1,3 +1,4 @@
+#problem with post increment
 import sys
 from lexer import tokens
 import ply.yacc as yacc
@@ -104,6 +105,8 @@ class SymbolTable:
 
 #Tree Node for AST
 class Node:
+	labelCount=0
+	varCount=0
 	count  = 0
 	type = 'Node(unspecified)'
 	shape = 'ellipse'
@@ -111,6 +114,7 @@ class Node:
 		self.ID = str(Node.count)
 		self.parent = None
 		self.type = type
+		self.code=[]
 		Node.count+=1
 		if not children: self.children = []
 		elif hasattr(children,'__len__'):
@@ -124,6 +128,21 @@ class Node:
 	def add(self, t):
 		#Adds t as a sibling
 		self.children.append(t)
+
+	def addCode(self, c):
+		#print c
+		if c!=[]:
+			self.code = self.code + c
+			#print self.type,self.code
+
+	def newLabel(self):
+		Node.labelCount=Node.labelCount+1
+		return "label"+str(Node.labelCount)
+
+	def newVar(self):
+		Node.varCount=Node.varCount+1
+		self.var="var"+str(Node.varCount)
+		return self.var
 
 	def makegraphicaltree(self, dot=None, edgeLabels=True):
 		if not dot: dot = pydot.Dot()
@@ -171,10 +190,12 @@ def p_function_list_1(t):
 	'function_list : function_list function'
 	t[1].add(t[2])
 	t[0] = t[1]
+	t[0].addCode(t[2].code)
 
 def p_function_list_2(t):
 	'function_list : function'
 	t[0] = Node('function_list', [t[1]])
+	t[0].addCode(t[1].code)
 
 def p_function_1(t):
 	'function : function_definition'
@@ -219,52 +240,144 @@ def p_function_definition_1(t):
 	'function_definition : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND left_curl statement_list right_curl'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), t[4], t[7]])
 	currentSymbolTable.add(t[2], t[1].type, t[4])
+	nLabel = t[2]+":"
+	t[0].addCode([nLabel])
+	t[0].addCode(t[7].code)
 
 def p_function_definition_2(t):
 	'function_definition : type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND left_curl statement_list right_curl'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), Node('argument_list', []), t[6]])
 	currentSymbolTable.add(t[2], t[1].type, Node('argument_list', []))
+	nLabel = t[2]+":"
+	t[0].addCode([nLabel])
+	t[0].addCode(t[6].code)
 
 def p_statement_list_1(t):
 	'statement_list : statement_list statement'
 	t[1].add(t[2])
 	t[0] = t[1]
+	t[0].addCode(t[2].code)
 
 def p_statement_list_2(t):
 	'statement_list : statement'
 	t[0] = Node('statement_list', [t[1]])
+	t[0].addCode(t[1].code)
 
 def p_statement_1(t):
 	'statement : IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl %prec else_priority'
 	t[0] = Node('if_statement', [t[3], t[6]])
+	Ef = t[3].newLabel()
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	t[0].addCode(t[6].code)
+	t[0].addCode([Ef+":"])
 
 def p_statement_2(t):
 	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement %prec else_priority'
 	t[0] = Node('if_statement', [t[3], Node('statement_list', [t[5]])])
+	Ef = t[3].newLabel()
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	t[0].addCode(t[6].code)
+	t[0].addCode([Ef+":"])	
 
 def p_statement_3(t):
 	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement'
 	t[0] = Node('if_else_statement', [t[3], Node('statement_list', [t[5]]), Node('statement_list', [t[7]])])
+	Ef = t[3].newLabel()
+	Sn = t[0].newLabel()
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	t[0].addCode(t[6].code)
+	gen = "goto "+Sn
+	t[0].addCode([gen])
+	gen = Ef+":"
+	t[0].addCode([gen])
+	t[0].addCode(t[10].code)
+	t[0].addCode([Sn+":"])
 
 def p_statement_4(t):
 	'statement : IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE statement'
 	t[0] = Node('if_else_statement', [t[3], t[6], Node('statement_list', [t[9]])])
+	Ef = t[3].newLabel()
+	Sn = t[0].newLabel()
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	t[0].addCode(t[6].code)
+	gen = "goto "+Sn
+	t[0].addCode([gen])
+	gen = Ef+":"
+	t[0].addCode([gen])
+	t[0].addCode(t[10].code)
+	t[0].addCode([Sn+":"])
 
 def p_statement_5(t):
 	'statement : IF LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl statement_list right_curl'
 	t[0] = Node('if_else_statement', [t[3], Node('statement_list', [t[5]]), t[8]])
+	Ef = t[3].newLabel()
+	Sn = t[0].newLabel()
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	t[0].addCode(t[6].code)
+	gen = "goto "+Sn
+	t[0].addCode([gen])
+	gen = Ef+":"
+	t[0].addCode([gen])
+	t[0].addCode(t[10].code)
+	t[0].addCode([Sn+":"])
 
 def p_statement_6(t):
 	'statement : IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE left_curl statement_list right_curl'
 	t[0] = Node('if_else_statement', [t[3], t[6], t[10]])
+	Et = t[3].newLabel()
+	Ef = t[3].newLabel()
+	Sn = t[0].newLabel()
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	t[0].addCode(t[6].code)
+	gen = "goto "+Sn
+	t[0].addCode([gen])
+	gen = Ef+":"
+	t[0].addCode([gen])
+	t[0].addCode(t[10].code)
+	t[0].addCode([Sn+":"])
 
 def p_statement_7(t):
 	'statement : FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND left_curl statement_list right_curl'
 	t[0] = Node('for_statement', [t[3], t[4], t[5], t[8]])
+	Sb = t[0].newLabel()
+	Sn = t[0].newLabel()
+	Et = t[3].newLabel()
+	Ef = Sn
+	S1n = Sb
+	t[0].addCode(t[3].code)
+	t[0].addCode([Sb+":"])
+	t[0].addCode(t[4].code)
+	t[0].addCode(["if "+t[4].var+"==0 goto "+Ef])
+	t[0].addCode(t[8].code)
+	t[0].addCode(t[5].code)
+	t[0].addCode(["goto "+S1n])
+	gen = Ef+":"
+	t[0].addCode([gen])
+
 
 def p_statement_8(t):
 	'statement : FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement'
 	t[0] = Node('for_statement', [t[3], t[4], t[5], Node('statement_list', [t[7]])])
+	Sb = t[0].newLabel()
+	Sn = t[0].newLabel()
+	Et = t[3].newLabel()
+	Ef = Sn
+	S1n = Sb
+	t[0].addCode(t[3].code)
+	t[0].addCode([Sb+":"])
+	t[0].addCode(t[4].code)
+	t[0].addCode(["if "+t[4].var+"==0 goto "+Ef])
+	t[0].addCode(t[8].code)
+	t[0].addCode(t[5].code)
+	t[0].addCode(["goto "+S1n])
+	gen = Ef+":"
+	t[0].addCode([gen])
 
 def p_statement_9(t):
 	'statement : expression_statement'
@@ -273,10 +386,34 @@ def p_statement_9(t):
 def p_statement_10(t):
 	'statement : WHILE LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl'
 	t[0]=Node('while_statement', [t[3], t[6]])
+	Sb = t[0].newLabel()
+	Sn = t[0].newLabel()
+	Et = t[3].newLabel()
+	Ef = Sn
+	S1n = Sb
+	t[0].addCode([Sb+":"])
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	t[0].addCode(t[6].code)
+	t[0].addCode(["goto "+S1n])
+	gen = Ef+":"
+	t[0].addCode([gen])
 
 def p_statement_11(t):
 	'statement : WHILE LEFT_ROUND expression RIGHT_ROUND statement'
 	t[0]=Node('while_statement', [t[3], Node('statement_list', [t[5]])])
+	Sb = t[0].newLabel()
+	Sn = t[0].newLabel()
+	Et = t[3].newLabel()
+	Ef = Sn
+	S1n = Sb
+	t[0].addCode([Sb+":"])
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[3].var+"==0 goto "+Ef])
+	t[0].addCode(t[6].code)
+	t[0].addCode(["goto "+S1n])
+	gen = Ef+":"
+	t[0].addCode([gen])
 
 def p_statement_12(t):
 	'''statement : CONTINUE SEMICOLON
@@ -303,15 +440,18 @@ def p_declaration_statement(t):
 				currentSymbolTable.add(item.children[0].type, t[1].type, item.children[1])
 			else:
 				currentSymbolTable.add(item.children[0].type, t[1].type)
+	t[0].addCode(t[2].code)
 
 def p_declaration_list_1(t):
 	'declaration_list : declaration'
 	t[0] = Node('declaration_list', [t[1]])
+	t[0].addCode(t[1].code)
 
 def p_declaration_list_2(t):
 	'declaration_list : declaration_list COMMA declaration'
 	t[1].add(t[3])
 	t[0] = t[1]
+	t[0].addCode(t[3].code)
 
 def p_declaration_1(t):
 	'declaration : IDENTIFIER'
@@ -325,6 +465,10 @@ def p_declaration_2(t):
 def p_declaration_assignment(t):
 	'declaration_assignment : IDENTIFIER EQUAL expression'
 	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
+	checkIdentifierError(t[1])
+	t[0].addCode(t[3].code)
+	gen = t[1]+"="+t[3].var
+	t[0].addCode([gen])
 
 def p_constant_1(t):
 	'''constant : HEX_NUM
@@ -374,50 +518,126 @@ def p_expression_statement_2(t):
 def p_expression_1(t):
 	'expression : expression PLUS expression'
 	t[0]=Node('PLUS', [t[1], t[3]])
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	nvar = t[0].newVar()
+	gen = nvar+"="+t[1].var+"+"+t[3].var
+	t[0].addCode([gen])
 
 def p_expression_2(t):
 	'expression : expression MINUS expression'
 	t[0]=Node('MINUS', [t[1], t[3]])
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	nvar = t[0].newVar()
+	gen = nvar+"="+t[1].var+"-"+t[3].var
+	t[0].addCode([gen])
 
 def p_expression_3(t):
 	'expression : expression MULTIPLY expression'
 	t[0]=Node('MULTIPLY', [t[1], t[3]])
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	nvar = t[0].newVar()
+	gen = nvar+"="+t[1].var+"*"+t[3].var
+	t[0].addCode([gen])
 
 def p_expression_4(t):
 	'expression : expression DIVIDE expression'
 	t[0]=Node('DIVIDE', [t[1], t[3]])
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	nvar = t[0].newVar()
+	gen = nvar+"="+t[1].var+"/"+t[3].var
+	t[0].addCode([gen])
 
 def p_expression_5(t):
 	'expression : expression L_OP expression'
 	t[0]=Node('L_OP', [t[1], t[3]])
+	nvar = t[0].newVar()
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[1].var+" < "+t[3].var+" goto +3"])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto +2"])
+	t[0].addCode([nvar+"=1"])
 
 def p_expression_6(t):
 	'expression : expression G_OP expression'
 	t[0]=Node('G_OP', [t[1], t[3]])
+	nvar = t[0].newVar()
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[1].var+" > "+t[3].var+" goto +3"])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto +2"])
+	t[0].addCode([nvar+"=1"])
 
 def p_expression_7(t):
 	'expression : expression NE_OP expression'
 	t[0]=Node('NE_OP', [t[1], t[3]])
+	nvar = t[0].newVar()
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[1].var+" != "+t[3].var+" goto +3"])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto +2"])
+	t[0].addCode([nvar+"=1"])
 
 def p_expression_8(t):
 	'expression : expression EQ_OP expression'
 	t[0]=Node('EQ_OP', [t[1], t[3]])
+	nvar = t[0].newVar()
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[1].var+" == "+t[3].var+" goto +3"])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto +2"])
+	t[0].addCode([nvar+"=1"])
 
 def p_expression_9(t):
 	'expression : expression GE_OP expression'
 	t[0]=Node('GE_OP', [t[1], t[3]])
+	nvar = t[0].newVar()
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[1].var+" >= "+t[3].var+" goto +3"])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto +2"])
+	t[0].addCode([nvar+"=1"])
 
 def p_expression_10(t):
 	'expression : expression LE_OP expression'
 	t[0]=Node('LE_OP', [t[1], t[3]])
+	nvar = t[0].newVar()
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[1].var+" <= "+t[3].var+" goto +3"])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto +2"])
+	t[0].addCode([nvar+"=1"])
 
 def p_expression_11(t):
 	'expression : expression AND_OP expression'
 	t[0]=Node('AND_OP', [t[1], t[3]])
+	nvar = t[0].newVar()
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[1].var+" and "+t[3].var+" goto +3"])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto +2"])
+	t[0].addCode([nvar+"=1"])
 
 def p_expression_12(t):
 	'expression : expression OR_OP expression'
 	t[0]=Node('OR_OP', [t[1], t[3]])
+	nvar = t[0].newVar()
+	t[0].addCode(t[1].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["if "+t[1].var+" or "+t[3].var+" goto +3"])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto +2"])
+	t[0].addCode([nvar+"=1"])
 
 def p_expression_13(t):
 	'expression : LEFT_ROUND expression RIGHT_ROUND'
@@ -427,17 +647,30 @@ def p_expression_14(t):
 	'expression : IDENTIFIER'
 	t[0] = Node(t[1], [])
 	checkIdentifierError(t[1])
+	nvar = t[0].newVar()
+	t[0].addCode(["load "+t[1]+" from memory"])
+	gen = nvar+"="+t[1]
+	t[0].addCode([gen])
 
 def p_expression_15(t):
 	'''expression : array'''
 	t[0] = t[1]
 	checkArrayError(t[1])
+	nvar = t[0].newVar()
+	gen = nvar+"="+str(t[1].type)
+	t[0].addCode([gen])
 
 def p_expression_16(t):
+	'''expression : constant '''
+	t[0] = t[1]
+	nvar = t[0].newVar()
+	gen = nvar+"="+str(t[1].type)
+	t[0].addCode([gen])
+
+def p_expression_17(t):
 	'''expression : assignment
 				  | unary_expression
-				  | function_call
-				  | constant '''
+				  | function_call'''
 	t[0] = t[1]
 
 def p_assignment_1(t):
@@ -449,31 +682,55 @@ def p_assignment_2(t):
 	'assignment : IDENTIFIER EQUAL expression'
 	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
 	checkIdentifierError(t[1])
+	t[0].addCode(t[3].code)
+	gen = t[1]+"="+t[3].var
+	t[0].addCode([gen])
+	t[0].addCode(["save "+t[1]+" to memory"])
 	
 def p_assignment_3(t):
 	'assignment : IDENTIFIER ADD_ASSIGN expression'
 	t[0] = Node('ADD_ASSIGN', [Node(t[1], []), t[3]])
 	checkIdentifierError(t[1])
+	t[0].addCode(t[3].code)
+	gen = t[1]+"="+t[1]+" + "+t[3].var
+	t[0].addCode([gen])
+	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_4(t):
 	'assignment : IDENTIFIER SUB_ASSIGN expression'
 	t[0] = Node('SUB_ASSIGN', [Node(t[1], []), t[3]])
 	checkIdentifierError(t[1])
+	t[0].addCode(t[3].code)
+	gen = t[1]+"="+t[1]+" - "+t[3].var
+	t[0].addCode([gen])
+	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_5(t):
 	'assignment : IDENTIFIER DIV_ASSIGN expression'
 	t[0] = Node('DIV_ASSIGN', [Node(t[1], []), t[3]])
 	checkIdentifierError(t[1])
+	t[0].addCode(t[3].code)
+	gen = t[1]+"="+t[1]+" / "+t[3].var
+	t[0].addCode([gen])
+	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_6(t):
 	'assignment : IDENTIFIER MUL_ASSIGN expression'
 	t[0] = Node('MUL_ASSIGN', [Node(t[1], []), t[3]])
 	checkIdentifierError(t[1])
+	t[0].addCode(t[3].code)
+	gen = t[1]+"="+t[1]+" * "+t[3].var
+	t[0].addCode([gen])
+	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_7(t):
 	'assignment : IDENTIFIER MOD_ASSIGN expression'
 	t[0] = Node('MOD_ASSIGN', [Node(t[1], []), t[3]])
 	checkIdentifierError(t[1])
+	t[0].addCode(t[3].code)
+	gen = t[1]+"="+t[1]+" % "+t[3].var
+	t[0].addCode([gen])
+	t[0].addCode(["save "+t[1]+" to memory"])
 
 def p_assignment_8(t):
 	'assignment : array ADD_ASSIGN expression'
@@ -501,14 +758,24 @@ def p_assignment_12(t):
 	checkArrayError(t[1])
 
 def p_unary_expression_1(t):
+	#Todo
 	'unary_expression : IDENTIFIER INC_OP'
 	t[0]= Node('post_increment', [Node(t[1],[])])
 	checkIdentifierError(t[1])
+	#nvar = t[0].newVar()
+	#t[0].addCode(["load "+t[1]+" from memory"])
+	#gen = nvar+"="+t[1]+"+"+"1"
+	#t[0].addCode([gen])
 
 def p_unary_expression_2(t):
+	#Todo
 	'unary_expression : IDENTIFIER DEC_OP'
 	t[0]= Node('post_decrement', [Node(t[1],[])])
 	checkIdentifierError(t[1])
+	#nvar = t[0].newVar()
+	#t[0].addCode(["load "+t[1]+" from memory"])
+	#gen = nvar+"="+t[1]+"-"+"1"
+	#t[0].addCode([gen])
 
 def p_unary_expression_3(t):
 	'unary_expression : array INC_OP'
@@ -524,6 +791,10 @@ def p_unary_expression_5(t):
 	'unary_expression : INC_OP IDENTIFIER'
 	t[0]= Node('pre_increment', [Node(t[2],[])])
 	checkIdentifierError(t[2])
+	nvar = t[0].newVar()
+	t[0].addCode(["load "+t[2]+" from memory"])
+	gen = nvar+"="+t[2]+"+"+"1"
+	t[0].addCode([gen])
 
 def p_unary_expression_6(t):
 	'unary_expression : INC_OP array'
@@ -534,6 +805,10 @@ def p_unary_expression_7(t):
 	'unary_expression : DEC_OP IDENTIFIER'
 	t[0]= Node('pre_decrement', [Node(t[2],[])])
 	checkIdentifierError(t[2])
+	nvar = t[0].newVar()
+	t[0].addCode(["load "+t[2]+" from memory"])
+	gen = nvar+"="+t[2]+"-"+"1"
+	t[0].addCode([gen])
 
 def p_unary_expression_8(t):
 	'unary_expression : DEC_OP array'
@@ -606,7 +881,9 @@ def myParser():
 	s = currentSymbolTable.makegraphicaltree2()
 	#t.write('graph.dot', format='raw', prog='dot')
 	t.write_pdf('AST.pdf')
-	s.write_pdf('SymbolTable.pdf')
+	#s.write_pdf('SymbolTable.pdf')
+	for c in ast.code:
+		print c
 
 if __name__=='__main__':
 	myParser()
