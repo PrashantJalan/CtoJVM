@@ -30,13 +30,13 @@
     istore_1
     iload_1
 
+    ; will print the Integer in stack
     getstatic java/lang/System/out Ljava/io/PrintStream;
     astore_1
     invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
     astore_3
-    ; ... and print it
-    aload_1    ; push the PrintStream object
-    aload_3    ; push the string we just created - then ...
+    aload_1
+    aload_3
     invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
 
     return
