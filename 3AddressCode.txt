@@ -1,0 +1,33 @@
+main:
+var2=0
+x=var2
+var3=0
+res_n=var3
+var4=0
+res_p=var4
+var5=0
+f_n=var5
+var6=0
+f_p=var6
+var10=0
+i=var10
+save i to memory
+label1:
+load i from memory
+var11=i
+load t from memory
+var12=t
+if var11 < var12 goto +3
+var13=0
+goto +2
+var13=1
+if var13==0 goto label2
+var14=6
+pf=var14
+save pf to memory
+goto label1
+label2:
+var16=0
+pf=var16
+save pf to memory
+sm:

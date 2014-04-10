@@ -881,9 +881,11 @@ def myParser():
 	s = currentSymbolTable.makegraphicaltree2()
 	#t.write('graph.dot', format='raw', prog='dot')
 	t.write_pdf('AST.pdf')
-	#s.write_pdf('SymbolTable.pdf')
+	s.write_pdf('SymbolTable.pdf')
+	mir = open("3AddressCode.txt",'w')
 	for c in ast.code:
-		print c
+		mir.write(c+'\n')
+	mir.close()
 
 if __name__=='__main__':
 	myParser()
