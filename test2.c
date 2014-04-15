@@ -1,6 +1,6 @@
 void foo(int x, int y)	{
 	int c;
-	c=x+y;
+	c=x-y;
 	print c;
 }
 void main()

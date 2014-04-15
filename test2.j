@@ -10,10 +10,14 @@
 .limit stack 255
 
 iload 0
+istore 50
 iload 1
-iadd
-istore 2
-iload 2
+istore 51
+iload 50
+iload 51
+isub
+istore 52
+iload 52
 	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 250
     		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
@@ -28,9 +32,9 @@ return
 .limit stack 255
 
 ldc 4
-istore 4
+istore 54
 ldc 5
-iload 4
+iload 54
 invokestatic test2/foo(II)V
 return
 .end method

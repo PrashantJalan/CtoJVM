@@ -36,20 +36,36 @@ def checkIdentifierError(t):
 			error = True
 	return res
 
-def checkFunctionError(t):
+def checkFunctionError(t, bool):
+	#If bool False then function call else function definition
 	global error
-	res = currentSymbolTable.get(t.children[0].type)
-	if res==None:
-		sys.stdout.write("Error! "+t.children[0].type+" function not declared.\n")
-		error = True
+	if bool:
+		if t.children[1].type!="main":
+			res = currentSymbolTable.get(t.children[1].type)
+			if res==None:
+				sys.stdout.write("Error! "+t.children[1].type+" function not declared.\n")
+				error = True
+			else:
+				if res[1].type!="argument_list":
+					sys.stdout.write("Error! "+t.children[1].type+" not declared as a function.\n")
+					error = True
+				else:
+					if len(res[1].children)!=len(t.children[2].children):
+						sys.stdout.write("Error! Function argument length mismatch for "+t.children[1].type+".\n")
+						error = True
 	else:
-		if res[1].type!="argument_list":
-			sys.stdout.write("Error! "+t.children[0].type+" not declared as a function.\n")
+		res = currentSymbolTable.get(t.children[0].type)
+		if res==None:
+			sys.stdout.write("Error! "+t.children[0].type+" function not declared.\n")
 			error = True
 		else:
-			if len(res[1].children)!=len(t.children[1].children):
-				sys.stdout.write("Error! Function argument length mismatch for "+t.children[0].type+".\n")
+			if res[1].type!="argument_list":
+				sys.stdout.write("Error! "+t.children[0].type+" not declared as a function.\n")
 				error = True
+			else:
+				if len(res[1].children)!=len(t.children[1].children):
+					sys.stdout.write("Error! Function argument length mismatch for "+t.children[0].type+".\n")
+					error = True
 
 def checkArrayError(t):
 	global error
@@ -71,7 +87,7 @@ class SymbolTable:
     """A symbol table class. There is a separate symbol table for 
     each code element that has its own scope."""
 
-    lvar = 0
+    lvar = 50
     def __init__(self, parent=None):
     	global SymbolTableCount
         self.entries = {}
@@ -118,8 +134,7 @@ class SymbolTable:
     def add(self, name, type, attribute=None):
     	global error
     	if self.entries.has_key(name):
-            sys.stdout.write("Error! Variable "+name+" redefined.\n")
-            error = True
+            sys.stdout.write("Warning! Variable "+name+" redefined.\n")
         else:
         	if attribute==None:
         		self.entries[name] = [type, Node('',[]), SymbolTable.lvar]
@@ -130,6 +145,9 @@ class SymbolTable:
         		SymbolTable.lvar += 2
         	else:
         		SymbolTable.lvar += 1
+
+    def remove(self, name):
+    	del self.entries[name]
 
     def get(self, name):
         if self.entries.has_key(name):
@@ -244,6 +262,10 @@ def p_function_1(t):
 	t[0]=t[1]
 
 def p_function_2(t):
+	'function : function_declaration'
+	t[0]=t[1]
+
+def p_function_3(t):
 	'function : declaration_statement'
 	t[0]=t[1]
 
@@ -278,18 +300,42 @@ def p_argument_2(t):
 	t[0]= Node('argument',[t[1], t[2]])
 	currentSymbolTable.add(t[2].children[0].type, t[1].type, t[2].children[1])
 
+def p_function_declaration_1(t):
+	'function_declaration : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND SEMICOLON'
+	t[0] = Node('function_declaration', [t[1], Node(t[2], []), t[4]])
+	currentSymbolTable.add(t[2], t[1].type, t[4])
+	for it in t[4].children:
+		if it.children[1].type=='array':
+			currentSymbolTable.remove(it.children[1].children[0].type)
+		else:
+			currentSymbolTable.remove(it.children[1].type)
+
+def p_function_declaration_2(t):
+	'function_declaration : type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND SEMICOLON'
+	t[0] = Node('function_declaration', [t[1], Node(t[2], []), Node('argument_list', [])])
+	currentSymbolTable.add(t[2], t[1].type, Node('argument_list', []))
+
 def p_function_definition_1(t):
 	'function_definition : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND left_curl statement_list right_curl'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), t[4], t[7]])
 	currentSymbolTable.add(t[2], t[1].type, t[4])
 	if t[2]=="main":
 		t[0].addCode([".method public static "+ t[2] +"([Ljava/lang/String;)"+javaType(t[1].type)])
+		t[0].addCode([".limit locals 255" + '\n' + ".limit stack 255\n"])
 	else:
 		param = ''
+		gen = []
+		i=0
 		for it in t[4].children:
 			param += javaType(it.children[0].type)
+			res2 = currentSymbolTable.get(it.children[1].type)
+			gen.append('iload '+str(i))
+			gen.append('istore '+str(res2[2]))
+			i += 1
 		t[0].addCode([".method public static "+ t[2] +"("+param+")"+javaType(t[1].type)])
-	t[0].addCode([".limit locals 255" + '\n' + ".limit stack 255\n"])
+		t[0].addCode([".limit locals 255" + '\n' + ".limit stack 255\n"])
+		t[0].addCode(gen)
+
 	t[0].addCode(t[7].code)
 	if javaType(t[1].type)=="V":
 		t[0].addCode(["return"])
@@ -504,6 +550,8 @@ def p_statement_12(t):
 def p_statement_13(t):
 	'statement : RETURN expression SEMICOLON'
 	t[0] = Node('return_expression', [t[2]])
+	t[0].addCode(t[2].code)
+	t[0].addCode(["ireturn"])
  
 def p_statement_14(t):
 	'statement : declaration_statement'
@@ -981,7 +1029,7 @@ def p_unary_expression_8(t):
 def p_function_call_1(t):
 	'function_call : IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND'
 	t[0] = Node('function_call',[Node(t[1],[]), t[3]])
-	checkFunctionError(t[0])
+	checkFunctionError(t[0], False)
 	res = currentSymbolTable.get(t[1])
 	param = ''
 	i = 0
@@ -1001,7 +1049,7 @@ def p_function_call_1(t):
 def p_function_call_2(t):
 	'function_call : IDENTIFIER LEFT_ROUND RIGHT_ROUND'
 	t[0] = Node('function_call',[Node(t[1],[]), Node('function_call_list', [])])
-	checkFunctionError(t[0])
+	checkFunctionError(t[0], False)
 	global filename
 	res = currentSymbolTable.get(t[0].children[0].type)
 	t[0].addCode(["invokestatic "+filename+"/"+t[1]+"()"+javaType(res[0])])
