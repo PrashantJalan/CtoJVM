@@ -16,6 +16,13 @@ import os
 
 DEBUG = 1
 error = False
+filename = ''
+
+def javaType(s):
+	if s=="int":
+		return 'I'
+	else:
+		return 'V'
 
 def checkIdentifierError(t):
 	global error
@@ -275,18 +282,31 @@ def p_function_definition_1(t):
 	'function_definition : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND left_curl statement_list right_curl'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), t[4], t[7]])
 	currentSymbolTable.add(t[2], t[1].type, t[4])
-	t[0].addCode([".method public static "+ t[2] +"([Ljava/lang/String;)V"])
+	if t[2]=="main":
+		t[0].addCode([".method public static "+ t[2] +"([Ljava/lang/String;)"+javaType(t[1].type)])
+	else:
+		param = ''
+		for it in t[4].children:
+			param += javaType(it.children[0].type)
+		t[0].addCode([".method public static "+ t[2] +"("+param+")"+javaType(t[1].type)])
 	t[0].addCode([".limit locals 255" + '\n' + ".limit stack 255\n"])
 	t[0].addCode(t[7].code)
+	if javaType(t[1].type)=="V":
+		t[0].addCode(["return"])
 	t[0].addCode([".end method"])
 
 def p_function_definition_2(t):
 	'function_definition : type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND left_curl statement_list right_curl'
 	t[0] = Node('function_definition', [t[1], Node(t[2], []), Node('argument_list', []), t[6]])
 	currentSymbolTable.add(t[2], t[1].type, Node('argument_list', []))
-	t[0].addCode([".method public static "+ t[2] +"([Ljava/lang/String;)V"])
+	if t[2]=="main":
+		t[0].addCode([".method public static "+ t[2] +"([Ljava/lang/String;)"+javaType(t[1].type)])
+	else:
+		t[0].addCode([".method public static "+ t[2] +"()"+javaType(t[1].type)])
 	t[0].addCode([".limit locals 255" + '\n' + ".limit stack 255\n"])
 	t[0].addCode(t[6].code)
+	if javaType(t[1].type)=="V":
+		t[0].addCode(["return"])
 	t[0].addCode([".end method"])
 
 def p_statement_list_1(t):
@@ -506,11 +526,11 @@ def p_statement_17(t):
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
 	x = '''	getstatic java/lang/System/out Ljava/io/PrintStream;
-    		astore 20
+    		astore 250
     		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
-    		astore 30
-    		aload 20
-    		aload 30
+    		astore 251
+    		aload 250
+    		aload 251
     		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V '''
 	t[0].addCode([x])
 
@@ -962,11 +982,29 @@ def p_function_call_1(t):
 	'function_call : IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND'
 	t[0] = Node('function_call',[Node(t[1],[]), t[3]])
 	checkFunctionError(t[0])
+	res = currentSymbolTable.get(t[1])
+	param = ''
+	i = 0
+	for it in res[1].children:
+		param += javaType(it.children[0].type)
+		arg = t[3].children[i].type
+		res2 = currentSymbolTable.get(arg)
+		if res2==None:
+			if it.children[0].type=="int":
+				valu = int(arg)
+			t[0].addCode(["ldc "+str(valu)])
+		else:
+			t[0].addCode(["iload "+str(res2[2])])
+		i += 1
+	t[0].addCode(["invokestatic "+filename+"/"+t[1]+"("+param+")"+javaType(res[0])])
 
 def p_function_call_2(t):
 	'function_call : IDENTIFIER LEFT_ROUND RIGHT_ROUND'
 	t[0] = Node('function_call',[Node(t[1],[]), Node('function_call_list', [])])
 	checkFunctionError(t[0])
+	global filename
+	res = currentSymbolTable.get(t[0].children[0].type)
+	t[0].addCode(["invokestatic "+filename+"/"+t[1]+"()"+javaType(res[0])])
 
 def p_function_call_list_1(t):
 	'function_call_list : function_argument'
@@ -1013,13 +1051,15 @@ def p_error(p):
 parser = yacc.yacc()
 
 def myParser():
-	global error
+	global error, filename
 
 	#Take input from the user
 	if len(sys.argv)>1:
 		data = sys.argv[1]
 	else:
 		data = raw_input('Enter a file path: ')
+
+	filename = data[:-2]
 
 	ast = parser.parse(open(data).read(), debug=0)
 	if DEBUG:

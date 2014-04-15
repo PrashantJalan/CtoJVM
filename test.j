@@ -5,20 +5,30 @@
    			invokenonvirtual java/lang/Object/<init>()V
    			return
 			.end method 
-.method public static main([Ljava/lang/String;)V
+.method public static f02()V
+.limit locals 255
+.limit stack 255
+
+.end method
+.method public static foo(II)I
+.limit locals 255
+.limit stack 255
+
+.end method
+.method public static main([Ljava/lang/String;)I
 .limit locals 255
 .limit stack 255
 
 ldc 0
-istore 0
+istore 5
 ldc 0
-istore 1
+istore 6
 ldc 0
-istore 2
+istore 7
 ldc 0
-istore 0
+istore 5
 label7:
-iload 0
+iload 5
 ldc 10
 if_icmple label1
 iconst_0
@@ -27,7 +37,7 @@ label1:
 iconst_1
 label2:
 ifeq label8
-iload 0
+iload 5
 ldc 2
 irem
 ldc 0
@@ -38,24 +48,24 @@ label3:
 iconst_1
 label4:
 ifeq label5
-iload 1
+iload 6
 ldc 1
 iadd
-istore 1
+istore 6
 goto label6
 label5:
-iload 2
+iload 7
 ldc 1
 iadd
-istore 2
+istore 7
 label6:
-iload 0
+iload 5
 ldc 1
 iadd
-istore 0
+istore 5
 goto label7
 label8:
-iload 1
+iload 6
 	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 20
     		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
@@ -63,7 +73,7 @@ iload 1
     		aload 20
     		aload 30
     		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V 
-iload 2
+iload 7
 	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 20
     		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;

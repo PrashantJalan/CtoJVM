@@ -26,6 +26,13 @@ n=10;
 }
 
 */
+void f02 (){
+	int a;
+}
+
+int foo(int a, int b[3])	{
+	return 0;
+}
 int main()
 {
 	int a,b,c;
