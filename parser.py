@@ -93,7 +93,7 @@ class SymbolTable:
 
 
     def add(self, name, type, attribute=None):
-    	if self.get(name)!=None:
+    	if self.entries.has_key(name):
             sys.stdout.write("Error! Variable "+name+" redefined.\n")
         else:
         	if attribute==None:
