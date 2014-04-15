@@ -336,6 +336,11 @@ def p_function_definition_1(t):
 	t[0].addCode(t[7].code)
 	if javaType(t[1].type)=="V":
 		t[0].addCode(["return"])
+	else:
+		if "return" not in t[0].code[-1]:
+			global error
+			print "Error! Return statement not found. It must be at the end."
+			error = True
 	t[0].addCode([".end method"])
 
 def p_function_definition_2(t):
@@ -350,6 +355,11 @@ def p_function_definition_2(t):
 	t[0].addCode(t[6].code)
 	if javaType(t[1].type)=="V":
 		t[0].addCode(["return"])
+	else:
+		if "return" not in t[0].code[-1]:
+			global error
+			print "Error! Return statement not found. It must be at the end."
+			error = True
 	t[0].addCode([".end method"])
 
 def p_statement_list_1(t):
@@ -451,6 +461,7 @@ def p_statement_7(t):
 	Ef = Sn
 	S1n = Sb
 	t[0].addCode(t[3].code)
+	t[0].addCode(["pop"])
 	t[0].addCode([Sb+":"])
 	t[0].addCode(t[4].code)
 	t[0].addCode(["ifeq "+Ef])
@@ -463,6 +474,7 @@ def p_statement_7(t):
 		j+=1
 	t[0].addCode(t[8].code)
 	t[0].addCode(t[5].code)
+	t[0].addCode(["pop"])
 	t[0].addCode(["goto "+S1n])
 	t[0].addCode([Ef+":"])
 
@@ -476,6 +488,7 @@ def p_statement_8(t):
 	Ef = Sn
 	S1n = Sb
 	t[0].addCode(t[3].code)
+	t[0].addCode(["pop"])
 	t[0].addCode([Sb+":"])
 	t[0].addCode(t[4].code)
 	t[0].addCode(["ifeq "+Ef])
@@ -488,12 +501,14 @@ def p_statement_8(t):
 		j+=1
 	t[0].addCode(t[7].code)
 	t[0].addCode(t[5].code)
+	t[0].addCode(["pop"])
 	t[0].addCode(["goto "+S1n])
 	t[0].addCode([Ef+":"])
 
 def p_statement_9(t):
 	'statement : expression_statement'
 	t[0] = t[1]
+	t[0].addCode(["pop"])
 
 def p_statement_10(t):
 	'statement : WHILE LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl'
@@ -657,6 +672,7 @@ def p_array_index_2(t):
 def p_expression_statement_1(t):
 	'expression_statement : SEMICOLON'
 	t[0] = Node(t[1],[])
+	t[0].addCode(["iconst_1"])
 
 def p_expression_statement_2(t):
 	'expression_statement : expression SEMICOLON'
@@ -877,6 +893,7 @@ def p_assignment_2(t):
 	t[0].addCode(t[3].code)
 	if res != None:
 		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode(["iconst_1"])
 	
 def p_assignment_3(t):
 	'assignment : IDENTIFIER ADD_ASSIGN expression'
@@ -886,7 +903,8 @@ def p_assignment_3(t):
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["iadd"])
-		t[0].addCode(["istore "+str(res[2])])	
+		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode(["iconst_1"])	
 	
 def p_assignment_4(t):
 	'assignment : IDENTIFIER SUB_ASSIGN expression'
@@ -897,6 +915,7 @@ def p_assignment_4(t):
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["isub"])
 		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode(["iconst_1"])
 
 def p_assignment_5(t):
 	'assignment : IDENTIFIER DIV_ASSIGN expression'
@@ -907,6 +926,7 @@ def p_assignment_5(t):
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["idiv"])
 		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode(["iconst_1"])
 
 def p_assignment_6(t):
 	'assignment : IDENTIFIER MUL_ASSIGN expression'
@@ -917,6 +937,7 @@ def p_assignment_6(t):
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["imul"])
 		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode(["iconst_1"])
 
 def p_assignment_7(t):
 	'assignment : IDENTIFIER MOD_ASSIGN expression'
@@ -927,6 +948,7 @@ def p_assignment_7(t):
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["irem"])
 		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode(["iconst_1"])
 
 def p_assignment_8(t):
 	'assignment : array ADD_ASSIGN expression'

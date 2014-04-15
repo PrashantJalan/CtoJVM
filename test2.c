@@ -7,7 +7,7 @@ void main()
 {
 	int a=3,c[4],b=3;
 	b++;
-	foo(5,a==b);
+	foo(5,b);
 }
 
 

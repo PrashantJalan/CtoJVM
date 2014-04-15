@@ -5,30 +5,28 @@
    			invokenonvirtual java/lang/Object/<init>()V
    			return
 			.end method 
-.method public static f02()V
-.limit locals 255
-.limit stack 255
-
-.end method
-.method public static foo(II)I
-.limit locals 255
-.limit stack 255
-
-.end method
-.method public static main([Ljava/lang/String;)I
+.method public static main([Ljava/lang/String;)V
 .limit locals 255
 .limit stack 255
 
 ldc 0
-istore 5
+istore 50
+iconst_1
+pop
 ldc 0
-istore 6
+istore 51
+iconst_1
+pop
 ldc 0
-istore 7
+istore 52
+iconst_1
+pop
 ldc 0
-istore 5
-label7:
-iload 5
+istore 50
+iconst_1
+pop
+label5:
+iload 50
 ldc 10
 if_icmple label1
 iconst_0
@@ -36,50 +34,50 @@ goto label2
 label1:
 iconst_1
 label2:
-ifeq label8
-iload 5
+ifeq label6
 ldc 2
-irem
-ldc 0
-if_icmpeq label3
-iconst_0
+istore 52
+iconst_1
+ifeq label3
+iload 51
+ldc 1
+iadd
+istore 51
+iconst_1
+pop
 goto label4
 label3:
+iload 52
+ldc 1
+iadd
+istore 52
 iconst_1
+pop
 label4:
-ifeq label5
-iload 6
-ldc 1
+iconst_1
+iload 50
 iadd
-istore 6
-goto label6
-label5:
-iload 7
-ldc 1
-iadd
-istore 7
+istore 50
+iload 50
+pop
+goto label5
 label6:
-iload 5
-ldc 1
-iadd
-istore 5
-goto label7
-label8:
-iload 6
+iload 51
 	getstatic java/lang/System/out Ljava/io/PrintStream;
-    		astore 20
+    		astore 250
     		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
-    		astore 30
-    		aload 20
-    		aload 30
+    		astore 251
+    		aload 250
+    		aload 251
     		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V 
-iload 7
+iload 52
 	getstatic java/lang/System/out Ljava/io/PrintStream;
-    		astore 20
+    		astore 250
     		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
-    		astore 30
-    		aload 20
-    		aload 30
+    		astore 251
+    		aload 250
+    		aload 251
     		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V 
+return
 return
 .end method
