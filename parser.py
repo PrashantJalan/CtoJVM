@@ -1,10 +1,8 @@
 """
 TODO-
-Code genration : function calls and  <x>const/mul/add/sub
 Type checking
 Switch case
 struct
-b = b++ returns 0
 """
 
 import sys
@@ -964,9 +962,7 @@ def p_unary_expression_1(t):
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["iadd"])
 		t[0].addCode(["istore "+str(res[2])])
-		#t[0].addCode(["iconst_1"])
-		#t[0].addCode(["iload "+str(res[2])])
-		#t[0].addCode(["isub"])
+		t[0].addCode(["iload "+str(res[2])])
 
 def p_unary_expression_2(t):
 	'unary_expression : IDENTIFIER DEC_OP'
@@ -977,9 +973,7 @@ def p_unary_expression_2(t):
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["isub"])
 		t[0].addCode(["istore "+str(res[2])])
-		#t[0].addCode(["iload "+str(res[2])])
-		#t[0].addCode(["iconst_1"])
-		#t[0].addCode(["iadd"])
+		t[0].addCode(["iload "+str(res[2])])
 
 def p_unary_expression_3(t):
 	'unary_expression : array INC_OP'

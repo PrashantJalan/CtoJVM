@@ -5,9 +5,9 @@ void foo(int x, int y)	{
 }
 void main()
 {
-	int a,c[4],b=3;
-	b = 4;
-	foo(5,b);
+	int a=3,c[4],b=3;
+	b++;
+	foo(5,a==b);
 }
 
 
