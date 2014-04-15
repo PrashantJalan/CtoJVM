@@ -1,4 +1,4 @@
-.class public test2
+.class public BubbleSort
 .super java/lang/Object
 	.method public <init>()V
    			aload_0

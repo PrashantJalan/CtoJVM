@@ -293,9 +293,17 @@ def p_argument_1(t):
 	currentSymbolTable.add(t[2], t[1].type)
 	
 def p_argument_2(t):
-	'argument : type_specifier array'
+	'argument : type_specifier array_parameter'
 	t[0]= Node('argument',[t[1], t[2]])
 	currentSymbolTable.add(t[2].children[0].type, t[1].type, t[2].children[1])
+
+def p_array_parameter_1(t):
+	'array_parameter : array'
+	t[0] = t[1]
+
+def p_array_parameter_2(t):
+	'array_parameter : IDENTIFIER LEFT_SQUARE RIGHT_SQUARE'
+	t[0]= Node('array',[Node(t[1], []), Node('array_index',[])])
 
 def p_function_declaration_1(t):
 	'function_declaration : type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND SEMICOLON'
@@ -326,8 +334,9 @@ def p_function_definition_1(t):
 		for it in t[4].children:
 			param += javaType(it.children[0].type)
 			res2 = currentSymbolTable.get(it.children[1].type)
-			gen.append('iload '+str(i))
-			gen.append('istore '+str(res2[2]))
+			if res2!=None:
+				gen.append('iload '+str(i))
+				gen.append('istore '+str(res2[2]))
 			i += 1
 		t[0].addCode([".method public static "+ t[2] +"("+param+")"+javaType(t[1].type)])
 		t[0].addCode([".limit locals 255" + '\n' + ".limit stack 255\n"])
@@ -603,6 +612,11 @@ def p_declaration_statement(t):
 		else:
 			if item.type=="array":
 				currentSymbolTable.add(item.children[0].type, t[1].type, item.children[1])
+				indexExp = item.children[1].children[0]
+				t[0].addCode(indexExp.code)
+				t[0].addCode(["newarray "+t[1].type])
+				res = currentSymbolTable.get(item.children[0].type)
+				t[0].addCode(["astore "+str(res[2])])
 			else:
 				currentSymbolTable.add(item.children[0].type, t[1].type)
 				t[0].addCode(item.children[1].code)
@@ -660,12 +674,7 @@ def p_array(t):
 	'array : IDENTIFIER array_index'
 	t[0]= Node('array',[Node(t[1], []), t[2]])
 
-def p_array_index_1(t):
-	'array_index : array_index LEFT_SQUARE expression RIGHT_SQUARE'
-	t[1].add(t[3])
-	t[0] = t[1]
-
-def p_array_index_2(t):
+def p_array_index(t):
 	'array_index : LEFT_SQUARE expression RIGHT_SQUARE'
 	t[0] = Node('array_index', [t[2]])
 
@@ -843,9 +852,10 @@ def p_expression_15(t):
 	'''expression : array'''
 	t[0] = t[1]
 	checkArrayError(t[1])
-	nvar = t[0].newVar()
-	gen = nvar+"="+str(t[1].type)
-	t[0].addCode([gen])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
 
 def p_expression_16(t):
 	'''expression : constant '''
@@ -885,7 +895,13 @@ def p_assignment_1(t):
 	'assignment : array EQUAL expression'
 	t[0] = Node('EQUAL', [t[1], t[3]])
 	checkArrayError(t[1])
-	
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
+
 def p_assignment_2(t):
 	'assignment : IDENTIFIER EQUAL expression'
 	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
@@ -899,9 +915,9 @@ def p_assignment_3(t):
 	'assignment : IDENTIFIER ADD_ASSIGN expression'
 	t[0] = Node('ADD_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
-	t[0].addCode(t[3].code)
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(t[3].code)
 		t[0].addCode(["iadd"])
 		t[0].addCode(["istore "+str(res[2])])
 		t[0].addCode(["iconst_1"])	
@@ -910,9 +926,9 @@ def p_assignment_4(t):
 	'assignment : IDENTIFIER SUB_ASSIGN expression'
 	t[0] = Node('SUB_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
-	t[0].addCode(t[3].code)
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(t[3].code)
 		t[0].addCode(["isub"])
 		t[0].addCode(["istore "+str(res[2])])
 		t[0].addCode(["iconst_1"])
@@ -921,9 +937,9 @@ def p_assignment_5(t):
 	'assignment : IDENTIFIER DIV_ASSIGN expression'
 	t[0] = Node('DIV_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
-	t[0].addCode(t[3].code)
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(t[3].code)
 		t[0].addCode(["idiv"])
 		t[0].addCode(["istore "+str(res[2])])
 		t[0].addCode(["iconst_1"])
@@ -932,9 +948,9 @@ def p_assignment_6(t):
 	'assignment : IDENTIFIER MUL_ASSIGN expression'
 	t[0] = Node('MUL_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
-	t[0].addCode(t[3].code)
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(t[3].code)
 		t[0].addCode(["imul"])
 		t[0].addCode(["istore "+str(res[2])])
 		t[0].addCode(["iconst_1"])
@@ -943,9 +959,9 @@ def p_assignment_7(t):
 	'assignment : IDENTIFIER MOD_ASSIGN expression'
 	t[0] = Node('MOD_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
-	t[0].addCode(t[3].code)
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(t[3].code)
 		t[0].addCode(["irem"])
 		t[0].addCode(["istore "+str(res[2])])
 		t[0].addCode(["iconst_1"])
@@ -954,26 +970,76 @@ def p_assignment_8(t):
 	'assignment : array ADD_ASSIGN expression'
 	t[0] = Node('ADD_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
+	t[0].addCode(t[3].code)
+	t[0].addCode(["iadd"])
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
 
 def p_assignment_9(t):
 	'assignment : array SUB_ASSIGN expression'
 	t[0] = Node('SUB_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
+	t[0].addCode(t[3].code)
+	t[0].addCode(["isub"])
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
 
 def p_assignment_10(t):
 	'assignment : array DIV_ASSIGN expression'
 	t[0] = Node('DIV_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
+	t[0].addCode(t[3].code)
+	t[0].addCode(["idiv"])
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
 
 def p_assignment_11(t):
 	'assignment : array MUL_ASSIGN expression'
 	t[0] = Node('MUL_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(t[3].code)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
+	t[0].addCode(["imul"])
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
 
 def p_assignment_12(t):
 	'assignment : array MOD_ASSIGN expression'
 	t[0] = Node('MOD_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
+	t[0].addCode(t[3].code)
+	t[0].addCode(["irem"])
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
 
 def p_unary_expression_1(t):
 	'unary_expression : IDENTIFIER INC_OP'
@@ -991,8 +1057,8 @@ def p_unary_expression_2(t):
 	t[0]= Node('post_decrement', [Node(t[1],[])])
 	res = checkIdentifierError(t[1])
 	if res != None:
-		t[0].addCode(["iconst_1"])
 		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(["iconst_1"])
 		t[0].addCode(["isub"])
 		t[0].addCode(["istore "+str(res[2])])
 		t[0].addCode(["iload "+str(res[2])])
@@ -1001,11 +1067,32 @@ def p_unary_expression_3(t):
 	'unary_expression : array INC_OP'
 	t[0]= Node('post_increment', [t[1]])
 	checkArrayError(t[1])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
+	t[0].addCode(["iconst_1"])
+	t[0].addCode(["iadd"])
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
 
 def p_unary_expression_4(t):
 	'unary_expression : array DEC_OP'
 	t[0]= Node('post_decrement', [t[1]])
 	checkArrayError(t[1])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
+	t[0].addCode(["iconst_1"])
+	t[0].addCode(["isub"])
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
+
 
 def p_unary_expression_5(t):
 	'unary_expression : INC_OP IDENTIFIER'
@@ -1022,14 +1109,24 @@ def p_unary_expression_6(t):
 	'unary_expression : INC_OP array'
 	t[0]= Node('pre_increment', [t[2]])
 	checkArrayError(t[2])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
+	t[0].addCode(["iconst_1"])
+	t[0].addCode(["iadd"])
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
 
 def p_unary_expression_7(t):
 	'unary_expression : DEC_OP IDENTIFIER'
 	t[0]= Node('pre_decrement', [Node(t[2],[])])
 	res = checkIdentifierError(t[2])
 	if res != None:
-		t[0].addCode(["iconst_1"])
 		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(["iconst_1"])
 		t[0].addCode(["isub"])
 		t[0].addCode(["istore "+str(res[2])])
 		t[0].addCode(["iload "+str(res[2])])
@@ -1038,6 +1135,16 @@ def p_unary_expression_8(t):
 	'unary_expression : DEC_OP array'
 	t[0]= Node('pre_decrement', [t[2]])
 	checkArrayError(t[2])
+	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["aload "+str(res[2])])
+	t[0].addCode(t[1].children[1].children[0].code)
+	t[0].addCode(["iaload"])
+	t[0].addCode(["iconst_1"])
+	t[0].addCode(["isub"])
+	t[0].addCode(["iastore"])
+	t[0].addCode(["iconst_1"])
 
 def p_function_call_1(t):
 	'function_call : IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND'
