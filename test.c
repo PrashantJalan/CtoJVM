@@ -1,13 +1,48 @@
 #include<stdio.h>
 
+/**
 int main()
 {
-	int a,b,d;
-	a = 1;
-	for (b=0;b<4;b++)
-	{
-		int a =0;
-	}
-	a=++a;
-	b=a-2;
+   int n, first, second , next, c;
+ 
+first=0;
+second=1;
+n=10;
+ 
+   for ( c = 0 ; c < n ;c++ )
+   {
+      if ( c <= 1 )
+         next = c;
+      else
+      {
+         next = first + second;
+         first = second;
+         second = next;
+      }
+      print next;
+   }
+ 
+   return;
 }
+
+*/
+int main()
+{
+	int a,b,c;
+	
+	a=0;
+	b=0;
+	c=0;
+	for(a=0;a<=10;a=a+1)
+		{
+		if(a  %2==0 )
+			b = b+1;
+		else
+			c = c+1;
+		}
+	print b;
+	print c;
+	return;
+}
+
+
