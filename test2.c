@@ -1,26 +1,14 @@
+#include<stdio.h>
 
+void foo(int a[10], int b)	{
+	a[9] = b;
+	int c = a[9];
+	print c;
+}
 void main()
 {
-	int i, j, A[10], temp;
-
-	for (i=0; i<10; i++)	{
-		A[i] = 10-i;
-	}
-
-	for (i=0; i<10; i++)	{
-		for (j=0; j<10-i-1; j++)	{
-			if (A[j]>A[j+1])	{
-				temp = A[j];
-				A[j] = A[j+1];
-				A[j+1] = temp;
-			}
-		}
-	}
-
-	for (i=0; i<10; i++)	{
-		j = A[i];
-		print j;
-	}
+int a[10];
+foo(a, 5*6/3);
 }
 
 

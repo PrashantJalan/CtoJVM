@@ -156,11 +156,9 @@ Rule 110   function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
 Rule 111   function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND
 Rule 112   function_call_list -> function_argument
 Rule 113   function_call_list -> function_call_list COMMA function_argument
-Rule 114   function_argument -> IDENTIFIER
-Rule 115   function_argument -> array
-Rule 116   function_argument -> constant
-Rule 117   left_curl -> LEFT_CURL
-Rule 118   right_curl -> RIGHT_CURL
+Rule 114   function_argument -> expression
+Rule 115   left_curl -> LEFT_CURL
+Rule 116   right_curl -> RIGHT_CURL
 
 Terminals, with rules where they appear
 
@@ -202,13 +200,13 @@ G_OP                 : 75
 HASH                 : 
 HEADER               : 
 HEX_NUM              : 52 58 62
-IDENTIFIER           : 18 21 22 23 24 25 44 48 51 66 83 91 92 93 94 95 96 102 103 106 108 110 111 114
+IDENTIFIER           : 18 21 22 23 24 25 44 48 51 66 83 91 92 93 94 95 96 102 103 106 108 110 111
 IF                   : 28 29 30 31 32 33
 INC_OP               : 102 104 106 107
 INT                  : 10
 INT_NUM              : 54 60 64
 LEFT_ASSIGN          : 
-LEFT_CURL            : 117
+LEFT_CURL            : 115
 LEFT_OP              : 
 LEFT_ROUND           : 22 23 24 25 28 29 30 31 32 33 34 35 37 38 82 110 111
 LEFT_SQUARE          : 21 67
@@ -233,7 +231,7 @@ REAL_NUM             : 53 59 63
 REGISTER             : 
 RETURN               : 39 40
 RIGHT_ASSIGN         : 
-RIGHT_CURL           : 118
+RIGHT_CURL           : 116
 RIGHT_OP             : 
 RIGHT_ROUND          : 22 23 24 25 28 29 30 31 32 33 34 35 37 38 82 110 111
 RIGHT_SQUARE         : 21 67
@@ -260,16 +258,16 @@ Nonterminals, with rules where they appear
 
 argument             : 16 17
 argument_list        : 17 22 24
-array                : 20 49 84 90 97 98 99 100 101 104 105 107 109 115
+array                : 20 49 84 90 97 98 99 100 101 104 105 107 109
 array_index          : 66
 array_parameter      : 19
 assignment           : 86
-constant             : 85 116
+constant             : 85
 declaration          : 46 47
 declaration_assignment : 50
 declaration_list     : 45 47
 declaration_statement : 6 41
-expression           : 28 29 30 31 32 33 34 35 37 38 40 51 67 69 70 70 71 71 72 72 73 73 74 74 75 75 76 76 77 77 78 78 79 79 80 80 81 81 82 89 89 90 91 92 93 94 95 96 97 98 99 100 101
+expression           : 28 29 30 31 32 33 34 35 37 38 40 51 67 69 70 70 71 71 72 72 73 73 74 74 75 75 76 76 77 77 78 78 79 79 80 80 81 81 82 89 89 90 91 92 93 94 95 96 97 98 99 100 101 114
 expression_statement : 34 34 35 35 36
 function             : 2 3
 function_argument    : 112 113
@@ -920,7 +918,7 @@ state 33
 
     (25) function_definition -> type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND . left_curl statement_list right_curl
     (23) function_declaration -> type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND . SEMICOLON
-    (117) left_curl -> . LEFT_CURL
+    (115) left_curl -> . LEFT_CURL
 
     SEMICOLON       shift and go to state 57
     LEFT_CURL       shift and go to state 58
@@ -1493,37 +1491,37 @@ state 57
 
 state 58
 
-    (117) left_curl -> LEFT_CURL .
+    (115) left_curl -> LEFT_CURL .
 
-    IF              reduce using rule 117 (left_curl -> LEFT_CURL .)
-    FOR             reduce using rule 117 (left_curl -> LEFT_CURL .)
-    WHILE           reduce using rule 117 (left_curl -> LEFT_CURL .)
-    RETURN          reduce using rule 117 (left_curl -> LEFT_CURL .)
-    CONTINUE        reduce using rule 117 (left_curl -> LEFT_CURL .)
-    BREAK           reduce using rule 117 (left_curl -> LEFT_CURL .)
-    PRINT           reduce using rule 117 (left_curl -> LEFT_CURL .)
-    SEMICOLON       reduce using rule 117 (left_curl -> LEFT_CURL .)
-    LEFT_ROUND      reduce using rule 117 (left_curl -> LEFT_CURL .)
-    IDENTIFIER      reduce using rule 117 (left_curl -> LEFT_CURL .)
-    CHAR            reduce using rule 117 (left_curl -> LEFT_CURL .)
-    VOID            reduce using rule 117 (left_curl -> LEFT_CURL .)
-    SHORT           reduce using rule 117 (left_curl -> LEFT_CURL .)
-    INT             reduce using rule 117 (left_curl -> LEFT_CURL .)
-    LONG            reduce using rule 117 (left_curl -> LEFT_CURL .)
-    FLOAT           reduce using rule 117 (left_curl -> LEFT_CURL .)
-    DOUBLE          reduce using rule 117 (left_curl -> LEFT_CURL .)
-    SIGNED          reduce using rule 117 (left_curl -> LEFT_CURL .)
-    UNSIGNED        reduce using rule 117 (left_curl -> LEFT_CURL .)
-    HEX_NUM         reduce using rule 117 (left_curl -> LEFT_CURL .)
-    REAL_NUM        reduce using rule 117 (left_curl -> LEFT_CURL .)
-    INT_NUM         reduce using rule 117 (left_curl -> LEFT_CURL .)
-    CHARACTER       reduce using rule 117 (left_curl -> LEFT_CURL .)
-    STRING          reduce using rule 117 (left_curl -> LEFT_CURL .)
-    EXP_NUM         reduce using rule 117 (left_curl -> LEFT_CURL .)
-    PLUS            reduce using rule 117 (left_curl -> LEFT_CURL .)
-    MINUS           reduce using rule 117 (left_curl -> LEFT_CURL .)
-    INC_OP          reduce using rule 117 (left_curl -> LEFT_CURL .)
-    DEC_OP          reduce using rule 117 (left_curl -> LEFT_CURL .)
+    IF              reduce using rule 115 (left_curl -> LEFT_CURL .)
+    FOR             reduce using rule 115 (left_curl -> LEFT_CURL .)
+    WHILE           reduce using rule 115 (left_curl -> LEFT_CURL .)
+    RETURN          reduce using rule 115 (left_curl -> LEFT_CURL .)
+    CONTINUE        reduce using rule 115 (left_curl -> LEFT_CURL .)
+    BREAK           reduce using rule 115 (left_curl -> LEFT_CURL .)
+    PRINT           reduce using rule 115 (left_curl -> LEFT_CURL .)
+    SEMICOLON       reduce using rule 115 (left_curl -> LEFT_CURL .)
+    LEFT_ROUND      reduce using rule 115 (left_curl -> LEFT_CURL .)
+    IDENTIFIER      reduce using rule 115 (left_curl -> LEFT_CURL .)
+    CHAR            reduce using rule 115 (left_curl -> LEFT_CURL .)
+    VOID            reduce using rule 115 (left_curl -> LEFT_CURL .)
+    SHORT           reduce using rule 115 (left_curl -> LEFT_CURL .)
+    INT             reduce using rule 115 (left_curl -> LEFT_CURL .)
+    LONG            reduce using rule 115 (left_curl -> LEFT_CURL .)
+    FLOAT           reduce using rule 115 (left_curl -> LEFT_CURL .)
+    DOUBLE          reduce using rule 115 (left_curl -> LEFT_CURL .)
+    SIGNED          reduce using rule 115 (left_curl -> LEFT_CURL .)
+    UNSIGNED        reduce using rule 115 (left_curl -> LEFT_CURL .)
+    HEX_NUM         reduce using rule 115 (left_curl -> LEFT_CURL .)
+    REAL_NUM        reduce using rule 115 (left_curl -> LEFT_CURL .)
+    INT_NUM         reduce using rule 115 (left_curl -> LEFT_CURL .)
+    CHARACTER       reduce using rule 115 (left_curl -> LEFT_CURL .)
+    STRING          reduce using rule 115 (left_curl -> LEFT_CURL .)
+    EXP_NUM         reduce using rule 115 (left_curl -> LEFT_CURL .)
+    PLUS            reduce using rule 115 (left_curl -> LEFT_CURL .)
+    MINUS           reduce using rule 115 (left_curl -> LEFT_CURL .)
+    INC_OP          reduce using rule 115 (left_curl -> LEFT_CURL .)
+    DEC_OP          reduce using rule 115 (left_curl -> LEFT_CURL .)
 
 
 state 59
@@ -1664,7 +1662,7 @@ state 60
 
     (24) function_definition -> type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND . left_curl statement_list right_curl
     (22) function_declaration -> type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND . SEMICOLON
-    (117) left_curl -> . LEFT_CURL
+    (115) left_curl -> . LEFT_CURL
 
     SEMICOLON       shift and go to state 121
     LEFT_CURL       shift and go to state 58
@@ -1703,7 +1701,7 @@ state 62
 
     (109) unary_expression -> DEC_OP array .
 
-    RIGHT_ROUND     reduce using rule 109 (unary_expression -> DEC_OP array .)
+    RIGHT_SQUARE    reduce using rule 109 (unary_expression -> DEC_OP array .)
     PLUS            reduce using rule 109 (unary_expression -> DEC_OP array .)
     MINUS           reduce using rule 109 (unary_expression -> DEC_OP array .)
     MULTIPLY        reduce using rule 109 (unary_expression -> DEC_OP array .)
@@ -1717,9 +1715,9 @@ state 62
     AND_OP          reduce using rule 109 (unary_expression -> DEC_OP array .)
     OR_OP           reduce using rule 109 (unary_expression -> DEC_OP array .)
     MODULO          reduce using rule 109 (unary_expression -> DEC_OP array .)
-    RIGHT_SQUARE    reduce using rule 109 (unary_expression -> DEC_OP array .)
     SEMICOLON       reduce using rule 109 (unary_expression -> DEC_OP array .)
     COMMA           reduce using rule 109 (unary_expression -> DEC_OP array .)
+    RIGHT_ROUND     reduce using rule 109 (unary_expression -> DEC_OP array .)
 
 
 state 63
@@ -1728,7 +1726,7 @@ state 63
     (66) array -> IDENTIFIER . array_index
     (67) array_index -> . LEFT_SQUARE expression RIGHT_SQUARE
 
-    RIGHT_ROUND     reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
+    RIGHT_SQUARE    reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
     PLUS            reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
     MINUS           reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
     MULTIPLY        reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
@@ -1742,9 +1740,9 @@ state 63
     AND_OP          reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
     OR_OP           reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
     MODULO          reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
-    RIGHT_SQUARE    reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
     SEMICOLON       reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
     COMMA           reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
+    RIGHT_ROUND     reduce using rule 108 (unary_expression -> DEC_OP IDENTIFIER .)
     LEFT_SQUARE     shift and go to state 27
 
     array_index                    shift and go to state 28
@@ -1915,7 +1913,7 @@ state 66
 
     (105) unary_expression -> array DEC_OP .
 
-    RIGHT_ROUND     reduce using rule 105 (unary_expression -> array DEC_OP .)
+    RIGHT_SQUARE    reduce using rule 105 (unary_expression -> array DEC_OP .)
     PLUS            reduce using rule 105 (unary_expression -> array DEC_OP .)
     MINUS           reduce using rule 105 (unary_expression -> array DEC_OP .)
     MULTIPLY        reduce using rule 105 (unary_expression -> array DEC_OP .)
@@ -1929,16 +1927,16 @@ state 66
     AND_OP          reduce using rule 105 (unary_expression -> array DEC_OP .)
     OR_OP           reduce using rule 105 (unary_expression -> array DEC_OP .)
     MODULO          reduce using rule 105 (unary_expression -> array DEC_OP .)
-    RIGHT_SQUARE    reduce using rule 105 (unary_expression -> array DEC_OP .)
     SEMICOLON       reduce using rule 105 (unary_expression -> array DEC_OP .)
     COMMA           reduce using rule 105 (unary_expression -> array DEC_OP .)
+    RIGHT_ROUND     reduce using rule 105 (unary_expression -> array DEC_OP .)
 
 
 state 67
 
     (104) unary_expression -> array INC_OP .
 
-    RIGHT_ROUND     reduce using rule 104 (unary_expression -> array INC_OP .)
+    RIGHT_SQUARE    reduce using rule 104 (unary_expression -> array INC_OP .)
     PLUS            reduce using rule 104 (unary_expression -> array INC_OP .)
     MINUS           reduce using rule 104 (unary_expression -> array INC_OP .)
     MULTIPLY        reduce using rule 104 (unary_expression -> array INC_OP .)
@@ -1952,9 +1950,9 @@ state 67
     AND_OP          reduce using rule 104 (unary_expression -> array INC_OP .)
     OR_OP           reduce using rule 104 (unary_expression -> array INC_OP .)
     MODULO          reduce using rule 104 (unary_expression -> array INC_OP .)
-    RIGHT_SQUARE    reduce using rule 104 (unary_expression -> array INC_OP .)
     SEMICOLON       reduce using rule 104 (unary_expression -> array INC_OP .)
     COMMA           reduce using rule 104 (unary_expression -> array INC_OP .)
+    RIGHT_ROUND     reduce using rule 104 (unary_expression -> array INC_OP .)
 
 
 state 68
@@ -2633,9 +2631,27 @@ state 82
     (111) function_call -> IDENTIFIER LEFT_ROUND . RIGHT_ROUND
     (112) function_call_list -> . function_argument
     (113) function_call_list -> . function_call_list COMMA function_argument
-    (114) function_argument -> . IDENTIFIER
-    (115) function_argument -> . array
-    (116) function_argument -> . constant
+    (114) function_argument -> . expression
+    (70) expression -> . expression PLUS expression
+    (71) expression -> . expression MINUS expression
+    (72) expression -> . expression MULTIPLY expression
+    (73) expression -> . expression DIVIDE expression
+    (74) expression -> . expression L_OP expression
+    (75) expression -> . expression G_OP expression
+    (76) expression -> . expression NE_OP expression
+    (77) expression -> . expression EQ_OP expression
+    (78) expression -> . expression GE_OP expression
+    (79) expression -> . expression LE_OP expression
+    (80) expression -> . expression AND_OP expression
+    (81) expression -> . expression OR_OP expression
+    (82) expression -> . LEFT_ROUND expression RIGHT_ROUND
+    (83) expression -> . IDENTIFIER
+    (84) expression -> . array
+    (85) expression -> . constant
+    (86) expression -> . assignment
+    (87) expression -> . unary_expression
+    (88) expression -> . function_call
+    (89) expression -> . expression MODULO expression
     (66) array -> . IDENTIFIER array_index
     (52) constant -> . HEX_NUM
     (53) constant -> . REAL_NUM
@@ -2651,9 +2667,32 @@ state 82
     (63) constant -> . MINUS REAL_NUM
     (64) constant -> . MINUS INT_NUM
     (65) constant -> . MINUS EXP_NUM
+    (90) assignment -> . array EQUAL expression
+    (91) assignment -> . IDENTIFIER EQUAL expression
+    (92) assignment -> . IDENTIFIER ADD_ASSIGN expression
+    (93) assignment -> . IDENTIFIER SUB_ASSIGN expression
+    (94) assignment -> . IDENTIFIER DIV_ASSIGN expression
+    (95) assignment -> . IDENTIFIER MUL_ASSIGN expression
+    (96) assignment -> . IDENTIFIER MOD_ASSIGN expression
+    (97) assignment -> . array ADD_ASSIGN expression
+    (98) assignment -> . array SUB_ASSIGN expression
+    (99) assignment -> . array DIV_ASSIGN expression
+    (100) assignment -> . array MUL_ASSIGN expression
+    (101) assignment -> . array MOD_ASSIGN expression
+    (102) unary_expression -> . IDENTIFIER INC_OP
+    (103) unary_expression -> . IDENTIFIER DEC_OP
+    (104) unary_expression -> . array INC_OP
+    (105) unary_expression -> . array DEC_OP
+    (106) unary_expression -> . INC_OP IDENTIFIER
+    (107) unary_expression -> . INC_OP array
+    (108) unary_expression -> . DEC_OP IDENTIFIER
+    (109) unary_expression -> . DEC_OP array
+    (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
+    (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    RIGHT_ROUND     shift and go to state 133
-    IDENTIFIER      shift and go to state 137
+    RIGHT_ROUND     shift and go to state 132
+    LEFT_ROUND      shift and go to state 48
+    IDENTIFIER      shift and go to state 45
     HEX_NUM         shift and go to state 47
     REAL_NUM        shift and go to state 52
     INT_NUM         shift and go to state 50
@@ -2662,17 +2701,23 @@ state 82
     EXP_NUM         shift and go to state 39
     PLUS            shift and go to state 44
     MINUS           shift and go to state 41
+    INC_OP          shift and go to state 49
+    DEC_OP          shift and go to state 37
 
-    function_call_list             shift and go to state 132
-    array                          shift and go to state 136
+    constant                       shift and go to state 35
+    unary_expression               shift and go to state 36
+    function_call_list             shift and go to state 133
+    assignment                     shift and go to state 46
+    function_call                  shift and go to state 38
     function_argument              shift and go to state 134
-    constant                       shift and go to state 135
+    array                          shift and go to state 40
+    expression                     shift and go to state 135
 
 state 83
 
     (103) unary_expression -> IDENTIFIER DEC_OP .
 
-    RIGHT_ROUND     reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
+    RIGHT_SQUARE    reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
     PLUS            reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
     MINUS           reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
     MULTIPLY        reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
@@ -2686,16 +2731,16 @@ state 83
     AND_OP          reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
     OR_OP           reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
     MODULO          reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
-    RIGHT_SQUARE    reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
     SEMICOLON       reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
     COMMA           reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
+    RIGHT_ROUND     reduce using rule 103 (unary_expression -> IDENTIFIER DEC_OP .)
 
 
 state 84
 
     (102) unary_expression -> IDENTIFIER INC_OP .
 
-    RIGHT_ROUND     reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
+    RIGHT_SQUARE    reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
     PLUS            reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
     MINUS           reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
     MULTIPLY        reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
@@ -2709,9 +2754,9 @@ state 84
     AND_OP          reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
     OR_OP           reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
     MODULO          reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
-    RIGHT_SQUARE    reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
     SEMICOLON       reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
     COMMA           reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
+    RIGHT_ROUND     reduce using rule 102 (unary_expression -> IDENTIFIER INC_OP .)
 
 
 state 85
@@ -2793,7 +2838,7 @@ state 85
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 138
+    expression                     shift and go to state 136
 
 state 86
 
@@ -2874,7 +2919,7 @@ state 86
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 139
+    expression                     shift and go to state 137
 
 state 87
 
@@ -2955,7 +3000,7 @@ state 87
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 140
+    expression                     shift and go to state 138
 
 state 88
 
@@ -3036,7 +3081,7 @@ state 88
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 141
+    expression                     shift and go to state 139
 
 state 89
 
@@ -3055,7 +3100,7 @@ state 89
     (81) expression -> expression . OR_OP expression
     (89) expression -> expression . MODULO expression
 
-    RIGHT_ROUND     shift and go to state 142
+    RIGHT_ROUND     shift and go to state 140
     PLUS            shift and go to state 98
     MINUS           shift and go to state 102
     MULTIPLY        shift and go to state 100
@@ -3075,7 +3120,7 @@ state 90
 
     (107) unary_expression -> INC_OP array .
 
-    RIGHT_ROUND     reduce using rule 107 (unary_expression -> INC_OP array .)
+    RIGHT_SQUARE    reduce using rule 107 (unary_expression -> INC_OP array .)
     PLUS            reduce using rule 107 (unary_expression -> INC_OP array .)
     MINUS           reduce using rule 107 (unary_expression -> INC_OP array .)
     MULTIPLY        reduce using rule 107 (unary_expression -> INC_OP array .)
@@ -3089,9 +3134,9 @@ state 90
     AND_OP          reduce using rule 107 (unary_expression -> INC_OP array .)
     OR_OP           reduce using rule 107 (unary_expression -> INC_OP array .)
     MODULO          reduce using rule 107 (unary_expression -> INC_OP array .)
-    RIGHT_SQUARE    reduce using rule 107 (unary_expression -> INC_OP array .)
     SEMICOLON       reduce using rule 107 (unary_expression -> INC_OP array .)
     COMMA           reduce using rule 107 (unary_expression -> INC_OP array .)
+    RIGHT_ROUND     reduce using rule 107 (unary_expression -> INC_OP array .)
 
 
 state 91
@@ -3100,7 +3145,7 @@ state 91
     (66) array -> IDENTIFIER . array_index
     (67) array_index -> . LEFT_SQUARE expression RIGHT_SQUARE
 
-    RIGHT_ROUND     reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
+    RIGHT_SQUARE    reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
     PLUS            reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
     MINUS           reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
     MULTIPLY        reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
@@ -3114,9 +3159,9 @@ state 91
     AND_OP          reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
     OR_OP           reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
     MODULO          reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
-    RIGHT_SQUARE    reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
     SEMICOLON       reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
     COMMA           reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
+    RIGHT_ROUND     reduce using rule 106 (unary_expression -> INC_OP IDENTIFIER .)
     LEFT_SQUARE     shift and go to state 27
 
     array_index                    shift and go to state 28
@@ -3200,7 +3245,7 @@ state 92
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 143
+    expression                     shift and go to state 141
 
 state 93
 
@@ -3281,7 +3326,7 @@ state 93
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 144
+    expression                     shift and go to state 142
 
 state 94
 
@@ -3362,7 +3407,7 @@ state 94
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 145
+    expression                     shift and go to state 143
 
 state 95
 
@@ -3443,7 +3488,7 @@ state 95
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 146
+    expression                     shift and go to state 144
 
 state 96
 
@@ -3524,7 +3569,7 @@ state 96
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 147
+    expression                     shift and go to state 145
 
 state 97
 
@@ -3605,7 +3650,7 @@ state 97
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 148
+    expression                     shift and go to state 146
 
 state 98
 
@@ -3686,7 +3731,7 @@ state 98
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 149
+    expression                     shift and go to state 147
 
 state 99
 
@@ -3767,7 +3812,7 @@ state 99
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 150
+    expression                     shift and go to state 148
 
 state 100
 
@@ -3848,7 +3893,7 @@ state 100
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 151
+    expression                     shift and go to state 149
 
 state 101
 
@@ -3929,7 +3974,7 @@ state 101
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 152
+    expression                     shift and go to state 150
 
 state 102
 
@@ -4010,7 +4055,7 @@ state 102
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 153
+    expression                     shift and go to state 151
 
 state 103
 
@@ -4091,7 +4136,7 @@ state 103
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 154
+    expression                     shift and go to state 152
 
 state 104
 
@@ -4172,7 +4217,7 @@ state 104
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 155
+    expression                     shift and go to state 153
 
 state 105
 
@@ -4267,7 +4312,7 @@ state 106
     (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
     (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    RIGHT_SQUARE    shift and go to state 156
+    RIGHT_SQUARE    shift and go to state 154
     LEFT_ROUND      shift and go to state 48
     IDENTIFIER      shift and go to state 45
     HEX_NUM         shift and go to state 47
@@ -4387,7 +4432,7 @@ state 108
     (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
     (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    SEMICOLON       shift and go to state 157
+    SEMICOLON       shift and go to state 155
     LEFT_ROUND      shift and go to state 48
     IDENTIFIER      shift and go to state 45
     HEX_NUM         shift and go to state 47
@@ -4406,21 +4451,21 @@ state 108
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 158
+    expression                     shift and go to state 156
 
 state 109
 
     (37) statement -> WHILE . LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (38) statement -> WHILE . LEFT_ROUND expression RIGHT_ROUND statement
 
-    LEFT_ROUND      shift and go to state 159
+    LEFT_ROUND      shift and go to state 157
 
 
 state 110
 
     (44) statement -> PRINT . IDENTIFIER SEMICOLON
 
-    IDENTIFIER      shift and go to state 160
+    IDENTIFIER      shift and go to state 158
 
 
 state 111
@@ -4482,7 +4527,7 @@ state 113
 
     (42) statement -> CONTINUE . SEMICOLON
 
-    SEMICOLON       shift and go to state 161
+    SEMICOLON       shift and go to state 159
 
 
 state 114
@@ -4526,7 +4571,7 @@ state 115
     (34) statement -> FOR . LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND left_curl statement_list right_curl
     (35) statement -> FOR . LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement
 
-    LEFT_ROUND      shift and go to state 162
+    LEFT_ROUND      shift and go to state 160
 
 
 state 116
@@ -4538,14 +4583,14 @@ state 116
     (32) statement -> IF . LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl statement_list right_curl
     (33) statement -> IF . LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE left_curl statement_list right_curl
 
-    LEFT_ROUND      shift and go to state 163
+    LEFT_ROUND      shift and go to state 161
 
 
 state 117
 
     (43) statement -> BREAK . SEMICOLON
 
-    SEMICOLON       shift and go to state 164
+    SEMICOLON       shift and go to state 162
 
 
 state 118
@@ -4589,7 +4634,7 @@ state 119
 
     (25) function_definition -> type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND left_curl statement_list . right_curl
     (26) statement_list -> statement_list . statement
-    (118) right_curl -> . RIGHT_CURL
+    (116) right_curl -> . RIGHT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -4677,7 +4722,7 @@ state 119
     (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
     (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    RIGHT_CURL      shift and go to state 165
+    RIGHT_CURL      shift and go to state 163
     IF              shift and go to state 116
     FOR             shift and go to state 115
     WHILE           shift and go to state 109
@@ -4714,9 +4759,9 @@ state 119
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
-    right_curl                     shift and go to state 167
+    right_curl                     shift and go to state 165
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 166
+    statement                      shift and go to state 164
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
@@ -4737,7 +4782,7 @@ state 120
     (81) expression -> expression . OR_OP expression
     (89) expression -> expression . MODULO expression
 
-    SEMICOLON       shift and go to state 168
+    SEMICOLON       shift and go to state 166
     PLUS            shift and go to state 98
     MINUS           shift and go to state 102
     MULTIPLY        shift and go to state 100
@@ -4899,7 +4944,7 @@ state 122
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
     statement                      shift and go to state 114
-    statement_list                 shift and go to state 169
+    statement_list                 shift and go to state 167
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
@@ -5313,17 +5358,9 @@ state 131
 
 state 132
 
-    (110) function_call -> IDENTIFIER LEFT_ROUND function_call_list . RIGHT_ROUND
-    (113) function_call_list -> function_call_list . COMMA function_argument
-
-    RIGHT_ROUND     shift and go to state 170
-    COMMA           shift and go to state 171
-
-
-state 133
-
     (111) function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .
 
+    SEMICOLON       reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
     PLUS            reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
     MINUS           reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
     MULTIPLY        reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
@@ -5337,10 +5374,18 @@ state 133
     AND_OP          reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
     OR_OP           reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
     MODULO          reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
-    SEMICOLON       reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
     COMMA           reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
     RIGHT_SQUARE    reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
     RIGHT_ROUND     reduce using rule 111 (function_call -> IDENTIFIER LEFT_ROUND RIGHT_ROUND .)
+
+
+state 133
+
+    (110) function_call -> IDENTIFIER LEFT_ROUND function_call_list . RIGHT_ROUND
+    (113) function_call_list -> function_call_list . COMMA function_argument
+
+    RIGHT_ROUND     shift and go to state 168
+    COMMA           shift and go to state 169
 
 
 state 134
@@ -5353,33 +5398,39 @@ state 134
 
 state 135
 
-    (116) function_argument -> constant .
+    (114) function_argument -> expression .
+    (70) expression -> expression . PLUS expression
+    (71) expression -> expression . MINUS expression
+    (72) expression -> expression . MULTIPLY expression
+    (73) expression -> expression . DIVIDE expression
+    (74) expression -> expression . L_OP expression
+    (75) expression -> expression . G_OP expression
+    (76) expression -> expression . NE_OP expression
+    (77) expression -> expression . EQ_OP expression
+    (78) expression -> expression . GE_OP expression
+    (79) expression -> expression . LE_OP expression
+    (80) expression -> expression . AND_OP expression
+    (81) expression -> expression . OR_OP expression
+    (89) expression -> expression . MODULO expression
 
-    RIGHT_ROUND     reduce using rule 116 (function_argument -> constant .)
-    COMMA           reduce using rule 116 (function_argument -> constant .)
+    RIGHT_ROUND     reduce using rule 114 (function_argument -> expression .)
+    COMMA           reduce using rule 114 (function_argument -> expression .)
+    PLUS            shift and go to state 98
+    MINUS           shift and go to state 102
+    MULTIPLY        shift and go to state 100
+    DIVIDE          shift and go to state 93
+    L_OP            shift and go to state 95
+    G_OP            shift and go to state 94
+    NE_OP           shift and go to state 103
+    EQ_OP           shift and go to state 99
+    GE_OP           shift and go to state 97
+    LE_OP           shift and go to state 92
+    AND_OP          shift and go to state 96
+    OR_OP           shift and go to state 104
+    MODULO          shift and go to state 101
 
 
 state 136
-
-    (115) function_argument -> array .
-
-    RIGHT_ROUND     reduce using rule 115 (function_argument -> array .)
-    COMMA           reduce using rule 115 (function_argument -> array .)
-
-
-state 137
-
-    (114) function_argument -> IDENTIFIER .
-    (66) array -> IDENTIFIER . array_index
-    (67) array_index -> . LEFT_SQUARE expression RIGHT_SQUARE
-
-    RIGHT_ROUND     reduce using rule 114 (function_argument -> IDENTIFIER .)
-    COMMA           reduce using rule 114 (function_argument -> IDENTIFIER .)
-    LEFT_SQUARE     shift and go to state 27
-
-    array_index                    shift and go to state 28
-
-state 138
 
     (91) assignment -> IDENTIFIER EQUAL expression .
     (70) expression -> expression . PLUS expression
@@ -5429,7 +5480,7 @@ state 138
   ! MODULO          [ reduce using rule 91 (assignment -> IDENTIFIER EQUAL expression .) ]
 
 
-state 139
+state 137
 
     (95) assignment -> IDENTIFIER MUL_ASSIGN expression .
     (70) expression -> expression . PLUS expression
@@ -5479,7 +5530,7 @@ state 139
   ! MODULO          [ reduce using rule 95 (assignment -> IDENTIFIER MUL_ASSIGN expression .) ]
 
 
-state 140
+state 138
 
     (92) assignment -> IDENTIFIER ADD_ASSIGN expression .
     (70) expression -> expression . PLUS expression
@@ -5529,7 +5580,7 @@ state 140
   ! MODULO          [ reduce using rule 92 (assignment -> IDENTIFIER ADD_ASSIGN expression .) ]
 
 
-state 141
+state 139
 
     (94) assignment -> IDENTIFIER DIV_ASSIGN expression .
     (70) expression -> expression . PLUS expression
@@ -5579,7 +5630,7 @@ state 141
   ! MODULO          [ reduce using rule 94 (assignment -> IDENTIFIER DIV_ASSIGN expression .) ]
 
 
-state 142
+state 140
 
     (82) expression -> LEFT_ROUND expression RIGHT_ROUND .
 
@@ -5602,7 +5653,7 @@ state 142
     RIGHT_ROUND     reduce using rule 82 (expression -> LEFT_ROUND expression RIGHT_ROUND .)
 
 
-state 143
+state 141
 
     (79) expression -> expression LE_OP expression .
     (70) expression -> expression . PLUS expression
@@ -5652,7 +5703,7 @@ state 143
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 144
+state 142
 
     (73) expression -> expression DIVIDE expression .
     (70) expression -> expression . PLUS expression
@@ -5702,7 +5753,7 @@ state 144
   ! MODULO          [ shift and go to state 101 ]
 
 
-state 145
+state 143
 
     (75) expression -> expression G_OP expression .
     (70) expression -> expression . PLUS expression
@@ -5752,7 +5803,7 @@ state 145
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 146
+state 144
 
     (74) expression -> expression L_OP expression .
     (70) expression -> expression . PLUS expression
@@ -5802,7 +5853,7 @@ state 146
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 147
+state 145
 
     (80) expression -> expression AND_OP expression .
     (70) expression -> expression . PLUS expression
@@ -5852,7 +5903,7 @@ state 147
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 148
+state 146
 
     (78) expression -> expression GE_OP expression .
     (70) expression -> expression . PLUS expression
@@ -5902,7 +5953,7 @@ state 148
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 149
+state 147
 
     (70) expression -> expression PLUS expression .
     (70) expression -> expression . PLUS expression
@@ -5952,7 +6003,7 @@ state 149
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 150
+state 148
 
     (77) expression -> expression EQ_OP expression .
     (70) expression -> expression . PLUS expression
@@ -6002,7 +6053,7 @@ state 150
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 151
+state 149
 
     (72) expression -> expression MULTIPLY expression .
     (70) expression -> expression . PLUS expression
@@ -6052,7 +6103,7 @@ state 151
   ! MODULO          [ shift and go to state 101 ]
 
 
-state 152
+state 150
 
     (89) expression -> expression MODULO expression .
     (70) expression -> expression . PLUS expression
@@ -6102,7 +6153,7 @@ state 152
   ! MODULO          [ shift and go to state 101 ]
 
 
-state 153
+state 151
 
     (71) expression -> expression MINUS expression .
     (70) expression -> expression . PLUS expression
@@ -6152,7 +6203,7 @@ state 153
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 154
+state 152
 
     (76) expression -> expression NE_OP expression .
     (70) expression -> expression . PLUS expression
@@ -6202,7 +6253,7 @@ state 154
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 155
+state 153
 
     (81) expression -> expression OR_OP expression .
     (70) expression -> expression . PLUS expression
@@ -6252,7 +6303,7 @@ state 155
   ! OR_OP           [ shift and go to state 104 ]
 
 
-state 156
+state 154
 
     (21) array_parameter -> IDENTIFIER LEFT_SQUARE RIGHT_SQUARE .
 
@@ -6260,7 +6311,7 @@ state 156
     COMMA           reduce using rule 21 (array_parameter -> IDENTIFIER LEFT_SQUARE RIGHT_SQUARE .)
 
 
-state 157
+state 155
 
     (39) statement -> RETURN SEMICOLON .
 
@@ -6297,7 +6348,7 @@ state 157
     ELSE            reduce using rule 39 (statement -> RETURN SEMICOLON .)
 
 
-state 158
+state 156
 
     (40) statement -> RETURN expression . SEMICOLON
     (70) expression -> expression . PLUS expression
@@ -6314,7 +6365,7 @@ state 158
     (81) expression -> expression . OR_OP expression
     (89) expression -> expression . MODULO expression
 
-    SEMICOLON       shift and go to state 172
+    SEMICOLON       shift and go to state 170
     PLUS            shift and go to state 98
     MINUS           shift and go to state 102
     MULTIPLY        shift and go to state 100
@@ -6330,7 +6381,7 @@ state 158
     MODULO          shift and go to state 101
 
 
-state 159
+state 157
 
     (37) statement -> WHILE LEFT_ROUND . expression RIGHT_ROUND left_curl statement_list right_curl
     (38) statement -> WHILE LEFT_ROUND . expression RIGHT_ROUND statement
@@ -6410,16 +6461,16 @@ state 159
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 173
+    expression                     shift and go to state 171
 
-state 160
+state 158
 
     (44) statement -> PRINT IDENTIFIER . SEMICOLON
 
-    SEMICOLON       shift and go to state 174
+    SEMICOLON       shift and go to state 172
 
 
-state 161
+state 159
 
     (42) statement -> CONTINUE SEMICOLON .
 
@@ -6456,7 +6507,7 @@ state 161
     ELSE            reduce using rule 42 (statement -> CONTINUE SEMICOLON .)
 
 
-state 162
+state 160
 
     (34) statement -> FOR LEFT_ROUND . expression_statement expression_statement expression RIGHT_ROUND left_curl statement_list right_curl
     (35) statement -> FOR LEFT_ROUND . expression_statement expression_statement expression RIGHT_ROUND statement
@@ -6534,7 +6585,7 @@ state 162
     INC_OP          shift and go to state 49
     DEC_OP          shift and go to state 37
 
-    expression_statement           shift and go to state 175
+    expression_statement           shift and go to state 173
     constant                       shift and go to state 35
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
@@ -6542,7 +6593,7 @@ state 162
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 163
+state 161
 
     (28) statement -> IF LEFT_ROUND . expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> IF LEFT_ROUND . expression RIGHT_ROUND statement
@@ -6626,9 +6677,9 @@ state 163
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 176
+    expression                     shift and go to state 174
 
-state 164
+state 162
 
     (43) statement -> BREAK SEMICOLON .
 
@@ -6665,45 +6716,45 @@ state 164
     ELSE            reduce using rule 43 (statement -> BREAK SEMICOLON .)
 
 
-state 165
+state 163
 
-    (118) right_curl -> RIGHT_CURL .
+    (116) right_curl -> RIGHT_CURL .
 
-    CHAR            reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    VOID            reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    SHORT           reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    INT             reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    LONG            reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    FLOAT           reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    DOUBLE          reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    SIGNED          reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    UNSIGNED        reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    $end            reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    ELSE            reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    RIGHT_CURL      reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    IF              reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    FOR             reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    WHILE           reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    RETURN          reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    CONTINUE        reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    BREAK           reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    PRINT           reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    SEMICOLON       reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    LEFT_ROUND      reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    IDENTIFIER      reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    HEX_NUM         reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    REAL_NUM        reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    INT_NUM         reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    CHARACTER       reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    STRING          reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    EXP_NUM         reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    PLUS            reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    MINUS           reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    INC_OP          reduce using rule 118 (right_curl -> RIGHT_CURL .)
-    DEC_OP          reduce using rule 118 (right_curl -> RIGHT_CURL .)
+    RIGHT_CURL      reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    IF              reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    FOR             reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    WHILE           reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    RETURN          reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    CONTINUE        reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    BREAK           reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    PRINT           reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    SEMICOLON       reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    LEFT_ROUND      reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    IDENTIFIER      reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    CHAR            reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    VOID            reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    SHORT           reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    INT             reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    LONG            reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    FLOAT           reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    DOUBLE          reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    SIGNED          reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    UNSIGNED        reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    HEX_NUM         reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    REAL_NUM        reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    INT_NUM         reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    CHARACTER       reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    STRING          reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    EXP_NUM         reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    PLUS            reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    MINUS           reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    INC_OP          reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    DEC_OP          reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    ELSE            reduce using rule 116 (right_curl -> RIGHT_CURL .)
+    $end            reduce using rule 116 (right_curl -> RIGHT_CURL .)
 
 
-state 166
+state 164
 
     (26) statement_list -> statement_list statement .
 
@@ -6739,7 +6790,7 @@ state 166
     DEC_OP          reduce using rule 26 (statement_list -> statement_list statement .)
 
 
-state 167
+state 165
 
     (25) function_definition -> type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND left_curl statement_list right_curl .
 
@@ -6755,7 +6806,7 @@ state 167
     $end            reduce using rule 25 (function_definition -> type_specifier IDENTIFIER LEFT_ROUND RIGHT_ROUND left_curl statement_list right_curl .)
 
 
-state 168
+state 166
 
     (69) expression_statement -> expression SEMICOLON .
 
@@ -6792,11 +6843,11 @@ state 168
     ELSE            reduce using rule 69 (expression_statement -> expression SEMICOLON .)
 
 
-state 169
+state 167
 
     (24) function_definition -> type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND left_curl statement_list . right_curl
     (26) statement_list -> statement_list . statement
-    (118) right_curl -> . RIGHT_CURL
+    (116) right_curl -> . RIGHT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -6884,7 +6935,7 @@ state 169
     (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
     (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    RIGHT_CURL      shift and go to state 165
+    RIGHT_CURL      shift and go to state 163
     IF              shift and go to state 116
     FOR             shift and go to state 115
     WHILE           shift and go to state 109
@@ -6920,17 +6971,18 @@ state 169
     constant                       shift and go to state 35
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
-    right_curl                     shift and go to state 177
+    right_curl                     shift and go to state 175
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 166
+    statement                      shift and go to state 164
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 170
+state 168
 
     (110) function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .
 
+    SEMICOLON       reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
     PLUS            reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
     MINUS           reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
     MULTIPLY        reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
@@ -6944,18 +6996,35 @@ state 170
     AND_OP          reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
     OR_OP           reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
     MODULO          reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
-    SEMICOLON       reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
     COMMA           reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
     RIGHT_SQUARE    reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
     RIGHT_ROUND     reduce using rule 110 (function_call -> IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND .)
 
 
-state 171
+state 169
 
     (113) function_call_list -> function_call_list COMMA . function_argument
-    (114) function_argument -> . IDENTIFIER
-    (115) function_argument -> . array
-    (116) function_argument -> . constant
+    (114) function_argument -> . expression
+    (70) expression -> . expression PLUS expression
+    (71) expression -> . expression MINUS expression
+    (72) expression -> . expression MULTIPLY expression
+    (73) expression -> . expression DIVIDE expression
+    (74) expression -> . expression L_OP expression
+    (75) expression -> . expression G_OP expression
+    (76) expression -> . expression NE_OP expression
+    (77) expression -> . expression EQ_OP expression
+    (78) expression -> . expression GE_OP expression
+    (79) expression -> . expression LE_OP expression
+    (80) expression -> . expression AND_OP expression
+    (81) expression -> . expression OR_OP expression
+    (82) expression -> . LEFT_ROUND expression RIGHT_ROUND
+    (83) expression -> . IDENTIFIER
+    (84) expression -> . array
+    (85) expression -> . constant
+    (86) expression -> . assignment
+    (87) expression -> . unary_expression
+    (88) expression -> . function_call
+    (89) expression -> . expression MODULO expression
     (66) array -> . IDENTIFIER array_index
     (52) constant -> . HEX_NUM
     (53) constant -> . REAL_NUM
@@ -6971,8 +7040,31 @@ state 171
     (63) constant -> . MINUS REAL_NUM
     (64) constant -> . MINUS INT_NUM
     (65) constant -> . MINUS EXP_NUM
+    (90) assignment -> . array EQUAL expression
+    (91) assignment -> . IDENTIFIER EQUAL expression
+    (92) assignment -> . IDENTIFIER ADD_ASSIGN expression
+    (93) assignment -> . IDENTIFIER SUB_ASSIGN expression
+    (94) assignment -> . IDENTIFIER DIV_ASSIGN expression
+    (95) assignment -> . IDENTIFIER MUL_ASSIGN expression
+    (96) assignment -> . IDENTIFIER MOD_ASSIGN expression
+    (97) assignment -> . array ADD_ASSIGN expression
+    (98) assignment -> . array SUB_ASSIGN expression
+    (99) assignment -> . array DIV_ASSIGN expression
+    (100) assignment -> . array MUL_ASSIGN expression
+    (101) assignment -> . array MOD_ASSIGN expression
+    (102) unary_expression -> . IDENTIFIER INC_OP
+    (103) unary_expression -> . IDENTIFIER DEC_OP
+    (104) unary_expression -> . array INC_OP
+    (105) unary_expression -> . array DEC_OP
+    (106) unary_expression -> . INC_OP IDENTIFIER
+    (107) unary_expression -> . INC_OP array
+    (108) unary_expression -> . DEC_OP IDENTIFIER
+    (109) unary_expression -> . DEC_OP array
+    (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
+    (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    IDENTIFIER      shift and go to state 137
+    LEFT_ROUND      shift and go to state 48
+    IDENTIFIER      shift and go to state 45
     HEX_NUM         shift and go to state 47
     REAL_NUM        shift and go to state 52
     INT_NUM         shift and go to state 50
@@ -6981,12 +7073,18 @@ state 171
     EXP_NUM         shift and go to state 39
     PLUS            shift and go to state 44
     MINUS           shift and go to state 41
+    INC_OP          shift and go to state 49
+    DEC_OP          shift and go to state 37
 
-    array                          shift and go to state 136
-    function_argument              shift and go to state 178
-    constant                       shift and go to state 135
+    constant                       shift and go to state 35
+    unary_expression               shift and go to state 36
+    assignment                     shift and go to state 46
+    function_call                  shift and go to state 38
+    function_argument              shift and go to state 176
+    array                          shift and go to state 40
+    expression                     shift and go to state 135
 
-state 172
+state 170
 
     (40) statement -> RETURN expression SEMICOLON .
 
@@ -7023,7 +7121,7 @@ state 172
     ELSE            reduce using rule 40 (statement -> RETURN expression SEMICOLON .)
 
 
-state 173
+state 171
 
     (37) statement -> WHILE LEFT_ROUND expression . RIGHT_ROUND left_curl statement_list right_curl
     (38) statement -> WHILE LEFT_ROUND expression . RIGHT_ROUND statement
@@ -7041,7 +7139,7 @@ state 173
     (81) expression -> expression . OR_OP expression
     (89) expression -> expression . MODULO expression
 
-    RIGHT_ROUND     shift and go to state 179
+    RIGHT_ROUND     shift and go to state 177
     PLUS            shift and go to state 98
     MINUS           shift and go to state 102
     MULTIPLY        shift and go to state 100
@@ -7057,7 +7155,7 @@ state 173
     MODULO          shift and go to state 101
 
 
-state 174
+state 172
 
     (44) statement -> PRINT IDENTIFIER SEMICOLON .
 
@@ -7094,7 +7192,7 @@ state 174
     ELSE            reduce using rule 44 (statement -> PRINT IDENTIFIER SEMICOLON .)
 
 
-state 175
+state 173
 
     (34) statement -> FOR LEFT_ROUND expression_statement . expression_statement expression RIGHT_ROUND left_curl statement_list right_curl
     (35) statement -> FOR LEFT_ROUND expression_statement . expression_statement expression RIGHT_ROUND statement
@@ -7172,7 +7270,7 @@ state 175
     INC_OP          shift and go to state 49
     DEC_OP          shift and go to state 37
 
-    expression_statement           shift and go to state 180
+    expression_statement           shift and go to state 178
     constant                       shift and go to state 35
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
@@ -7180,7 +7278,7 @@ state 175
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 176
+state 174
 
     (28) statement -> IF LEFT_ROUND expression . RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> IF LEFT_ROUND expression . RIGHT_ROUND statement
@@ -7202,7 +7300,7 @@ state 176
     (81) expression -> expression . OR_OP expression
     (89) expression -> expression . MODULO expression
 
-    RIGHT_ROUND     shift and go to state 181
+    RIGHT_ROUND     shift and go to state 179
     PLUS            shift and go to state 98
     MINUS           shift and go to state 102
     MULTIPLY        shift and go to state 100
@@ -7218,7 +7316,7 @@ state 176
     MODULO          shift and go to state 101
 
 
-state 177
+state 175
 
     (24) function_definition -> type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND left_curl statement_list right_curl .
 
@@ -7234,7 +7332,7 @@ state 177
     $end            reduce using rule 24 (function_definition -> type_specifier IDENTIFIER LEFT_ROUND argument_list RIGHT_ROUND left_curl statement_list right_curl .)
 
 
-state 178
+state 176
 
     (113) function_call_list -> function_call_list COMMA function_argument .
 
@@ -7242,11 +7340,11 @@ state 178
     COMMA           reduce using rule 113 (function_call_list -> function_call_list COMMA function_argument .)
 
 
-state 179
+state 177
 
     (37) statement -> WHILE LEFT_ROUND expression RIGHT_ROUND . left_curl statement_list right_curl
     (38) statement -> WHILE LEFT_ROUND expression RIGHT_ROUND . statement
-    (117) left_curl -> . LEFT_CURL
+    (115) left_curl -> . LEFT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -7370,14 +7468,14 @@ state 179
     constant                       shift and go to state 35
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
-    left_curl                      shift and go to state 182
+    left_curl                      shift and go to state 180
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 183
+    statement                      shift and go to state 181
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 180
+state 178
 
     (34) statement -> FOR LEFT_ROUND expression_statement expression_statement . expression RIGHT_ROUND left_curl statement_list right_curl
     (35) statement -> FOR LEFT_ROUND expression_statement expression_statement . expression RIGHT_ROUND statement
@@ -7457,9 +7555,9 @@ state 180
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
     array                          shift and go to state 40
-    expression                     shift and go to state 184
+    expression                     shift and go to state 182
 
-state 181
+state 179
 
     (28) statement -> IF LEFT_ROUND expression RIGHT_ROUND . left_curl statement_list right_curl
     (29) statement -> IF LEFT_ROUND expression RIGHT_ROUND . statement
@@ -7467,7 +7565,7 @@ state 181
     (31) statement -> IF LEFT_ROUND expression RIGHT_ROUND . left_curl statement_list right_curl ELSE statement
     (32) statement -> IF LEFT_ROUND expression RIGHT_ROUND . statement ELSE left_curl statement_list right_curl
     (33) statement -> IF LEFT_ROUND expression RIGHT_ROUND . left_curl statement_list right_curl ELSE left_curl statement_list right_curl
-    (117) left_curl -> . LEFT_CURL
+    (115) left_curl -> . LEFT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -7591,14 +7689,14 @@ state 181
     constant                       shift and go to state 35
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
-    left_curl                      shift and go to state 185
+    left_curl                      shift and go to state 183
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 186
+    statement                      shift and go to state 184
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 182
+state 180
 
     (37) statement -> WHILE LEFT_ROUND expression RIGHT_ROUND left_curl . statement_list right_curl
     (26) statement_list -> . statement_list statement
@@ -7728,11 +7826,11 @@ state 182
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
     statement                      shift and go to state 114
-    statement_list                 shift and go to state 187
+    statement_list                 shift and go to state 185
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 183
+state 181
 
     (38) statement -> WHILE LEFT_ROUND expression RIGHT_ROUND statement .
 
@@ -7769,7 +7867,7 @@ state 183
     ELSE            reduce using rule 38 (statement -> WHILE LEFT_ROUND expression RIGHT_ROUND statement .)
 
 
-state 184
+state 182
 
     (34) statement -> FOR LEFT_ROUND expression_statement expression_statement expression . RIGHT_ROUND left_curl statement_list right_curl
     (35) statement -> FOR LEFT_ROUND expression_statement expression_statement expression . RIGHT_ROUND statement
@@ -7787,7 +7885,7 @@ state 184
     (81) expression -> expression . OR_OP expression
     (89) expression -> expression . MODULO expression
 
-    RIGHT_ROUND     shift and go to state 188
+    RIGHT_ROUND     shift and go to state 186
     PLUS            shift and go to state 98
     MINUS           shift and go to state 102
     MULTIPLY        shift and go to state 100
@@ -7803,7 +7901,7 @@ state 184
     MODULO          shift and go to state 101
 
 
-state 185
+state 183
 
     (28) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl . statement_list right_curl
     (31) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl . statement_list right_curl ELSE statement
@@ -7935,11 +8033,11 @@ state 185
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
     statement                      shift and go to state 114
-    statement_list                 shift and go to state 189
+    statement_list                 shift and go to state 187
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 186
+state 184
 
     (29) statement -> IF LEFT_ROUND expression RIGHT_ROUND statement .
     (30) statement -> IF LEFT_ROUND expression RIGHT_ROUND statement . ELSE statement
@@ -7975,16 +8073,16 @@ state 186
     MINUS           reduce using rule 29 (statement -> IF LEFT_ROUND expression RIGHT_ROUND statement .)
     INC_OP          reduce using rule 29 (statement -> IF LEFT_ROUND expression RIGHT_ROUND statement .)
     DEC_OP          reduce using rule 29 (statement -> IF LEFT_ROUND expression RIGHT_ROUND statement .)
-    ELSE            shift and go to state 190
+    ELSE            shift and go to state 188
 
   ! ELSE            [ reduce using rule 29 (statement -> IF LEFT_ROUND expression RIGHT_ROUND statement .) ]
 
 
-state 187
+state 185
 
     (37) statement -> WHILE LEFT_ROUND expression RIGHT_ROUND left_curl statement_list . right_curl
     (26) statement_list -> statement_list . statement
-    (118) right_curl -> . RIGHT_CURL
+    (116) right_curl -> . RIGHT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -8072,7 +8170,7 @@ state 187
     (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
     (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    RIGHT_CURL      shift and go to state 165
+    RIGHT_CURL      shift and go to state 163
     IF              shift and go to state 116
     FOR             shift and go to state 115
     WHILE           shift and go to state 109
@@ -8109,17 +8207,17 @@ state 187
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
-    right_curl                     shift and go to state 191
+    right_curl                     shift and go to state 189
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 166
+    statement                      shift and go to state 164
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 188
+state 186
 
     (34) statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND . left_curl statement_list right_curl
     (35) statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND . statement
-    (117) left_curl -> . LEFT_CURL
+    (115) left_curl -> . LEFT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -8243,20 +8341,20 @@ state 188
     constant                       shift and go to state 35
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
-    left_curl                      shift and go to state 192
+    left_curl                      shift and go to state 190
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 193
+    statement                      shift and go to state 191
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 189
+state 187
 
     (28) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list . right_curl
     (31) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list . right_curl ELSE statement
     (33) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list . right_curl ELSE left_curl statement_list right_curl
     (26) statement_list -> statement_list . statement
-    (118) right_curl -> . RIGHT_CURL
+    (116) right_curl -> . RIGHT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -8344,7 +8442,7 @@ state 189
     (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
     (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    RIGHT_CURL      shift and go to state 165
+    RIGHT_CURL      shift and go to state 163
     IF              shift and go to state 116
     FOR             shift and go to state 115
     WHILE           shift and go to state 109
@@ -8381,13 +8479,13 @@ state 189
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
-    right_curl                     shift and go to state 194
+    right_curl                     shift and go to state 192
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 166
+    statement                      shift and go to state 164
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 190
+state 188
 
     (30) statement -> IF LEFT_ROUND expression RIGHT_ROUND statement ELSE . statement
     (32) statement -> IF LEFT_ROUND expression RIGHT_ROUND statement ELSE . left_curl statement_list right_curl
@@ -8408,7 +8506,7 @@ state 190
     (42) statement -> . CONTINUE SEMICOLON
     (43) statement -> . BREAK SEMICOLON
     (44) statement -> . PRINT IDENTIFIER SEMICOLON
-    (117) left_curl -> . LEFT_CURL
+    (115) left_curl -> . LEFT_CURL
     (68) expression_statement -> . SEMICOLON
     (69) expression_statement -> . expression SEMICOLON
     (45) declaration_statement -> . type_specifier declaration_list SEMICOLON
@@ -8515,14 +8613,14 @@ state 190
     constant                       shift and go to state 35
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
-    left_curl                      shift and go to state 195
+    left_curl                      shift and go to state 193
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 196
+    statement                      shift and go to state 194
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 191
+state 189
 
     (37) statement -> WHILE LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .
 
@@ -8559,9 +8657,221 @@ state 191
     ELSE            reduce using rule 37 (statement -> WHILE LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
 
 
-state 192
+state 190
 
     (34) statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND left_curl . statement_list right_curl
+    (26) statement_list -> . statement_list statement
+    (27) statement_list -> . statement
+    (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
+    (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
+    (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
+    (31) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE statement
+    (32) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl statement_list right_curl
+    (33) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE left_curl statement_list right_curl
+    (34) statement -> . FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND left_curl statement_list right_curl
+    (35) statement -> . FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement
+    (36) statement -> . expression_statement
+    (37) statement -> . WHILE LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
+    (38) statement -> . WHILE LEFT_ROUND expression RIGHT_ROUND statement
+    (39) statement -> . RETURN SEMICOLON
+    (40) statement -> . RETURN expression SEMICOLON
+    (41) statement -> . declaration_statement
+    (42) statement -> . CONTINUE SEMICOLON
+    (43) statement -> . BREAK SEMICOLON
+    (44) statement -> . PRINT IDENTIFIER SEMICOLON
+    (68) expression_statement -> . SEMICOLON
+    (69) expression_statement -> . expression SEMICOLON
+    (45) declaration_statement -> . type_specifier declaration_list SEMICOLON
+    (70) expression -> . expression PLUS expression
+    (71) expression -> . expression MINUS expression
+    (72) expression -> . expression MULTIPLY expression
+    (73) expression -> . expression DIVIDE expression
+    (74) expression -> . expression L_OP expression
+    (75) expression -> . expression G_OP expression
+    (76) expression -> . expression NE_OP expression
+    (77) expression -> . expression EQ_OP expression
+    (78) expression -> . expression GE_OP expression
+    (79) expression -> . expression LE_OP expression
+    (80) expression -> . expression AND_OP expression
+    (81) expression -> . expression OR_OP expression
+    (82) expression -> . LEFT_ROUND expression RIGHT_ROUND
+    (83) expression -> . IDENTIFIER
+    (84) expression -> . array
+    (85) expression -> . constant
+    (86) expression -> . assignment
+    (87) expression -> . unary_expression
+    (88) expression -> . function_call
+    (89) expression -> . expression MODULO expression
+    (7) type_specifier -> . CHAR
+    (8) type_specifier -> . VOID
+    (9) type_specifier -> . SHORT
+    (10) type_specifier -> . INT
+    (11) type_specifier -> . LONG
+    (12) type_specifier -> . FLOAT
+    (13) type_specifier -> . DOUBLE
+    (14) type_specifier -> . SIGNED
+    (15) type_specifier -> . UNSIGNED
+    (66) array -> . IDENTIFIER array_index
+    (52) constant -> . HEX_NUM
+    (53) constant -> . REAL_NUM
+    (54) constant -> . INT_NUM
+    (55) constant -> . CHARACTER
+    (56) constant -> . STRING
+    (57) constant -> . EXP_NUM
+    (58) constant -> . PLUS HEX_NUM
+    (59) constant -> . PLUS REAL_NUM
+    (60) constant -> . PLUS INT_NUM
+    (61) constant -> . PLUS EXP_NUM
+    (62) constant -> . MINUS HEX_NUM
+    (63) constant -> . MINUS REAL_NUM
+    (64) constant -> . MINUS INT_NUM
+    (65) constant -> . MINUS EXP_NUM
+    (90) assignment -> . array EQUAL expression
+    (91) assignment -> . IDENTIFIER EQUAL expression
+    (92) assignment -> . IDENTIFIER ADD_ASSIGN expression
+    (93) assignment -> . IDENTIFIER SUB_ASSIGN expression
+    (94) assignment -> . IDENTIFIER DIV_ASSIGN expression
+    (95) assignment -> . IDENTIFIER MUL_ASSIGN expression
+    (96) assignment -> . IDENTIFIER MOD_ASSIGN expression
+    (97) assignment -> . array ADD_ASSIGN expression
+    (98) assignment -> . array SUB_ASSIGN expression
+    (99) assignment -> . array DIV_ASSIGN expression
+    (100) assignment -> . array MUL_ASSIGN expression
+    (101) assignment -> . array MOD_ASSIGN expression
+    (102) unary_expression -> . IDENTIFIER INC_OP
+    (103) unary_expression -> . IDENTIFIER DEC_OP
+    (104) unary_expression -> . array INC_OP
+    (105) unary_expression -> . array DEC_OP
+    (106) unary_expression -> . INC_OP IDENTIFIER
+    (107) unary_expression -> . INC_OP array
+    (108) unary_expression -> . DEC_OP IDENTIFIER
+    (109) unary_expression -> . DEC_OP array
+    (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
+    (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
+
+    IF              shift and go to state 116
+    FOR             shift and go to state 115
+    WHILE           shift and go to state 109
+    RETURN          shift and go to state 108
+    CONTINUE        shift and go to state 113
+    BREAK           shift and go to state 117
+    PRINT           shift and go to state 110
+    SEMICOLON       shift and go to state 112
+    LEFT_ROUND      shift and go to state 48
+    IDENTIFIER      shift and go to state 45
+    CHAR            shift and go to state 4
+    VOID            shift and go to state 2
+    SHORT           shift and go to state 1
+    INT             shift and go to state 12
+    LONG            shift and go to state 6
+    FLOAT           shift and go to state 14
+    DOUBLE          shift and go to state 13
+    SIGNED          shift and go to state 15
+    UNSIGNED        shift and go to state 3
+    HEX_NUM         shift and go to state 47
+    REAL_NUM        shift and go to state 52
+    INT_NUM         shift and go to state 50
+    CHARACTER       shift and go to state 43
+    STRING          shift and go to state 42
+    EXP_NUM         shift and go to state 39
+    PLUS            shift and go to state 44
+    MINUS           shift and go to state 41
+    INC_OP          shift and go to state 49
+    DEC_OP          shift and go to state 37
+
+    expression_statement           shift and go to state 107
+    type_specifier                 shift and go to state 111
+    constant                       shift and go to state 35
+    unary_expression               shift and go to state 36
+    assignment                     shift and go to state 46
+    function_call                  shift and go to state 38
+    declaration_statement          shift and go to state 118
+    statement                      shift and go to state 114
+    statement_list                 shift and go to state 195
+    array                          shift and go to state 40
+    expression                     shift and go to state 120
+
+state 191
+
+    (35) statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .
+
+    RIGHT_CURL      reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    IF              reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    FOR             reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    WHILE           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    RETURN          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    CONTINUE        reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    BREAK           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    PRINT           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    SEMICOLON       reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    LEFT_ROUND      reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    IDENTIFIER      reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    CHAR            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    VOID            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    SHORT           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    INT             reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    LONG            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    FLOAT           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    DOUBLE          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    SIGNED          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    UNSIGNED        reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    HEX_NUM         reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    REAL_NUM        reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    INT_NUM         reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    CHARACTER       reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    STRING          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    EXP_NUM         reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    PLUS            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    MINUS           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    INC_OP          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    DEC_OP          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+    ELSE            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
+
+
+state 192
+
+    (28) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .
+    (31) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl . ELSE statement
+    (33) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl . ELSE left_curl statement_list right_curl
+
+    RIGHT_CURL      reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    IF              reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    FOR             reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    WHILE           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    RETURN          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    CONTINUE        reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    BREAK           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    PRINT           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    SEMICOLON       reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    LEFT_ROUND      reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    IDENTIFIER      reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    CHAR            reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    VOID            reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    SHORT           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    INT             reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    LONG            reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    FLOAT           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    DOUBLE          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    SIGNED          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    UNSIGNED        reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    HEX_NUM         reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    REAL_NUM        reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    INT_NUM         reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    CHARACTER       reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    STRING          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    EXP_NUM         reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    PLUS            reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    MINUS           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    INC_OP          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    DEC_OP          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
+    ELSE            shift and go to state 196
+
+  ! ELSE            [ reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .) ]
+
+
+state 193
+
+    (32) statement -> IF LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl . statement_list right_curl
     (26) statement_list -> . statement_list statement
     (27) statement_list -> . statement
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
@@ -8693,219 +9003,7 @@ state 192
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 193
-
-    (35) statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .
-
-    RIGHT_CURL      reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    IF              reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    FOR             reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    WHILE           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    RETURN          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    CONTINUE        reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    BREAK           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    PRINT           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    SEMICOLON       reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    LEFT_ROUND      reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    IDENTIFIER      reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    CHAR            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    VOID            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    SHORT           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    INT             reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    LONG            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    FLOAT           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    DOUBLE          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    SIGNED          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    UNSIGNED        reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    HEX_NUM         reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    REAL_NUM        reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    INT_NUM         reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    CHARACTER       reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    STRING          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    EXP_NUM         reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    PLUS            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    MINUS           reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    INC_OP          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    DEC_OP          reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-    ELSE            reduce using rule 35 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement .)
-
-
 state 194
-
-    (28) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .
-    (31) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl . ELSE statement
-    (33) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl . ELSE left_curl statement_list right_curl
-
-    RIGHT_CURL      reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    IF              reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    FOR             reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    WHILE           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    RETURN          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    CONTINUE        reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    BREAK           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    PRINT           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    SEMICOLON       reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    LEFT_ROUND      reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    IDENTIFIER      reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    CHAR            reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    VOID            reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    SHORT           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    INT             reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    LONG            reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    FLOAT           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    DOUBLE          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    SIGNED          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    UNSIGNED        reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    HEX_NUM         reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    REAL_NUM        reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    INT_NUM         reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    CHARACTER       reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    STRING          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    EXP_NUM         reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    PLUS            reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    MINUS           reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    INC_OP          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    DEC_OP          reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .)
-    ELSE            shift and go to state 198
-
-  ! ELSE            [ reduce using rule 28 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl .) ]
-
-
-state 195
-
-    (32) statement -> IF LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl . statement_list right_curl
-    (26) statement_list -> . statement_list statement
-    (27) statement_list -> . statement
-    (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
-    (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
-    (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
-    (31) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE statement
-    (32) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl statement_list right_curl
-    (33) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE left_curl statement_list right_curl
-    (34) statement -> . FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND left_curl statement_list right_curl
-    (35) statement -> . FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND statement
-    (36) statement -> . expression_statement
-    (37) statement -> . WHILE LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
-    (38) statement -> . WHILE LEFT_ROUND expression RIGHT_ROUND statement
-    (39) statement -> . RETURN SEMICOLON
-    (40) statement -> . RETURN expression SEMICOLON
-    (41) statement -> . declaration_statement
-    (42) statement -> . CONTINUE SEMICOLON
-    (43) statement -> . BREAK SEMICOLON
-    (44) statement -> . PRINT IDENTIFIER SEMICOLON
-    (68) expression_statement -> . SEMICOLON
-    (69) expression_statement -> . expression SEMICOLON
-    (45) declaration_statement -> . type_specifier declaration_list SEMICOLON
-    (70) expression -> . expression PLUS expression
-    (71) expression -> . expression MINUS expression
-    (72) expression -> . expression MULTIPLY expression
-    (73) expression -> . expression DIVIDE expression
-    (74) expression -> . expression L_OP expression
-    (75) expression -> . expression G_OP expression
-    (76) expression -> . expression NE_OP expression
-    (77) expression -> . expression EQ_OP expression
-    (78) expression -> . expression GE_OP expression
-    (79) expression -> . expression LE_OP expression
-    (80) expression -> . expression AND_OP expression
-    (81) expression -> . expression OR_OP expression
-    (82) expression -> . LEFT_ROUND expression RIGHT_ROUND
-    (83) expression -> . IDENTIFIER
-    (84) expression -> . array
-    (85) expression -> . constant
-    (86) expression -> . assignment
-    (87) expression -> . unary_expression
-    (88) expression -> . function_call
-    (89) expression -> . expression MODULO expression
-    (7) type_specifier -> . CHAR
-    (8) type_specifier -> . VOID
-    (9) type_specifier -> . SHORT
-    (10) type_specifier -> . INT
-    (11) type_specifier -> . LONG
-    (12) type_specifier -> . FLOAT
-    (13) type_specifier -> . DOUBLE
-    (14) type_specifier -> . SIGNED
-    (15) type_specifier -> . UNSIGNED
-    (66) array -> . IDENTIFIER array_index
-    (52) constant -> . HEX_NUM
-    (53) constant -> . REAL_NUM
-    (54) constant -> . INT_NUM
-    (55) constant -> . CHARACTER
-    (56) constant -> . STRING
-    (57) constant -> . EXP_NUM
-    (58) constant -> . PLUS HEX_NUM
-    (59) constant -> . PLUS REAL_NUM
-    (60) constant -> . PLUS INT_NUM
-    (61) constant -> . PLUS EXP_NUM
-    (62) constant -> . MINUS HEX_NUM
-    (63) constant -> . MINUS REAL_NUM
-    (64) constant -> . MINUS INT_NUM
-    (65) constant -> . MINUS EXP_NUM
-    (90) assignment -> . array EQUAL expression
-    (91) assignment -> . IDENTIFIER EQUAL expression
-    (92) assignment -> . IDENTIFIER ADD_ASSIGN expression
-    (93) assignment -> . IDENTIFIER SUB_ASSIGN expression
-    (94) assignment -> . IDENTIFIER DIV_ASSIGN expression
-    (95) assignment -> . IDENTIFIER MUL_ASSIGN expression
-    (96) assignment -> . IDENTIFIER MOD_ASSIGN expression
-    (97) assignment -> . array ADD_ASSIGN expression
-    (98) assignment -> . array SUB_ASSIGN expression
-    (99) assignment -> . array DIV_ASSIGN expression
-    (100) assignment -> . array MUL_ASSIGN expression
-    (101) assignment -> . array MOD_ASSIGN expression
-    (102) unary_expression -> . IDENTIFIER INC_OP
-    (103) unary_expression -> . IDENTIFIER DEC_OP
-    (104) unary_expression -> . array INC_OP
-    (105) unary_expression -> . array DEC_OP
-    (106) unary_expression -> . INC_OP IDENTIFIER
-    (107) unary_expression -> . INC_OP array
-    (108) unary_expression -> . DEC_OP IDENTIFIER
-    (109) unary_expression -> . DEC_OP array
-    (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
-    (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
-
-    IF              shift and go to state 116
-    FOR             shift and go to state 115
-    WHILE           shift and go to state 109
-    RETURN          shift and go to state 108
-    CONTINUE        shift and go to state 113
-    BREAK           shift and go to state 117
-    PRINT           shift and go to state 110
-    SEMICOLON       shift and go to state 112
-    LEFT_ROUND      shift and go to state 48
-    IDENTIFIER      shift and go to state 45
-    CHAR            shift and go to state 4
-    VOID            shift and go to state 2
-    SHORT           shift and go to state 1
-    INT             shift and go to state 12
-    LONG            shift and go to state 6
-    FLOAT           shift and go to state 14
-    DOUBLE          shift and go to state 13
-    SIGNED          shift and go to state 15
-    UNSIGNED        shift and go to state 3
-    HEX_NUM         shift and go to state 47
-    REAL_NUM        shift and go to state 52
-    INT_NUM         shift and go to state 50
-    CHARACTER       shift and go to state 43
-    STRING          shift and go to state 42
-    EXP_NUM         shift and go to state 39
-    PLUS            shift and go to state 44
-    MINUS           shift and go to state 41
-    INC_OP          shift and go to state 49
-    DEC_OP          shift and go to state 37
-
-    expression_statement           shift and go to state 107
-    type_specifier                 shift and go to state 111
-    constant                       shift and go to state 35
-    unary_expression               shift and go to state 36
-    assignment                     shift and go to state 46
-    function_call                  shift and go to state 38
-    declaration_statement          shift and go to state 118
-    statement                      shift and go to state 114
-    statement_list                 shift and go to state 199
-    array                          shift and go to state 40
-    expression                     shift and go to state 120
-
-state 196
 
     (30) statement -> IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement .
 
@@ -8942,11 +9040,11 @@ state 196
     ELSE            reduce using rule 30 (statement -> IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement .)
 
 
-state 197
+state 195
 
     (34) statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND left_curl statement_list . right_curl
     (26) statement_list -> statement_list . statement
-    (118) right_curl -> . RIGHT_CURL
+    (116) right_curl -> . RIGHT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -9034,7 +9132,7 @@ state 197
     (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
     (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    RIGHT_CURL      shift and go to state 165
+    RIGHT_CURL      shift and go to state 163
     IF              shift and go to state 116
     FOR             shift and go to state 115
     WHILE           shift and go to state 109
@@ -9071,13 +9169,13 @@ state 197
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
-    right_curl                     shift and go to state 200
+    right_curl                     shift and go to state 198
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 166
+    statement                      shift and go to state 164
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 198
+state 196
 
     (31) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE . statement
     (33) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE . left_curl statement_list right_curl
@@ -9098,7 +9196,7 @@ state 198
     (42) statement -> . CONTINUE SEMICOLON
     (43) statement -> . BREAK SEMICOLON
     (44) statement -> . PRINT IDENTIFIER SEMICOLON
-    (117) left_curl -> . LEFT_CURL
+    (115) left_curl -> . LEFT_CURL
     (68) expression_statement -> . SEMICOLON
     (69) expression_statement -> . expression SEMICOLON
     (45) declaration_statement -> . type_specifier declaration_list SEMICOLON
@@ -9205,18 +9303,18 @@ state 198
     constant                       shift and go to state 35
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
-    left_curl                      shift and go to state 201
+    left_curl                      shift and go to state 199
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 202
+    statement                      shift and go to state 200
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 199
+state 197
 
     (32) statement -> IF LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl statement_list . right_curl
     (26) statement_list -> statement_list . statement
-    (118) right_curl -> . RIGHT_CURL
+    (116) right_curl -> . RIGHT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -9304,7 +9402,7 @@ state 199
     (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
     (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    RIGHT_CURL      shift and go to state 165
+    RIGHT_CURL      shift and go to state 163
     IF              shift and go to state 116
     FOR             shift and go to state 115
     WHILE           shift and go to state 109
@@ -9341,13 +9439,13 @@ state 199
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
-    right_curl                     shift and go to state 203
+    right_curl                     shift and go to state 201
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 166
+    statement                      shift and go to state 164
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 200
+state 198
 
     (34) statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND left_curl statement_list right_curl .
 
@@ -9384,7 +9482,7 @@ state 200
     ELSE            reduce using rule 34 (statement -> FOR LEFT_ROUND expression_statement expression_statement expression RIGHT_ROUND left_curl statement_list right_curl .)
 
 
-state 201
+state 199
 
     (33) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE left_curl . statement_list right_curl
     (26) statement_list -> . statement_list statement
@@ -9514,11 +9612,11 @@ state 201
     function_call                  shift and go to state 38
     declaration_statement          shift and go to state 118
     statement                      shift and go to state 114
-    statement_list                 shift and go to state 204
+    statement_list                 shift and go to state 202
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 202
+state 200
 
     (31) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE statement .
 
@@ -9555,7 +9653,7 @@ state 202
     ELSE            reduce using rule 31 (statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE statement .)
 
 
-state 203
+state 201
 
     (32) statement -> IF LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl statement_list right_curl .
 
@@ -9592,11 +9690,11 @@ state 203
     ELSE            reduce using rule 32 (statement -> IF LEFT_ROUND expression RIGHT_ROUND statement ELSE left_curl statement_list right_curl .)
 
 
-state 204
+state 202
 
     (33) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE left_curl statement_list . right_curl
     (26) statement_list -> statement_list . statement
-    (118) right_curl -> . RIGHT_CURL
+    (116) right_curl -> . RIGHT_CURL
     (28) statement -> . IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl
     (29) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement
     (30) statement -> . IF LEFT_ROUND expression RIGHT_ROUND statement ELSE statement
@@ -9684,7 +9782,7 @@ state 204
     (110) function_call -> . IDENTIFIER LEFT_ROUND function_call_list RIGHT_ROUND
     (111) function_call -> . IDENTIFIER LEFT_ROUND RIGHT_ROUND
 
-    RIGHT_CURL      shift and go to state 165
+    RIGHT_CURL      shift and go to state 163
     IF              shift and go to state 116
     FOR             shift and go to state 115
     WHILE           shift and go to state 109
@@ -9721,13 +9819,13 @@ state 204
     unary_expression               shift and go to state 36
     assignment                     shift and go to state 46
     function_call                  shift and go to state 38
-    right_curl                     shift and go to state 205
+    right_curl                     shift and go to state 203
     declaration_statement          shift and go to state 118
-    statement                      shift and go to state 166
+    statement                      shift and go to state 164
     array                          shift and go to state 40
     expression                     shift and go to state 120
 
-state 205
+state 203
 
     (33) statement -> IF LEFT_ROUND expression RIGHT_ROUND left_curl statement_list right_curl ELSE left_curl statement_list right_curl .
 

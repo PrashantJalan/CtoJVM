@@ -168,6 +168,7 @@ class Node:
 		self.parent = None
 		self.type = type
 		self.code=[]
+		self.dataType = "void"
 		Node.count+=1
 		if not children: self.children = []
 		elif hasattr(children,'__len__'):
@@ -333,10 +334,16 @@ def p_function_definition_1(t):
 		i=0
 		for it in t[4].children:
 			param += javaType(it.children[0].type)
-			res2 = currentSymbolTable.get(it.children[1].type)
-			if res2!=None:
-				gen.append('iload '+str(i))
-				gen.append('istore '+str(res2[2]))
+			if it.children[1].type=="array":
+				res2 = currentSymbolTable.get(it.children[1].children[0].type)
+				if res2!=None:
+					gen.append('aload '+str(i))
+					gen.append('astore '+str(res2[2]))
+			else:
+				res2 = currentSymbolTable.get(it.children[1].type)
+				if res2!=None:
+					gen.append('iload '+str(i))
+					gen.append('istore '+str(res2[2]))
 			i += 1
 		t[0].addCode([".method public static "+ t[2] +"("+param+")"+javaType(t[1].type)])
 		t[0].addCode([".limit locals 255" + '\n' + ".limit stack 255\n"])
@@ -846,7 +853,10 @@ def p_expression_14(t):
 	t[0] = Node(t[1], [])
 	res = checkIdentifierError(t[1])
 	if res!= None:
-		t[0].addCode(["iload "+str(res[2])])
+		if res[1].type=="array_index":
+			t[0].addCode(["aload "+str(res[2])])
+		else:	
+			t[0].addCode(["iload "+str(res[2])])
 
 def p_expression_15(t):
 	'''expression : array'''
@@ -1152,20 +1162,13 @@ def p_function_call_1(t):
 	checkFunctionError(t[0], False)
 	res = currentSymbolTable.get(t[1])
 	param = ''
-	i = 0
-	for it in res[1].children:
-		param += javaType(it.children[0].type)
-		arg = t[3].children[i].type
-		res2 = currentSymbolTable.get(arg)
-		if res2==None:
-			if it.children[0].type=="int":
-				valu = int(arg)
-			t[0].addCode(["ldc "+str(valu)])
-		else:
-			t[0].addCode(["iload "+str(res2[2])])
-		i += 1
+	for exp in t[3].children:
+		t[0].addCode(exp.code)
+		param += javaType(exp.dataType)
 	t[0].addCode(["invokestatic "+filename+"/"+t[1]+"("+param+")"+javaType(res[0])])
-
+	if javaType(res[0])=="V":
+		t[0].addCode(["iconst_1"])
+	
 def p_function_call_2(t):
 	'function_call : IDENTIFIER LEFT_ROUND RIGHT_ROUND'
 	t[0] = Node('function_call',[Node(t[1],[]), Node('function_call_list', [])])
@@ -1173,6 +1176,8 @@ def p_function_call_2(t):
 	global filename
 	res = currentSymbolTable.get(t[0].children[0].type)
 	t[0].addCode(["invokestatic "+filename+"/"+t[1]+"()"+javaType(res[0])])
+	if javaType(res[0])=="V":
+		t[0].addCode(["iconst_1"])
 
 def p_function_call_list_1(t):
 	'function_call_list : function_argument'
@@ -1183,18 +1188,8 @@ def p_function_call_list_2(t):
 	t[1].add(t[3])
 	t[0] = t[1]
 
-def p_function_argument_1(t):
-	'function_argument : IDENTIFIER'
-	t[0]= Node(t[1], [])
-	checkIdentifierError(t[1])
-
-def p_function_argument_2(t):
-	'''function_argument : array'''
-	t[0] = t[1]
-	checkArrayError(t[1])
-
-def p_function_argument_3(t):
-	'''function_argument : constant'''
+def p_function_argument(t):
+	'''function_argument : expression'''
 	t[0] = t[1]
 
 def p_left_curl(t):
