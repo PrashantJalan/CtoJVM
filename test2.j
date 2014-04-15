@@ -31,10 +31,12 @@ return
 .limit locals 255
 .limit stack 255
 
+ldc 3
+istore 56
 ldc 4
-istore 54
+istore 56
 ldc 5
-iload 54
+iload 56
 invokestatic test2/foo(II)V
 return
 .end method

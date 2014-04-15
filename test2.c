@@ -5,7 +5,7 @@ void foo(int x, int y)	{
 }
 void main()
 {
-	int b;
+	int a,c[4],b=3;
 	b = 4;
 	foo(5,b);
 }

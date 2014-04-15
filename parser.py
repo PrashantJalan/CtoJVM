@@ -1,11 +1,10 @@
 """
 TODO-
 Code genration : function calls and  <x>const/mul/add/sub
-Switch case
 Type checking
+Switch case
 struct
 b = b++ returns 0
-declaration assignment
 """
 
 import sys
@@ -593,7 +592,9 @@ def p_declaration_statement(t):
 				currentSymbolTable.add(item.children[0].type, t[1].type, item.children[1])
 			else:
 				currentSymbolTable.add(item.children[0].type, t[1].type)
-	t[0].addCode(t[2].code)
+				t[0].addCode(item.children[1].code)
+				res = currentSymbolTable.get(item.children[0].type)
+				t[0].addCode(["istore "+str(res[2])])
 
 def p_declaration_list_1(t):
 	'declaration_list : declaration'
@@ -604,7 +605,6 @@ def p_declaration_list_2(t):
 	'declaration_list : declaration_list COMMA declaration'
 	t[1].add(t[3])
 	t[0] = t[1]
-	t[0].addCode(t[3].code)
 
 def p_declaration_1(t):
 	'declaration : IDENTIFIER'
@@ -618,9 +618,6 @@ def p_declaration_2(t):
 def p_declaration_assignment(t):
 	'declaration_assignment : IDENTIFIER EQUAL expression'
 	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
-	t[0].addCode(t[3].code)
-	gen = t[1]+"="+t[3].var
-	t[0].addCode([gen])
 
 def p_constant_1(t):
 	'''constant : HEX_NUM
