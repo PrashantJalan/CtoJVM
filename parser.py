@@ -968,12 +968,13 @@ def p_expression_19(t):
 	true = t[0].newLabel()
 	Sn = t[0].newLabel()
 	t[0].addCode(t[2].code)
-	t[0].addCode("ifeq "+true)
+	t[0].addCode(["ifeq "+true])
 	t[0].addCode(["iconst_0"])
 	t[0].addCode(["goto "+Sn])
 	t[0].addCode([true+":"])
 	t[0].addCode(["iconst_1"])
 	t[0].addCode([Sn+":"])
+	t[0].dataType = t[2].dataType
 
 def p_assignment_1(t):
 	'assignment : array EQUAL expression'
