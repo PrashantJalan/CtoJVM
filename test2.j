@@ -19,14 +19,33 @@ iload 51
 iastore
 iconst_1
 pop
+ldc 2
+istore 52
+ldc 2.2
+fstore 55
+ldc 2.5
+fstore 53
+iconst_1
+pop
+ldc 2
+istore 56
+iload 56
+i2f
+fload 53
+fmul
+fload 55
+fadd
+fstore 54
+iconst_1
+pop
 aload 50
 ldc 9
 iaload
-istore 52
-iload 52
+istore 57
+fload 54
 	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 250
-    		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
+    		invokestatic java/lang/String/valueOf(F)Ljava/lang/String;
     		astore 251
     		aload 250
     		aload 251
@@ -39,8 +58,8 @@ return
 
 ldc 10
 newarray int
-astore 54
-aload 54
+astore 59
+aload 59
 ldc 5
 ldc 6
 imul

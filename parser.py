@@ -1,8 +1,7 @@
 """
 TODO-
-Type checking
-Switch case
 struct
+Optimisation
 """
 
 import sys
@@ -18,8 +17,45 @@ filename = ''
 def javaType(s):
 	if s=="int":
 		return 'I'
+	elif s=="float":
+		return 'F'
+	elif s=="char":
+		return 'C'
 	else:
 		return 'V'
+
+def codeGenerator(exp1, exp2, op):
+	code = []
+	type = ''
+	if exp1.dataType == "int" and exp2.dataType == "int":
+		code += exp1.code
+		code += exp2.code	
+		code += ["i"+op]
+		type = "int"
+	elif exp1.dataType == "float" and exp2.dataType == "float":
+		code += exp1.code
+		code += exp2.code	
+		code += ["f"+op]
+		type = "float"
+	elif exp1.dataType == "int" and exp2.dataType == "float":
+		code += exp1.code
+		code += ["i2f"]
+		code += exp2.code
+		code += ["f"+op]
+		type = "float"
+	elif exp1.dataType == "float" and exp2.dataType == "int":
+		code += exp1.code
+		code += exp2.code
+		code += ["i2f"]
+		code += ["f"+op]
+		type = "float"
+	return [code, type]
+
+def assignmentError(type1, type2):
+	if type1!=type2:
+		print "Error! Type mismatch in assignment operation"
+		global error
+		error = True
 
 def checkIdentifierError(t):
 	global error
@@ -333,17 +369,18 @@ def p_function_definition_1(t):
 		gen = []
 		i=0
 		for it in t[4].children:
-			param += javaType(it.children[0].type)
 			if it.children[1].type=="array":
+				param += '['+javaType(it.children[0].type)
 				res2 = currentSymbolTable.get(it.children[1].children[0].type)
 				if res2!=None:
 					gen.append('aload '+str(i))
 					gen.append('astore '+str(res2[2]))
 			else:
+				param += javaType(it.children[0].type)
 				res2 = currentSymbolTable.get(it.children[1].type)
 				if res2!=None:
-					gen.append('iload '+str(i))
-					gen.append('istore '+str(res2[2]))
+					gen.append(javaType(it.children[0].type).lower()+'load '+str(i))
+					gen.append(javaType(it.children[0].type).lower()+'store '+str(res2[2]))
 			i += 1
 		t[0].addCode([".method public static "+ t[2] +"("+param+")"+javaType(t[1].type)])
 		t[0].addCode([".limit locals 255" + '\n' + ".limit stack 255\n"])
@@ -600,10 +637,10 @@ def p_statement_17(t):
 	t[0] = Node('print',[Node(t[1],[])])
 	res = checkIdentifierError(t[2])
 	if res != None:
-		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
 	x = '''	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 250
-    		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
+    		invokestatic java/lang/String/valueOf('''+javaType(res[0])+''')Ljava/lang/String;
     		astore 251
     		aload 250
     		aload 251
@@ -628,7 +665,7 @@ def p_declaration_statement(t):
 				currentSymbolTable.add(item.children[0].type, t[1].type)
 				t[0].addCode(item.children[1].code)
 				res = currentSymbolTable.get(item.children[0].type)
-				t[0].addCode(["istore "+str(res[2])])
+				t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
 
 def p_declaration_list_1(t):
 	'declaration_list : declaration'
@@ -655,27 +692,52 @@ def p_declaration_assignment(t):
 
 def p_constant_1(t):
 	'''constant : HEX_NUM
-				| REAL_NUM
-				| INT_NUM
-				| CHARACTER
-				| STRING
-				| EXP_NUM'''
+				| INT_NUM '''
 	t[0] = Node(t[1], [])
+	t[0].dataType = "int"
+	t[0].addCode(["ldc "+str(int(t[1]))])
 
 def p_constant_2(t):
-	'''constant : PLUS HEX_NUM
-				| PLUS REAL_NUM
-				| PLUS INT_NUM
-				| PLUS EXP_NUM'''
-	t[0] = Node(t[2], [])
+	'''constant : REAL_NUM
+				| EXP_NUM '''
+	t[0] = Node(t[1], [])
+	t[0].dataType = "float"
+	t[0].addCode(["ldc "+str(float(t[1]))])
 
 def p_constant_3(t):
-	'''constant : MINUS HEX_NUM
-				| MINUS REAL_NUM
-				| MINUS INT_NUM
-				| MINUS EXP_NUM'''
-	t[2] = '-'+t[2]
+	'''constant : CHARACTER
+				| STRING '''
+	t[0] = Node(t[1], [])
+	t[0].dataType = "char"
+	t[0].addCode(['ldc "'+t[1]+'"'])
+
+def p_constant_4(t):
+	'''constant : PLUS HEX_NUM
+				| PLUS INT_NUM '''
 	t[0] = Node(t[2], [])
+	t[0].dataType = "int"
+	t[0].addCode(["ldc "+str(int(t[2]))])
+
+def p_constant_5(t):
+	'''constant : PLUS REAL_NUM
+				| PLUS EXP_NUM '''
+	t[0] = Node(t[2], [])
+	t[0].dataType = "float"
+	t[0].addCode(["ldc "+str(float(t[2]))])
+
+def p_constant_4(t):
+	'''constant : MINUS HEX_NUM
+				| MINUS INT_NUM '''
+	t[0] = Node(t[2], [])
+	t[0].dataType = "int"
+	t[0].addCode(["ldc "+str(int('-'+t[2]))])
+
+def p_constant_5(t):
+	'''constant : MINUS REAL_NUM
+				| MINUS EXP_NUM '''
+	t[0] = Node(t[2], [])
+	t[0].dataType = "float"
+	t[0].addCode(["ldc "+str(float('-'+t[2]))])
 
 def p_array(t):
 	'array : IDENTIFIER array_index'
@@ -697,30 +759,30 @@ def p_expression_statement_2(t):
 def p_expression_1(t):
 	'expression : expression PLUS expression'
 	t[0]=Node('PLUS', [t[1], t[3]])
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["iadd"])
+	res = codeGenerator(t[1], t[3], "add")
+	t[0].addCode(res[0])
+	t[0].dataType = res[1]
 
 def p_expression_2(t):
 	'expression : expression MINUS expression'
 	t[0]=Node('MINUS', [t[1], t[3]])
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["isub"])
+	res = codeGenerator(t[1], t[3], "sub")
+	t[0].addCode(res[0])
+	t[0].dataType = res[1]
 
 def p_expression_3(t):
 	'expression : expression MULTIPLY expression'
 	t[0]=Node('MULTIPLY', [t[1], t[3]])
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["imul"])
+	res = codeGenerator(t[1], t[3], "mul")
+	t[0].addCode(res[0])
+	t[0].dataType = res[1]
 
 def p_expression_4(t):
 	'expression : expression DIVIDE expression'
 	t[0]=Node('DIVIDE', [t[1], t[3]])
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["idiv"])
+	res = codeGenerator(t[1], t[3], "div")
+	t[0].addCode(res[0])
+	t[0].dataType = res[1]
 
 def p_expression_5(t):
 	'expression : expression L_OP expression'
@@ -758,9 +820,9 @@ def p_expression_7(t):
 	nvar = t[0].newVar()
 	true = t[0].newLabel()
 	Sn = t[0].newLabel()
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["if_icmpne "+true])
+	res = codeGenerator(t[1], t[3], "sub")
+	t[0].addCode(res[0])
+	t[0].addCode(["ifne "+true])
 	t[0].addCode(["iconst_0"])
 	t[0].addCode(["goto "+Sn])
 	t[0].addCode([true+":"])
@@ -773,9 +835,9 @@ def p_expression_8(t):
 	nvar = t[0].newVar()
 	true = t[0].newLabel()
 	Sn = t[0].newLabel()
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["if_icmpeq "+true])
+	res = codeGenerator(t[1], t[3], "sub")
+	t[0].addCode(res[0])
+	t[0].addCode(["ifeq "+true])
 	t[0].addCode(["iconst_0"])
 	t[0].addCode(["goto "+Sn])
 	t[0].addCode([true+":"])
@@ -853,24 +915,25 @@ def p_expression_14(t):
 	t[0] = Node(t[1], [])
 	res = checkIdentifierError(t[1])
 	if res!= None:
+		t[0].dataType = res[0]
 		if res[1].type=="array_index":
 			t[0].addCode(["aload "+str(res[2])])
 		else:	
-			t[0].addCode(["iload "+str(res[2])])
+			t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
 
 def p_expression_15(t):
 	'''expression : array'''
 	t[0] = t[1]
 	checkArrayError(t[1])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	t[0].dataType = res[0]
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
-	t[0].addCode(["iaload"])
+	t[0].addCode([javaType(res[0]).lower()+"aload"])
 
 def p_expression_16(t):
 	'''expression : constant '''
 	t[0] = t[1]
-	t[0].addCode(["ldc "+str(t[1].type)])
 
 def p_expression_17(t):
 	'''expression : assignment
@@ -881,9 +944,14 @@ def p_expression_17(t):
 def p_expression_18(t):
 	'expression : expression MODULO expression'
 	t[0]=Node('MODULO', [t[1], t[3]])
+	if t[1].dataType!="int" or t[3].dataType!="int":
+		print "Error! Modulo defined only for integers."
+		global error
+		error = True
 	t[0].addCode(t[1].code)
 	t[0].addCode(t[3].code)
 	t[0].addCode(["irem"])
+	t[0].dataType = "int"
 
 '''
 def p_expression_19(t):
@@ -906,69 +974,79 @@ def p_assignment_1(t):
 	t[0] = Node('EQUAL', [t[1], t[3]])
 	checkArrayError(t[1])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(t[3].code)
-	t[0].addCode(["iastore"])
+	t[0].addCode([javaType(res[0]).lower()+"astore"])
 	t[0].addCode(["iconst_1"])
 
 def p_assignment_2(t):
 	'assignment : IDENTIFIER EQUAL expression'
 	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
+	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(t[3].code)
 	if res != None:
-		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
 		t[0].addCode(["iconst_1"])
 	
 def p_assignment_3(t):
 	'assignment : IDENTIFIER ADD_ASSIGN expression'
 	t[0] = Node('ADD_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
+	assignmentError(res[0], t[3].dataType)
 	if res != None:
-		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
 		t[0].addCode(t[3].code)
-		t[0].addCode(["iadd"])
-		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"add"])
+		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
 		t[0].addCode(["iconst_1"])	
 	
 def p_assignment_4(t):
 	'assignment : IDENTIFIER SUB_ASSIGN expression'
 	t[0] = Node('SUB_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
+	assignmentError(res[0], t[3].dataType)
 	if res != None:
-		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
 		t[0].addCode(t[3].code)
-		t[0].addCode(["isub"])
-		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"sub"])
+		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
 		t[0].addCode(["iconst_1"])
 
 def p_assignment_5(t):
 	'assignment : IDENTIFIER DIV_ASSIGN expression'
 	t[0] = Node('DIV_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
+	assignmentError(res[0], t[3].dataType)
 	if res != None:
-		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
 		t[0].addCode(t[3].code)
-		t[0].addCode(["idiv"])
-		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"div"])
+		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
 		t[0].addCode(["iconst_1"])
 
 def p_assignment_6(t):
 	'assignment : IDENTIFIER MUL_ASSIGN expression'
 	t[0] = Node('MUL_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
+	assignmentError(res[0], t[3].dataType)
 	if res != None:
-		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
 		t[0].addCode(t[3].code)
-		t[0].addCode(["imul"])
-		t[0].addCode(["istore "+str(res[2])])
+		t[0].addCode([javaType(res[0]).lower()+"mul"])
+		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
 		t[0].addCode(["iconst_1"])
 
 def p_assignment_7(t):
 	'assignment : IDENTIFIER MOD_ASSIGN expression'
 	t[0] = Node('MOD_ASSIGN', [Node(t[1], []), t[3]])
 	res = checkIdentifierError(t[1])
+	if res[0]!="int" or t[3].dataType!="int":
+		print "Error! Modulo defined only for integers."
+		global error
+		error = True
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(t[3].code)
@@ -981,14 +1059,15 @@ def p_assignment_8(t):
 	t[0] = Node('ADD_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
-	t[0].addCode(["iaload"])
+	t[0].addCode([javaType(res[0]).lower()+"aload"])
 	t[0].addCode(t[3].code)
-	t[0].addCode(["iadd"])
-	t[0].addCode(["iastore"])
+	t[0].addCode([javaType(res[0]).lower()+"add"])
+	t[0].addCode([javaType(res[0]).lower()+"astore"])
 	t[0].addCode(["iconst_1"])
 
 def p_assignment_9(t):
@@ -996,14 +1075,15 @@ def p_assignment_9(t):
 	t[0] = Node('SUB_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
-	t[0].addCode(["iaload"])
+	t[0].addCode([javaType(res[0]).lower()+"aload"])
 	t[0].addCode(t[3].code)
-	t[0].addCode(["isub"])
-	t[0].addCode(["iastore"])
+	t[0].addCode([javaType(res[0]).lower()+"sub"])
+	t[0].addCode([javaType(res[0]).lower()+"astore"])
 	t[0].addCode(["iconst_1"])
 
 def p_assignment_10(t):
@@ -1011,14 +1091,15 @@ def p_assignment_10(t):
 	t[0] = Node('DIV_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
-	t[0].addCode(["iaload"])
+	t[0].addCode([javaType(res[0]).lower()+"aload"])
 	t[0].addCode(t[3].code)
-	t[0].addCode(["idiv"])
-	t[0].addCode(["iastore"])
+	t[0].addCode([javaType(res[0]).lower()+"div"])
+	t[0].addCode([javaType(res[0]).lower()+"astore"])
 	t[0].addCode(["iconst_1"])
 
 def p_assignment_11(t):
@@ -1026,14 +1107,15 @@ def p_assignment_11(t):
 	t[0] = Node('MUL_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(t[3].code)
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
-	t[0].addCode(["iaload"])
-	t[0].addCode(["imul"])
-	t[0].addCode(["iastore"])
+	t[0].addCode([javaType(res[0]).lower()+"aload"])
+	t[0].addCode([javaType(res[0]).lower()+"mul"])
+	t[0].addCode([javaType(res[0]).lower()+"astore"])
 	t[0].addCode(["iconst_1"])
 
 def p_assignment_12(t):
@@ -1041,6 +1123,10 @@ def p_assignment_12(t):
 	t[0] = Node('MOD_ASSIGN', [t[1], t[3]])
 	checkArrayError(t[1])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	if res[0]!="int" or t[3].dataType!="int":
+		print "Error! Modulo defined only for integers."
+		global error
+		error = True
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(["aload "+str(res[2])])
@@ -1055,6 +1141,11 @@ def p_unary_expression_1(t):
 	'unary_expression : IDENTIFIER INC_OP'
 	t[0]= Node('post_increment', [Node(t[1],[])])
 	res = checkIdentifierError(t[1])
+	if res[0]!="int":
+		print "Error! Unary operations defined only for integers."
+		global error
+		error = True
+	t[0].dataType = "int"
 	if res != None:
 		t[0].addCode(["iconst_1"])
 		t[0].addCode(["iload "+str(res[2])])
@@ -1066,6 +1157,11 @@ def p_unary_expression_2(t):
 	'unary_expression : IDENTIFIER DEC_OP'
 	t[0]= Node('post_decrement', [Node(t[1],[])])
 	res = checkIdentifierError(t[1])
+	if res[0]!="int":
+		print "Error! Unary operations defined only for integers."
+		global error
+		error = True
+	t[0].dataType = "int"
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["iconst_1"])
@@ -1078,6 +1174,11 @@ def p_unary_expression_3(t):
 	t[0]= Node('post_increment', [t[1]])
 	checkArrayError(t[1])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	if res[0]!="int":
+		print "Error! Unary operations defined only for integers."
+		global error
+		error = True
+	t[0].dataType = "int"
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(["aload "+str(res[2])])
@@ -1093,6 +1194,11 @@ def p_unary_expression_4(t):
 	t[0]= Node('post_decrement', [t[1]])
 	checkArrayError(t[1])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	if res[0]!="int":
+		print "Error! Unary operations defined only for integers."
+		global error
+		error = True
+	t[0].dataType = "int"
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(["aload "+str(res[2])])
@@ -1108,6 +1214,11 @@ def p_unary_expression_5(t):
 	'unary_expression : INC_OP IDENTIFIER'
 	t[0]= Node('pre_increment', [Node(t[2],[])])
 	res = checkIdentifierError(t[2])
+	if res[0]!="int":
+		print "Error! Unary operations defined only for integers."
+		global error
+		error = True
+	t[0].dataType = "int"
 	if res != None:
 		t[0].addCode(["iconst_1"])
 		t[0].addCode(["iload "+str(res[2])])
@@ -1120,6 +1231,11 @@ def p_unary_expression_6(t):
 	t[0]= Node('pre_increment', [t[2]])
 	checkArrayError(t[2])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	if res[0]!="int":
+		print "Error! Unary operations defined only for integers."
+		global error
+		error = True
+	t[0].dataType = "int"
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(["aload "+str(res[2])])
@@ -1134,6 +1250,11 @@ def p_unary_expression_7(t):
 	'unary_expression : DEC_OP IDENTIFIER'
 	t[0]= Node('pre_decrement', [Node(t[2],[])])
 	res = checkIdentifierError(t[2])
+	if res[0]!="int":
+		print "Error! Unary operations defined only for integers."
+		global error
+		error = True
+	t[0].dataType = "int"
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["iconst_1"])
@@ -1146,6 +1267,11 @@ def p_unary_expression_8(t):
 	t[0]= Node('pre_decrement', [t[2]])
 	checkArrayError(t[2])
 	res = currentSymbolTable.get(t[1].children[0].type)
+	if res[0]!="int":
+		print "Error! Unary operations defined only for integers."
+		global error
+		error = True
+	t[0].dataType = "int"
 	t[0].addCode(["aload "+str(res[2])])
 	t[0].addCode(t[1].children[1].children[0].code)
 	t[0].addCode(["aload "+str(res[2])])
@@ -1161,8 +1287,13 @@ def p_function_call_1(t):
 	t[0] = Node('function_call',[Node(t[1],[]), t[3]])
 	checkFunctionError(t[0], False)
 	res = currentSymbolTable.get(t[1])
+	t[0].dataType = res[0]
 	param = ''
 	for exp in t[3].children:
+		res2 = currentSymbolTable.get(exp.type)
+		if res2!=None:
+			if res2[1].type == "array_index":
+				param += '['
 		t[0].addCode(exp.code)
 		param += javaType(exp.dataType)
 	t[0].addCode(["invokestatic "+filename+"/"+t[1]+"("+param+")"+javaType(res[0])])
@@ -1175,6 +1306,7 @@ def p_function_call_2(t):
 	checkFunctionError(t[0], False)
 	global filename
 	res = currentSymbolTable.get(t[0].children[0].type)
+	t[0].dataType = res[0]
 	t[0].addCode(["invokestatic "+filename+"/"+t[1]+"()"+javaType(res[0])])
 	if javaType(res[0])=="V":
 		t[0].addCode(["iconst_1"])
