@@ -1,9 +1,13 @@
+int a;
+
+void foo()	{
+	a = 6;
+	print a;
+}
+
 void main()
 {
-int a;
-if(2*3+4 < 5*3-10)
-	a = 1;
-else
-	a = 0;
+a = 5;
+foo();
 print a;
 }

@@ -7,6 +7,7 @@ import os
 DEBUG = 1
 error = False
 filename = ''
+staticCode = []
 
 def javaType(s):
 	if s=="int":
@@ -318,7 +319,7 @@ def p_function_2(t):
 	t[0]=t[1]
 
 def p_function_3(t):
-	'function : declaration_statement'
+	'function : global_declaration_statement'
 	t[0]=t[1]
 
 def p_type_specifier_1(t):
@@ -636,16 +637,20 @@ def p_statement_14(t):
 	t[0] = t[1]
 
 def p_statement_15(t):
+	'statement : static_declaration_statement'
+	t[0]=t[1]
+
+def p_statement_16(t):
 	'''statement : CONTINUE SEMICOLON'''
 	t[0] = Node(t[1], [])
 	t[0].addCode(["goto continue"])
 
-def p_statement_16(t):
+def p_statement_17(t):
 	'''statement : BREAK SEMICOLON'''
 	t[0] = Node(t[1], [])
 	t[0].addCode(["goto break"])
 
-def p_statement_17(t):
+def p_statement_18(t):
 	'''statement : PRINT IDENTIFIER SEMICOLON'''
 	t[0] = Node('print',[Node(t[1],[])])
 	res = checkIdentifierError(t[2])
@@ -660,7 +665,11 @@ def p_statement_17(t):
     		aload 251
     		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V '''
 	if res != None:
-		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
+		if res[1].type=="Static":
+			global filename
+			t[0].addCode(["getstatic "+filename+"/"+t[2]+" "+javaType(res[0])])
+		else:
+			t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
 		t[0].addCode([x])
 
 def p_declaration_statement(t):
@@ -685,6 +694,30 @@ def p_declaration_statement(t):
 				t[0].addCode(item.children[1].code)
 				res = currentSymbolTable.get(item.children[0].type)
 				t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+
+def p_global_declaration_statement(t):
+	'global_declaration_statement : type_specifier declaration_list SEMICOLON'
+	t[0] = Node('Global Declaration', [t[1], t[2]])
+	global staticCode, error
+	for item in t[2].children:
+		if len(item.children)==0:
+			currentSymbolTable.add(item.type, t[1].type, Node('Static',[]))
+			staticCode += [".field static "+item.type+" "+javaType(t[1].type)]
+		else:
+			print "Error! Global supported only for IDENTIFIERS."
+			error = True
+
+def p_static_declaration_statement(t):
+	'static_declaration_statement : STATIC type_specifier declaration_list SEMICOLON'
+	t[0] = Node('Static Declaration', [t[2], t[3]])
+	global staticCode, error
+	for item in t[3].children:
+		if len(item.children)==0:
+			currentSymbolTable.add(item.type, t[2].type, Node('Static',[]))
+			staticCode += [".field static "+item.type+" "+javaType(t[2].type)]
+		else:
+			print "Error! Static supported only for IDENTIFIERS."
+			error = True
 
 def p_declaration_list_1(t):
 	'declaration_list : declaration'
@@ -995,6 +1028,9 @@ def p_expression_14(t):
 		t[0].dataType = res[0]
 		if res[1].type=="array_index":
 			t[0].addCode(["aload "+str(res[2])])
+		elif res[1].type=="Static":
+			global filename
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
 		else:	
 			t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
 
@@ -1059,6 +1095,7 @@ def p_assignment_1(t):
 def p_assignment_2(t):
 	'assignment : IDENTIFIER EQUAL expression'
 	t[0] = Node('EQUAL', [Node(t[1], []), t[3]])
+	global filename
 	res = checkIdentifierError(t[1])
 	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(t[3].code)
@@ -1067,11 +1104,17 @@ def p_assignment_2(t):
 			pass
 		else:
 			if res != None:
-				t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+				if res[1].type=="Static":
+					t[0].addCode(["putstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+				else:
+					t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
 				t[0].addCode(["iconst_1"])		
 	else:
 		if res != None:
-			t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+			if res[1].type=="Static":
+				t[0].addCode(["putstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+			else:
+				t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
 			t[0].addCode(["iconst_1"])
 	
 def p_assignment_3(t):
@@ -1080,11 +1123,19 @@ def p_assignment_3(t):
 	res = checkIdentifierError(t[1])
 	assignmentError(res[0], t[3].dataType)
 	if res != None:
-		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
-		t[0].addCode(t[3].code)
-		t[0].addCode([javaType(res[0]).lower()+"add"])
-		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
-		t[0].addCode(["iconst_1"])	
+		if res[1].type=="Static":
+			global filename
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+			t[0].addCode(t[3].code)
+			t[0].addCode([javaType(res[0]).lower()+"add"])
+			t[0].addCode(["putstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+			t[0].addCode(["iconst_1"])	
+		else:
+			t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
+			t[0].addCode(t[3].code)
+			t[0].addCode([javaType(res[0]).lower()+"add"])
+			t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+			t[0].addCode(["iconst_1"])	
 	
 def p_assignment_4(t):
 	'assignment : IDENTIFIER SUB_ASSIGN expression'
@@ -1092,11 +1143,19 @@ def p_assignment_4(t):
 	res = checkIdentifierError(t[1])
 	assignmentError(res[0], t[3].dataType)
 	if res != None:
-		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
-		t[0].addCode(t[3].code)
-		t[0].addCode([javaType(res[0]).lower()+"sub"])
-		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
-		t[0].addCode(["iconst_1"])
+		if res[1].type=="Static":
+			global filename
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+			t[0].addCode(t[3].code)
+			t[0].addCode([javaType(res[0]).lower()+"sub"])
+			t[0].addCode(["putstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+			t[0].addCode(["iconst_1"])	
+		else:
+			t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
+			t[0].addCode(t[3].code)
+			t[0].addCode([javaType(res[0]).lower()+"sub"])
+			t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+			t[0].addCode(["iconst_1"])
 
 def p_assignment_5(t):
 	'assignment : IDENTIFIER DIV_ASSIGN expression'
@@ -1104,11 +1163,19 @@ def p_assignment_5(t):
 	res = checkIdentifierError(t[1])
 	assignmentError(res[0], t[3].dataType)
 	if res != None:
-		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
-		t[0].addCode(t[3].code)
-		t[0].addCode([javaType(res[0]).lower()+"div"])
-		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
-		t[0].addCode(["iconst_1"])
+		if res[1].type=="Static":
+			global filename
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+			t[0].addCode(t[3].code)
+			t[0].addCode([javaType(res[0]).lower()+"div"])
+			t[0].addCode(["putstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+			t[0].addCode(["iconst_1"])	
+		else:
+			t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
+			t[0].addCode(t[3].code)
+			t[0].addCode([javaType(res[0]).lower()+"div"])
+			t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+			t[0].addCode(["iconst_1"])
 
 def p_assignment_6(t):
 	'assignment : IDENTIFIER MUL_ASSIGN expression'
@@ -1116,11 +1183,19 @@ def p_assignment_6(t):
 	res = checkIdentifierError(t[1])
 	assignmentError(res[0], t[3].dataType)
 	if res != None:
-		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
-		t[0].addCode(t[3].code)
-		t[0].addCode([javaType(res[0]).lower()+"mul"])
-		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
-		t[0].addCode(["iconst_1"])
+		if res[1].type=="Static":
+			global filename
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+			t[0].addCode(t[3].code)
+			t[0].addCode([javaType(res[0]).lower()+"mul"])
+			t[0].addCode(["putstatic "+filename+"/"+t[1]+" "+javaType(res[0])])
+			t[0].addCode(["iconst_1"])	
+		else:
+			t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
+			t[0].addCode(t[3].code)
+			t[0].addCode([javaType(res[0]).lower()+"mul"])
+			t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+			t[0].addCode(["iconst_1"])
 
 def p_assignment_7(t):
 	'assignment : IDENTIFIER MOD_ASSIGN expression'
@@ -1131,11 +1206,19 @@ def p_assignment_7(t):
 		global error
 		error = True
 	if res != None:
-		t[0].addCode(["iload "+str(res[2])])
-		t[0].addCode(t[3].code)
-		t[0].addCode(["irem"])
-		t[0].addCode(["istore "+str(res[2])])
-		t[0].addCode(["iconst_1"])
+		if res[1].type=="Static":
+			global filename
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" I"])
+			t[0].addCode(t[3].code)
+			t[0].addCode(["irem"])
+			t[0].addCode(["putstatic "+filename+"/"+t[1]+" I"])
+			t[0].addCode(["iconst_1"])	
+		else:
+			t[0].addCode(["iload "+str(res[2])])
+			t[0].addCode(t[3].code)
+			t[0].addCode(["irem"])
+			t[0].addCode(["istore "+str(res[2])])
+			t[0].addCode(["iconst_1"])
 
 def p_assignment_8(t):
 	'assignment : array ADD_ASSIGN expression'
@@ -1230,11 +1313,19 @@ def p_unary_expression_1(t):
 		error = True
 	t[0].dataType = "int"
 	if res != None:
-		t[0].addCode(["iload "+str(res[2])])
-		t[0].addCode(["iload "+str(res[2])])
-		t[0].addCode(["iconst_1"])
-		t[0].addCode(["iadd"])
-		t[0].addCode(["istore "+str(res[2])])
+		if res[1].type=="Static":
+			global filename
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" I"])
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" I"])
+			t[0].addCode(["iconst_1"])
+			t[0].addCode(["iadd"])
+			t[0].addCode(["putstatic "+filename+"/"+t[1]+" I"])
+		else:
+			t[0].addCode(["iload "+str(res[2])])
+			t[0].addCode(["iload "+str(res[2])])
+			t[0].addCode(["iconst_1"])
+			t[0].addCode(["iadd"])
+			t[0].addCode(["istore "+str(res[2])])
 
 def p_unary_expression_2(t):
 	'unary_expression : IDENTIFIER DEC_OP'
@@ -1246,11 +1337,19 @@ def p_unary_expression_2(t):
 		error = True
 	t[0].dataType = "int"
 	if res != None:
-		t[0].addCode(["iload "+str(res[2])])
-		t[0].addCode(["iload "+str(res[2])])
-		t[0].addCode(["iconst_1"])
-		t[0].addCode(["isub"])
-		t[0].addCode(["istore "+str(res[2])])
+		if res[1].type=="Static":
+			global filename
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" I"])
+			t[0].addCode(["getstatic "+filename+"/"+t[1]+" I"])
+			t[0].addCode(["iconst_1"])
+			t[0].addCode(["isub"])
+			t[0].addCode(["putstatic "+filename+"/"+t[1]+" I"])
+		else:
+			t[0].addCode(["iload "+str(res[2])])
+			t[0].addCode(["iload "+str(res[2])])
+			t[0].addCode(["iconst_1"])
+			t[0].addCode(["isub"])
+			t[0].addCode(["istore "+str(res[2])])
 
 def p_unary_expression_3(t):
 	'unary_expression : array INC_OP'
@@ -1429,7 +1528,7 @@ def p_error(p):
 parser = yacc.yacc()
 
 def myParser():
-	global error, filename
+	global error, filename, staticCode
 
 	#Take input from the user
 	if len(sys.argv)>1:
@@ -1449,12 +1548,16 @@ def myParser():
 
 	mir = open(data[:-2]+".j",'w')
 	mir.write(".class public " +data[:-2]+'\n'+".super java/lang/Object"+'\n')
+	for c in staticCode:
+		mir.write(c+'\n')
+	mir.write('\n')
 	t = '''	.method public <init>()V
    			aload_0
    			invokenonvirtual java/lang/Object/<init>()V
    			return
 			.end method '''
 	mir.write(t+'\n')
+	mir.write('\n')
 	for c in ast.code:
 		if c=="goto continue" or c=="goto break":
 			print "ERROR! break or continue not in loop."
