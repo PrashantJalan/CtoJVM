@@ -2,7 +2,6 @@
 TODO-
 struct
 Optimisation
-Char String Problem
 """
 
 import sys
