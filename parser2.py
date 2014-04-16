@@ -2,7 +2,10 @@
 TODO-
 struct
 Optimisation
-Char String Problem
+	Char operations
+	String Problem
+
+use ord() for ascii value of char.
 """
 
 import sys
@@ -14,14 +17,14 @@ import os
 DEBUG = 1
 error = False
 filename = ''
-
+#long:J,l; short:S,s; double:D,d
 def javaType(s):
 	if s=="int":
 		return 'I'
 	elif s=="float":
 		return 'F'
 	elif s=="char":
-		return 'I'
+		return 'C'
 	else:
 		return 'V'
 
@@ -271,8 +274,8 @@ precedence = (
 	('left', 'G_OP', 'GE_OP', 'LE_OP', 'L_OP'),
 	('left', 'PLUS', 'MINUS'),
 	('left', 'MULTIPLY', 'DIVIDE', 'MODULO'),
-	('left', 'INC_OP', 'DEC_OP'),
 	('right', 'TILDA'),
+	('left', 'INC_OP', 'DEC_OP'),
 )
 
 
@@ -384,8 +387,11 @@ def p_function_definition_1(t):
 				param += javaType(it.children[0].type)
 				res2 = currentSymbolTable.get(it.children[1].type)
 				if res2!=None:
-					gen.append(javaType(it.children[0].type).lower()+'load '+str(i))
-					gen.append(javaType(it.children[0].type).lower()+'store '+str(res2[2]))
+					ret_type = javaType(it.children[0].type).lower();
+					if ret_type == 'c':
+						ret_type = 'i';
+					gen.append(ret_type+'load '+str(i))
+					gen.append(ret_type+'store '+str(res2[2]))
 			i += 1
 		t[0].addCode([".method public static "+ t[2] +"("+param+")"+javaType(t[1].type)])
 		t[0].addCode([".limit locals 255" + '\n' + ".limit stack 255\n"])
@@ -641,19 +647,19 @@ def p_statement_17(t):
 	'''statement : PRINT IDENTIFIER SEMICOLON'''
 	t[0] = Node('print',[Node(t[1],[])])
 	res = checkIdentifierError(t[2])
-	temp = javaType(res[0])
-	if res[0]=="char":
-		temp = 'C'
+	if res != None:
+		ret_type = javaType(res[0]).lower();
+		if ret_type == 'c':
+			ret_type = 'i';
+		t[0].addCode([ret_type+"load "+str(res[2])])
 	x = '''	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 250
-    		invokestatic java/lang/String/valueOf('''+temp+''')Ljava/lang/String;
+    		invokestatic java/lang/String/valueOf('''+javaType(res[0])+''')Ljava/lang/String;
     		astore 251
     		aload 250
     		aload 251
     		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V '''
-	if res != None:
-		t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
-		t[0].addCode([x])
+	t[0].addCode([x])
 
 def p_declaration_statement(t):
 	'declaration_statement : type_specifier declaration_list SEMICOLON'
@@ -666,17 +672,17 @@ def p_declaration_statement(t):
 				currentSymbolTable.add(item.children[0].type, t[1].type, item.children[1])
 				indexExp = item.children[1].children[0]
 				t[0].addCode(indexExp.code)
-				if t[1].type=="char":
-					t[0].addCode(["newarray int"])
-				else:
-					t[0].addCode(["newarray "+t[1].type])
+				t[0].addCode(["newarray "+t[1].type])
 				res = currentSymbolTable.get(item.children[0].type)
 				t[0].addCode(["astore "+str(res[2])])
 			else:
 				currentSymbolTable.add(item.children[0].type, t[1].type)
 				t[0].addCode(item.children[1].code)
 				res = currentSymbolTable.get(item.children[0].type)
-				t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+				ret_type = javaType(res[0]).lower();
+				if ret_type == 'c':
+					ret_type = 'i';
+				t[0].addCode([ret_type+"store "+str(res[2])])
 
 def p_declaration_list_1(t):
 	'declaration_list : declaration'
@@ -719,30 +725,37 @@ def p_constant_3(t):
 	'''constant : CHARACTER'''
 	t[0] = Node(t[1], [])
 	t[0].dataType = "char"
-	t[0].addCode(['ldc '+str(ord(t[1][1]))])
+	pp = t[1].strip("'")
+	t[0].addCode(["ldc "+str(ord(pp))])
 
 def p_constant_4(t):
+	'''constant : STRING '''
+	t[0] = Node(t[1], [])
+	t[0].dataType = "array"
+	t[0].addCode(["ldc "+t[1]])
+
+def p_constant_5(t):
 	'''constant : PLUS HEX_NUM
 				| PLUS INT_NUM '''
 	t[0] = Node(t[2], [])
 	t[0].dataType = "int"
 	t[0].addCode(["ldc "+str(int(t[2]))])
 
-def p_constant_5(t):
+def p_constant_6(t):
 	'''constant : PLUS REAL_NUM
 				| PLUS EXP_NUM '''
 	t[0] = Node(t[2], [])
 	t[0].dataType = "float"
 	t[0].addCode(["ldc "+str(float(t[2]))])
 
-def p_constant_4(t):
+def p_constant_7(t):
 	'''constant : MINUS HEX_NUM
 				| MINUS INT_NUM '''
 	t[0] = Node(t[2], [])
 	t[0].dataType = "int"
 	t[0].addCode(["ldc "+str(int('-'+t[2]))])
 
-def p_constant_5(t):
+def p_constant_8(t):
 	'''constant : MINUS REAL_NUM
 				| MINUS EXP_NUM '''
 	t[0] = Node(t[2], [])
@@ -753,9 +766,16 @@ def p_array(t):
 	'array : IDENTIFIER array_index'
 	t[0]= Node('array',[Node(t[1], []), t[2]])
 
+#def p_array_index_1(t):
+#	'array_index :  LEFT_SQUARE expression RIGHT_SQUARE LEFT_SQUARE expression RIGHT_SQUARE'
+#	t[0] = Node('array_index', [t[2]])
+#	t[0].addCode(t[1].code)
+#	t[0].addCode(t[3].code)
+
 def p_array_index(t):
 	'array_index : LEFT_SQUARE expression RIGHT_SQUARE'
 	t[0] = Node('array_index', [t[2]])
+	#t[0].addCode(t[2].code)
 
 def p_expression_statement_1(t):
 	'expression_statement : SEMICOLON'
@@ -929,7 +949,10 @@ def p_expression_14(t):
 		if res[1].type=="array_index":
 			t[0].addCode(["aload "+str(res[2])])
 		else:	
-			t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
+			ret_type = javaType(res[0]).lower();
+			if ret_type == 'c':
+					ret_type = 'i';
+			t[0].addCode([ret_type+"load "+str(res[2])])
 
 def p_expression_15(t):
 	'''expression : array'''
@@ -964,17 +987,61 @@ def p_expression_18(t):
 	t[0].dataType = "int"
 
 def p_expression_19(t):
-	'expression : TILDA expression'
-	t[0] = Node('NOT', [t[2]])
+	'expression : TILDA IDENTIFIER'
+	t[0] = Node('NOT', [t[1]])
+	nvar = t[0].newVar()
 	true = t[0].newLabel()
 	Sn = t[0].newLabel()
-	t[0].addCode(t[2].code)
-	t[0].addCode("ifeq "+true)
-	t[0].addCode(["iconst_0"])
+	t[0].addCode(t[1].code)
+	t[0].addCode(["if "+t[1].var+"==0 goto "+true])
+	t[0].addCode([nvar+"=0"])
 	t[0].addCode(["goto "+Sn])
 	t[0].addCode([true+":"])
-	t[0].addCode(["iconst_1"])
+	t[0].addCode([nvar+"=1"])
 	t[0].addCode([Sn+":"])
+
+def p_expression_20(t):
+	'expression : TILDA LEFT_ROUND expression RIGHT_ROUND'
+	t[0] = Node('NOT', [t[3]])
+	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
+	t[0].addCode(t[1].code)
+	t[0].addCode(["if "+t[1].var+"==0 goto "+true])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
+	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
+
+def p_expression_21(t):
+	'expression : TILDA CHARACTER'
+	t[0] = Node('NOT', [t[1]])
+	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
+	t[0].addCode(t[1].code)
+	t[0].addCode(["if "+t[1].var+"==0 goto "+true])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
+	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
+
+def p_expression_22(t):
+	'expression : TILDA HEX_NUM'
+	t[0] = Node('NOT', [t[1]])
+	nvar = t[0].newVar()
+	true = t[0].newLabel()
+	Sn = t[0].newLabel()
+	t[0].addCode(t[1].code)
+	t[0].addCode(["if "+t[1].var+"==0 goto "+true])
+	t[0].addCode([nvar+"=0"])
+	t[0].addCode(["goto "+Sn])
+	t[0].addCode([true+":"])
+	t[0].addCode([nvar+"=1"])
+	t[0].addCode([Sn+":"])
+
 
 def p_assignment_1(t):
 	'assignment : array EQUAL expression'
@@ -995,7 +1062,10 @@ def p_assignment_2(t):
 	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(t[3].code)
 	if res != None:
-		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+		ret_type = javaType(res[0]).lower();
+		if ret_type == 'c':
+				ret_type = 'i';
+		t[0].addCode([ret_type+"store "+str(res[2])])
 		t[0].addCode(["iconst_1"])
 	
 def p_assignment_3(t):
@@ -1369,7 +1439,7 @@ def myParser():
 		s = currentSymbolTable.makegraphicaltree2()
 		#t.write('graph.dot', format='raw', prog='dot')
 		t.write_pdf('AST.pdf')
-		s.write_pdf('SymbolTable.pdf')
+		#s.write_pdf('SymbolTable.pdf')
 
 	mir = open(data[:-2]+".j",'w')
 	mir.write(".class public " +data[:-2]+'\n'+".super java/lang/Object"+'\n')

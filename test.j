@@ -5,7 +5,7 @@
    			invokenonvirtual java/lang/Object/<init>()V
    			return
 			.end method 
-.method public static foo([F)F
+.method public static foo([I)I
 .limit locals 255
 .limit stack 255
 
@@ -13,29 +13,29 @@ aload 0
 astore 50
 aload 50
 ldc 9
-ldc 56.2343
-fastore
+ldc 97
+iastore
 iconst_1
 pop
 aload 50
 ldc 9
-faload
-freturn
+iaload
+ireturn
 .end method
 .method public static main([Ljava/lang/String;)V
 .limit locals 255
 .limit stack 255
 
 ldc 10
-newarray float
+newarray int
 astore 52
 aload 52
-invokestatic test/foo([F)F
-fstore 53
-fload 53
+invokestatic test/foo([I)I
+istore 53
+iload 53
 	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 250
-    		invokestatic java/lang/String/valueOf(F)Ljava/lang/String;
+    		invokestatic java/lang/String/valueOf(C)Ljava/lang/String;
     		astore 251
     		aload 250
     		aload 251
