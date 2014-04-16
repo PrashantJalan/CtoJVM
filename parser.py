@@ -71,9 +71,7 @@ def codeGenerator(exp1, exp2, op):
 
 def assignmentError(type1, type2):
 	if type1!=type2:
-		print "Error! Type mismatch in assignment operation"
-		global error
-		error = True
+		print "Warning! Type mismatch in assignment operation"
 
 def checkIdentifierError(t):
 	global error
@@ -321,6 +319,10 @@ def p_function_2(t):
 def p_function_3(t):
 	'function : global_declaration_statement'
 	t[0]=t[1]
+
+def p_function_4(t):
+	'function : struct'
+	t[0] = t[1]
 
 def p_type_specifier_1(t):
 	'''type_specifier : CHAR
@@ -673,7 +675,31 @@ def p_statement_18(t):
 		t[0].addCode([x])
 
 def p_statement_19(t):
-	'''statement :  STRUCT IDENTIFIER left_curl struct_declaration_list right_curl SEMICOLON'''
+	'''statement : struct'''
+	t[0] = t[1]
+
+def p_statement_20(t):
+	'''statement : STRUCT IDENTIFIER IDENTIFIER SEMICOLON'''
+	t[0] = Node('Struct Call',[Node(t[2],[]), Node(t[3],[])])
+	res = currentSymbolTable.get(t[2])
+	global error
+	if res==None:
+		sys.stdout.write("Error! "+t[2]+"not defined.\n")
+		error = True
+	else:
+		if res[0]!="struct":
+			sys.stdout.write("Error! "+t[2]+"not declared as struct.\n")
+			error = True
+		else:
+			currentSymbolTable.add(t[3], t[2], res[1])
+			t[0].addCode(["new "+t[2]])
+			t[0].addCode(["dup"])
+			t[0].addCode(["invokespecial "+t[2]+"/<init>()V"])
+			res2 = currentSymbolTable.get(t[3])
+			t[0].addCode(["astore "+str(res2[2])])
+
+def p_struct(t):
+	'''struct :  STRUCT IDENTIFIER left_curl struct_declaration_list right_curl SEMICOLON'''
 	t[0] = Node('Struct', [Node(t[2],[]), t[4]])
 	currentSymbolTable.add(t[2], 'struct', t[4])
 	fname = t[2]+".j"
@@ -698,27 +724,6 @@ def p_statement_19(t):
 	f.close()
 	print fname
 	os.system("java -jar jasmin-2.4/jasmin.jar "+fname)
-
-def p_statement_20(t):
-	'''statement : STRUCT IDENTIFIER IDENTIFIER SEMICOLON'''
-	t[0] = Node('Struct Call',[Node(t[2],[]), Node(t[3],[])])
-	res = currentSymbolTable.get(t[2])
-	global error
-	if res==None:
-		sys.stdout.write("Error! "+t[2]+"not defined.\n")
-		error = True
-	else:
-		if res[0]!="struct":
-			sys.stdout.write("Error! "+t[2]+"not declared as struct.\n")
-			error = True
-		else:
-			currentSymbolTable.add(t[3], t[2], res[1])
-			t[0].addCode(["new "+t[2]])
-			t[0].addCode(["dup"])
-			t[0].addCode(["invokespecial "+t[2]+"/<init>()V"])
-			res2 = currentSymbolTable.get(t[3])
-			t[0].addCode(["astore "+str(res2[2])])
-
 
 def p_struct_declaration_list_1(t):
 	'''struct_declaration_list : struct_declaration_list declaration_statement'''
