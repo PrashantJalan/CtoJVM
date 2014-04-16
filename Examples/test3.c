@@ -53,8 +53,7 @@ void main(){
 		{
 			int t;
 			t= out[i][j];
-			//print t;
-			printf("%d\n", out[i][j]);
+			print t;
 		}
 	}
 }

@@ -9,6 +9,7 @@ int x[20];
 a+=2;
 b-=2;
 c*=2;
+c++;
 
 print a;
 print b;
