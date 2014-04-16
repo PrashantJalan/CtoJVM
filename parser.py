@@ -672,6 +672,42 @@ def p_statement_18(t):
 			t[0].addCode([javaType(res[0]).lower()+"load "+str(res[2])])
 		t[0].addCode([x])
 
+def p_statement_19(t):
+	'''statement :  STRUCT IDENTIFIER left_curl struct_declaration_list right_curl SEMICOLON'''
+	t[0] = Node('Struct', [Node(t[2],[]), t[4]])
+	currentSymbolTable.add(t[2], 'struct', t[4])
+	fname = t[2]+".j"
+	f = open(fname, 'w')
+	f.write(".class public "+fname+'\n'+".super java/lang/Object"+'\n')
+	for it in t[4].children:
+		ty = it.children[0].type
+		for item in it.children[1].children:
+			if len(item.children)==0:
+				f.write(".field public "+item.type+" "+javaType(ty)+'\n')
+			else:
+				print "Error! Arrays and assignment not supported in struct."
+				global error
+				error = True
+	f.write('\n')
+	t = '''	.method public <init>()V
+   			aload_0
+   			invokenonvirtual java/lang/Object/<init>()V
+   			return
+			.end method '''
+	f.write(t)
+	f.close()
+	os.system("java -jar jasmin-2.4/jasmin.jar "+fname)
+
+
+def p_struct_declaration_list_1(t):
+	'''struct_declaration_list : struct_declaration_list declaration_statement'''
+	t[1].add(t[2])
+	t[0] = t[1]
+
+def p_struct_declaration_list_2(t):
+	'''struct_declaration_list : declaration_statement'''
+	t[0] = Node('Struct Declaration', [t[1]])	
+
 def p_declaration_statement(t):
 	'declaration_statement : type_specifier declaration_list SEMICOLON'
 	t[0] = Node('Declaration', [t[1], t[2]])
