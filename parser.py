@@ -1062,7 +1062,7 @@ def p_assignment_2(t):
 	res = checkIdentifierError(t[1])
 	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(t[3].code)
-	if (t[3].type=="post_increment"):
+	if (t[3].type=="post_increment" or t[3].type=="post_decrement"):
 		if t[1]==t[3].children[0].type:
 			pass
 		else:
