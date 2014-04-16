@@ -49,6 +49,10 @@ def codeGenerator(exp1, exp2, op):
 		code += ["i2f"]
 		code += ["f"+op]
 		type = "float"
+	else:
+		sys.stdout.write("Error! Operation not defined between "+exp1.dataType+", "++exp1.dataType+'\n')
+		global error 
+		error = True
 	return [code, type]
 
 def assignmentError(type1, type2):
@@ -616,7 +620,7 @@ def p_statement_13(t):
 	'statement : RETURN expression SEMICOLON'
 	t[0] = Node('return_expression', [t[2]])
 	t[0].addCode(t[2].code)
-	t[0].addCode(["ireturn"])
+	t[0].addCode([javaType(t[2].dataType).lower()+"return"])
  
 def p_statement_14(t):
 	'statement : declaration_statement'
