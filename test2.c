@@ -1,13 +1,9 @@
-
 void main()
 {
-int x=1,z;
- 
-if(~x)
-        z = 0;
- 
+int a;
+if(2*3+4 < 5*3-10)
+	a = 1;
 else
-        z = 1;
- 
-print z;
+	a = 0;
+print a;
 }

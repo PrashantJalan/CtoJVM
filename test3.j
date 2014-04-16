@@ -9,7 +9,7 @@
 .limit locals 255
 .limit stack 255
 
-ldc 4
+ldc 26
 istore 50
 iconst_1
 pop

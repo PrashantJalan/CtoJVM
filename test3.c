@@ -1,8 +1,6 @@
 void main()
 {
-	int x;
-	x = 4;
-	print x;
+int a;
+a = 2*3 + 4*5;
+print a;
 }
-
-

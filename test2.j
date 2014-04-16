@@ -9,28 +9,20 @@
 .limit locals 255
 .limit stack 255
 
+iconst_0
+ifeq label1
 ldc 1
 istore 50
-iload 50
-ifeq label1
-iconst_0
+iconst_1
+pop
 goto label2
 label1:
-iconst_1
-label2:
-ifeq label3
 ldc 0
-istore 51
+istore 50
 iconst_1
 pop
-goto label4
-label3:
-ldc 1
-istore 51
-iconst_1
-pop
-label4:
-iload 51
+label2:
+iload 50
 	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 250
     		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
