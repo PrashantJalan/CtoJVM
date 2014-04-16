@@ -1,4 +1,4 @@
-.class public z.j
+.class public z
 .super java/lang/Object
 .field public b I
 .field public c I

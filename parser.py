@@ -678,7 +678,7 @@ def p_statement_19(t):
 	currentSymbolTable.add(t[2], 'struct', t[4])
 	fname = t[2]+".j"
 	f = open(fname, 'w')
-	f.write(".class public "+fname+'\n'+".super java/lang/Object"+'\n')
+	f.write(".class public "+fname[:-2]+'\n'+".super java/lang/Object"+'\n')
 	for it in t[4].children:
 		ty = it.children[0].type
 		for item in it.children[1].children:
@@ -696,7 +696,28 @@ def p_statement_19(t):
 			.end method '''
 	f.write(t)
 	f.close()
+	print fname
 	os.system("java -jar jasmin-2.4/jasmin.jar "+fname)
+
+def p_statement_20(t):
+	'''statement : STRUCT IDENTIFIER IDENTIFIER SEMICOLON'''
+	t[0] = Node('Struct Call',[Node(t[2],[]), Node(t[3],[])])
+	res = currentSymbolTable.get(t[2])
+	global error
+	if res==None:
+		sys.stdout.write("Error! "+t[2]+"not defined.\n")
+		error = True
+	else:
+		if res[0]!="struct":
+			sys.stdout.write("Error! "+t[2]+"not declared as struct.\n")
+			error = True
+		else:
+			currentSymbolTable.add(t[3], t[2], res[1])
+			t[0].addCode(["new "+t[2]])
+			t[0].addCode(["dup"])
+			t[0].addCode(["invokespecial "+t[2]+"/<init>()V"])
+			res2 = currentSymbolTable.get(t[3])
+			t[0].addCode(["astore "+str(res2[2])])
 
 
 def p_struct_declaration_list_1(t):
@@ -1115,6 +1136,33 @@ def p_expression_19(t):
 	t[0].addCode(["iconst_1"])
 	t[0].addCode([Sn+":"])
 	t[0].dataType = t[2].dataType
+
+def p_expression_20(t):
+	'expression : IDENTIFIER DOT IDENTIFIER'
+	t[0] = Node('Struct Expression', [Node(t[1],[]),Node(t[3],[])])
+	res = currentSymbolTable.get(t[1])
+	global error
+	if res==None:
+		sys.stdout.write("Error! "+t[1]+" not defined.\n")
+		error = True
+	else:
+		t[0].addCode(["aload "+str(res[2])])
+		t[0].addCode(["getfield "+res[0]+"/"+t[3]+" I"])
+		t[0].dataType = "int"
+
+def p_expression_21(t):
+	'expression : IDENTIFIER DOT IDENTIFIER EQUAL expression'
+	t[0] = Node('Struct Assignment Expression', [Node(t[1],[]),Node(t[3],[]),t[5]])
+	res = currentSymbolTable.get(t[1])
+	global error
+	if res==None:
+		sys.stdout.write("Error! "+t[1]+" not defined.\n")
+		error = True
+	else:
+		t[0].addCode(["aload "+str(res[2])])
+		t[0].addCode(t[5].code)
+		t[0].addCode(["putfield "+res[0]+"/"+t[3]+" I"])
+		t[0].addCode(["iconst_1"])
 
 def p_assignment_1(t):
 	'assignment : array EQUAL expression'
@@ -1607,7 +1655,7 @@ def myParser():
 	else:
 		os.system("java -jar jasmin-2.4/jasmin.jar "+data[:-2]+".j")
 		print "Compilation Successful!"
-		print "Use 'java "+data[:-2]+"' to execute."
+		print "Use 'java "+data[:-2]+"' followed by structure names to execute."
 
 
 if __name__=='__main__':
