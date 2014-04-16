@@ -7,6 +7,7 @@ import os
 DEBUG = 1
 error = False
 filename = ''
+directory = ''
 staticCode = []
 
 def javaType(s):
@@ -51,7 +52,7 @@ def codeGenerator(exp1, exp2, op):
 		code += ["i"+op]
 		type = "char"
 	else:
-		sys.stdout.write("Error! Operation not defined between "+exp1.dataType+", "+exp1.dataType+'\n')
+		sys.stdout.write("Error! Operation not defined between "+exp1.dataType+", "+exp2.dataType+'\n')
 		global error 
 		error = True
 
@@ -702,7 +703,11 @@ def p_struct(t):
 	'''struct :  STRUCT IDENTIFIER left_curl struct_declaration_list right_curl SEMICOLON'''
 	t[0] = Node('Struct', [Node(t[2],[]), t[4]])
 	currentSymbolTable.add(t[2], 'struct', t[4])
-	fname = t[2]+".j"
+	global directory
+	if len(directory)==0:
+		fname = t[2]+".j"
+	else:
+		fname = directory+'/'+t[2]+".j"
 	f = open(fname, 'w')
 	f.write(".class public "+fname[:-2]+'\n'+".super java/lang/Object"+'\n')
 	for it in t[4].children:
@@ -1072,9 +1077,10 @@ def p_expression_12(t):
 		t[0].addCode(["ifeq "+true])
 		t[0].addCode(t[3].code)
 		t[0].addCode(["ifeq "+true])
+		t[0].addCode([true+":"])
 		t[0].addCode(["iconst_1"])
 		t[0].addCode(["goto "+Sn])
-		t[0].addCode([false+":"])
+		t[0].addCode(["pop"])
 		t[0].addCode(["iconst_0"])
 		t[0].addCode([Sn+":"])
 
@@ -1617,7 +1623,7 @@ def p_error(p):
 parser = yacc.yacc()
 
 def myParser():
-	global error, filename, staticCode
+	global error, filename, directory, staticCode
 
 	#Take input from the user
 	if len(sys.argv)>1:
@@ -1626,6 +1632,7 @@ def myParser():
 		data = raw_input('Enter a file path: ')
 
 	filename = data[:-2]
+	directory = ''.join(data.split('/')[:-1])
 
 	ast = parser.parse(open(data).read(), debug=0)
 	if DEBUG:
