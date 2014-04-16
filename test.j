@@ -22,6 +22,12 @@ istore 51
 iconst_1
 pop
 iload 50
+iload 50
+iconst_1
+iadd
+istore 50
+pop
+iload 50
 	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 250
     		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
