@@ -1,9 +1,3 @@
-"""
-TODO-
-struct
-Optimisation
-"""
-
 import sys
 from lexer import tokens
 import ply.yacc as yacc
@@ -27,6 +21,7 @@ def javaType(s):
 def codeGenerator(exp1, exp2, op):
 	code = []
 	type = ''
+	value = None
 	if exp1.dataType == "int" and exp2.dataType == "int":
 		code += exp1.code
 		code += exp2.code	
@@ -49,7 +44,7 @@ def codeGenerator(exp1, exp2, op):
 		code += ["i2f"]
 		code += ["f"+op]
 		type = "float"
-	elif exp1.dataType == "char" or exp2.dataType == "char":
+	elif (exp1.dataType == "char" or exp2.dataType == "char") and (exp1.dataType!="float" and exp2.dataType!="float"):
 		code += exp1.code
 		code += exp2.code	
 		code += ["i"+op]
@@ -58,7 +53,20 @@ def codeGenerator(exp1, exp2, op):
 		sys.stdout.write("Error! Operation not defined between "+exp1.dataType+", "+exp1.dataType+'\n')
 		global error 
 		error = True
-	return [code, type]
+
+	if exp1.value!=None and exp2.value!=None:
+		code = []
+		if op=="add":
+			value = exp1.value + exp2.value
+		elif op=="sub":
+			value = exp1.value - exp2.value
+		elif op=="mul":
+			value = exp1.value * exp2.value
+		elif op=="div":
+			value = exp1.value / exp2.value
+		code += ["ldc "+str(value)]
+
+	return [code, type, value]
 
 def assignmentError(type1, type2):
 	if type1!=type2:
@@ -211,6 +219,7 @@ class Node:
 	def __init__(self, type, children=None):
 		self.ID = str(Node.count)
 		self.parent = None
+		self.value = None
 		self.type = type
 		self.code=[]
 		self.dataType = "void"
@@ -312,11 +321,11 @@ def p_function_3(t):
 	'function : declaration_statement'
 	t[0]=t[1]
 
-def p_type_specifier(t):
+def p_type_specifier_1(t):
 	'''type_specifier : CHAR
 						| INT 
 						| FLOAT 
-						| VOID'''
+						| VOID '''
 	t[0] = Node(t[1],[])
 
 def p_argument_list_1(t):
@@ -706,6 +715,7 @@ def p_constant_1(t):
 	t[0] = Node(t[1], [])
 	t[0].dataType = "int"
 	t[0].addCode(["ldc "+str(int(t[1]))])
+	t[0].value = int(t[1])
 
 def p_constant_2(t):
 	'''constant : REAL_NUM
@@ -713,12 +723,14 @@ def p_constant_2(t):
 	t[0] = Node(t[1], [])
 	t[0].dataType = "float"
 	t[0].addCode(["ldc "+str(float(t[1]))])
+	t[0].value = float(t[1])
 
 def p_constant_3(t):
 	'''constant : CHARACTER'''
 	t[0] = Node(t[1], [])
 	t[0].dataType = "char"
 	t[0].addCode(['ldc '+str(ord(t[1][1]))])
+	t[0].value = ord(t[1][1])
 
 def p_constant_4(t):
 	'''constant : PLUS HEX_NUM
@@ -726,6 +738,7 @@ def p_constant_4(t):
 	t[0] = Node(t[2], [])
 	t[0].dataType = "int"
 	t[0].addCode(["ldc "+str(int(t[2]))])
+	t[0].value = int(t[2])
 
 def p_constant_5(t):
 	'''constant : PLUS REAL_NUM
@@ -733,6 +746,7 @@ def p_constant_5(t):
 	t[0] = Node(t[2], [])
 	t[0].dataType = "float"
 	t[0].addCode(["ldc "+str(float(t[2]))])
+	t[0].value = float(t[2])
 
 def p_constant_4(t):
 	'''constant : MINUS HEX_NUM
@@ -740,6 +754,7 @@ def p_constant_4(t):
 	t[0] = Node(t[2], [])
 	t[0].dataType = "int"
 	t[0].addCode(["ldc "+str(int('-'+t[2]))])
+	t[0].value = int('-'+t[2])	
 
 def p_constant_5(t):
 	'''constant : MINUS REAL_NUM
@@ -747,6 +762,7 @@ def p_constant_5(t):
 	t[0] = Node(t[2], [])
 	t[0].dataType = "float"
 	t[0].addCode(["ldc "+str(float('-'+t[2]))])
+	t[0].value = float('-'+t[2])
 
 def p_array(t):
 	'array : IDENTIFIER array_index'
@@ -771,6 +787,7 @@ def p_expression_1(t):
 	res = codeGenerator(t[1], t[3], "add")
 	t[0].addCode(res[0])
 	t[0].dataType = res[1]
+	t[0].value = res[2]
 
 def p_expression_2(t):
 	'expression : expression MINUS expression'
@@ -778,6 +795,7 @@ def p_expression_2(t):
 	res = codeGenerator(t[1], t[3], "sub")
 	t[0].addCode(res[0])
 	t[0].dataType = res[1]
+	t[0].value = res[2]
 
 def p_expression_3(t):
 	'expression : expression MULTIPLY expression'
@@ -785,6 +803,7 @@ def p_expression_3(t):
 	res = codeGenerator(t[1], t[3], "mul")
 	t[0].addCode(res[0])
 	t[0].dataType = res[1]
+	t[0].value = res[2]
 
 def p_expression_4(t):
 	'expression : expression DIVIDE expression'
@@ -792,128 +811,177 @@ def p_expression_4(t):
 	res = codeGenerator(t[1], t[3], "div")
 	t[0].addCode(res[0])
 	t[0].dataType = res[1]
+	t[0].value = res[2]
 
 def p_expression_5(t):
 	'expression : expression L_OP expression'
 	t[0]=Node('L_OP', [t[1], t[3]])
-	nvar = t[0].newVar()
-	true = t[0].newLabel()
-	Sn = t[0].newLabel()
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["if_icmplt "+true])
-	t[0].addCode(["iconst_0"])
-	t[0].addCode(["goto "+Sn])
-	t[0].addCode([true+":"])
-	t[0].addCode(["iconst_1"])
-	t[0].addCode([Sn+":"])
+	if t[1].value!=None and t[3].value!=None:
+		if t[1].value<t[3].value:
+			t[0].addCode(["iconst_1"])
+		else:
+			t[0].addCode(["iconst_0"])
+	else:
+		nvar = t[0].newVar()
+		true = t[0].newLabel()
+		Sn = t[0].newLabel()
+		t[0].addCode(t[1].code)
+		t[0].addCode(t[3].code)
+		t[0].addCode(["if_icmplt "+true])
+		t[0].addCode(["iconst_0"])
+		t[0].addCode(["goto "+Sn])
+		t[0].addCode([true+":"])
+		t[0].addCode(["iconst_1"])
+		t[0].addCode([Sn+":"])
 
 def p_expression_6(t):
 	'expression : expression G_OP expression'
 	t[0]=Node('G_OP', [t[1], t[3]])
-	nvar = t[0].newVar()
-	true = t[0].newLabel()
-	Sn = t[0].newLabel()
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["if_icmpgt "+true])
-	t[0].addCode(["iconst_0"])
-	t[0].addCode(["goto "+Sn])
-	t[0].addCode([true+":"])
-	t[0].addCode(["iconst_1"])
-	t[0].addCode([Sn+":"])
+	if t[1].value!=None and t[3].value!=None:
+		if t[1].value>t[3].value:
+			t[0].addCode(["iconst_1"])
+		else:
+			t[0].addCode(["iconst_0"])
+	else:
+		nvar = t[0].newVar()
+		true = t[0].newLabel()
+		Sn = t[0].newLabel()
+		t[0].addCode(t[1].code)
+		t[0].addCode(t[3].code)
+		t[0].addCode(["if_icmpgt "+true])
+		t[0].addCode(["iconst_0"])
+		t[0].addCode(["goto "+Sn])
+		t[0].addCode([true+":"])
+		t[0].addCode(["iconst_1"])
+		t[0].addCode([Sn+":"])
 
 def p_expression_7(t):
 	'expression : expression NE_OP expression'
 	t[0]=Node('NE_OP', [t[1], t[3]])
-	nvar = t[0].newVar()
-	true = t[0].newLabel()
-	Sn = t[0].newLabel()
-	res = codeGenerator(t[1], t[3], "sub")
-	t[0].addCode(res[0])
-	t[0].addCode(["ifne "+true])
-	t[0].addCode(["iconst_0"])
-	t[0].addCode(["goto "+Sn])
-	t[0].addCode([true+":"])
-	t[0].addCode(["iconst_1"])
-	t[0].addCode([Sn+":"])
+	if t[1].value!=None and t[3].value!=None:
+		if t[1].value!=t[3].value:
+			t[0].addCode(["iconst_1"])
+		else:
+			t[0].addCode(["iconst_0"])
+	else:
+		nvar = t[0].newVar()
+		true = t[0].newLabel()
+		Sn = t[0].newLabel()
+		res = codeGenerator(t[1], t[3], "sub")
+		t[0].addCode(res[0])
+		t[0].addCode(["ifne "+true])
+		t[0].addCode(["iconst_0"])
+		t[0].addCode(["goto "+Sn])
+		t[0].addCode([true+":"])
+		t[0].addCode(["iconst_1"])
+		t[0].addCode([Sn+":"])
 
 def p_expression_8(t):
 	'expression : expression EQ_OP expression'
 	t[0]=Node('EQ_OP', [t[1], t[3]])
-	nvar = t[0].newVar()
-	true = t[0].newLabel()
-	Sn = t[0].newLabel()
-	res = codeGenerator(t[1], t[3], "sub")
-	t[0].addCode(res[0])
-	t[0].addCode(["ifeq "+true])
-	t[0].addCode(["iconst_0"])
-	t[0].addCode(["goto "+Sn])
-	t[0].addCode([true+":"])
-	t[0].addCode(["iconst_1"])
-	t[0].addCode([Sn+":"])
+	if t[1].value!=None and t[3].value!=None:
+		if t[1].value==t[3].value:
+			t[0].addCode(["iconst_1"])
+		else:
+			t[0].addCode(["iconst_0"])
+	else:
+		nvar = t[0].newVar()
+		true = t[0].newLabel()
+		Sn = t[0].newLabel()
+		res = codeGenerator(t[1], t[3], "sub")
+		t[0].addCode(res[0])
+		t[0].addCode(["ifeq "+true])
+		t[0].addCode(["iconst_0"])
+		t[0].addCode(["goto "+Sn])
+		t[0].addCode([true+":"])
+		t[0].addCode(["iconst_1"])
+		t[0].addCode([Sn+":"])
 
 def p_expression_9(t):
 	'expression : expression GE_OP expression'
 	t[0]=Node('GE_OP', [t[1], t[3]])
-	nvar = t[0].newVar()
-	true = t[0].newLabel()
-	Sn = t[0].newLabel()
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["if_icmpge "+true])
-	t[0].addCode(["iconst_0"])
-	t[0].addCode(["goto "+Sn])
-	t[0].addCode([true+":"])
-	t[0].addCode(["iconst_1"])
-	t[0].addCode([Sn+":"])
+	if t[1].value!=None and t[3].value!=None:
+		if t[1].value>=t[3].value:
+			t[0].addCode(["iconst_1"])
+		else:
+			t[0].addCode(["iconst_0"])
+	else:
+		nvar = t[0].newVar()
+		true = t[0].newLabel()
+		Sn = t[0].newLabel()
+		t[0].addCode(t[1].code)
+		t[0].addCode(t[3].code)
+		t[0].addCode(["if_icmpge "+true])
+		t[0].addCode(["iconst_0"])
+		t[0].addCode(["goto "+Sn])
+		t[0].addCode([true+":"])
+		t[0].addCode(["iconst_1"])
+		t[0].addCode([Sn+":"])
 
 def p_expression_10(t):
 	'expression : expression LE_OP expression'
 	t[0]=Node('LE_OP', [t[1], t[3]])
-	nvar = t[0].newVar()
-	true = t[0].newLabel()
-	Sn = t[0].newLabel()
-	t[0].addCode(t[1].code)
-	t[0].addCode(t[3].code)
-	t[0].addCode(["if_icmple "+true])
-	t[0].addCode(["iconst_0"])
-	t[0].addCode(["goto "+Sn])
-	t[0].addCode([true+":"])
-	t[0].addCode(["iconst_1"])
-	t[0].addCode([Sn+":"])
+	if t[1].value!=None and t[3].value!=None:
+		if t[1].value<=t[3].value:
+			t[0].addCode(["iconst_1"])
+		else:
+			t[0].addCode(["iconst_0"])
+	else:
+		nvar = t[0].newVar()
+		true = t[0].newLabel()
+		Sn = t[0].newLabel()
+		t[0].addCode(t[1].code)
+		t[0].addCode(t[3].code)
+		t[0].addCode(["if_icmple "+true])
+		t[0].addCode(["iconst_0"])
+		t[0].addCode(["goto "+Sn])
+		t[0].addCode([true+":"])
+		t[0].addCode(["iconst_1"])
+		t[0].addCode([Sn+":"])
 
 def p_expression_11(t):
 	'expression : expression AND_OP expression'
 	t[0]=Node('AND_OP', [t[1], t[3]])
-	nvar = t[0].newVar()
-	false = t[0].newLabel()
-	Sn = t[0].newLabel()
-	t[0].addCode(t[1].code)
-	t[0].addCode(["ifeq "+false])
-	t[0].addCode(t[3].code)
-	t[0].addCode(["ifeq "+false])
-	t[0].addCode(["iconst_1"])
-	t[0].addCode(["goto "+Sn])
-	t[0].addCode([false+":"])
-	t[0].addCode(["iconst_0"])
-	t[0].addCode([Sn+":"])
+	if t[1].value!=None and t[3].value!=None:
+		if t[1].value and t[3].value:
+			t[0].addCode(["iconst_1"])
+		else:
+			t[0].addCode(["iconst_0"])
+	else:
+		nvar = t[0].newVar()
+		false = t[0].newLabel()
+		Sn = t[0].newLabel()
+		t[0].addCode(t[1].code)
+		t[0].addCode(["ifeq "+false])
+		t[0].addCode(t[3].code)
+		t[0].addCode(["ifeq "+false])
+		t[0].addCode(["iconst_1"])
+		t[0].addCode(["goto "+Sn])
+		t[0].addCode([false+":"])
+		t[0].addCode(["iconst_0"])
+		t[0].addCode([Sn+":"])
 
 def p_expression_12(t):
 	'expression : expression OR_OP expression'
 	t[0]=Node('OR_OP', [t[1], t[3]])
-	nvar = t[0].newVar()
-	true = t[0].newLabel()
-	Sn = t[0].newLabel()
-	t[0].addCode(t[1].code)
-	t[0].addCode(["ifeq "+true])
-	t[0].addCode(t[3].code)
-	t[0].addCode(["ifeq "+true])
-	t[0].addCode(["iconst_1"])
-	t[0].addCode(["goto "+Sn])
-	t[0].addCode([false+":"])
-	t[0].addCode(["iconst_0"])
-	t[0].addCode([Sn+":"])
+	if t[1].value!=None and t[3].value!=None:
+		if t[1].value or t[3].value:
+			t[0].addCode(["iconst_1"])
+		else:
+			t[0].addCode(["iconst_0"])
+	else:
+		nvar = t[0].newVar()
+		true = t[0].newLabel()
+		Sn = t[0].newLabel()
+		t[0].addCode(t[1].code)
+		t[0].addCode(["ifeq "+true])
+		t[0].addCode(t[3].code)
+		t[0].addCode(["ifeq "+true])
+		t[0].addCode(["iconst_1"])
+		t[0].addCode(["goto "+Sn])
+		t[0].addCode([false+":"])
+		t[0].addCode(["iconst_0"])
+		t[0].addCode([Sn+":"])
 
 def p_expression_13(t):
 	'expression : LEFT_ROUND expression RIGHT_ROUND'
