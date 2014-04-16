@@ -1062,9 +1062,17 @@ def p_assignment_2(t):
 	res = checkIdentifierError(t[1])
 	assignmentError(res[0], t[3].dataType)
 	t[0].addCode(t[3].code)
-	if res != None:
-		t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
-		t[0].addCode(["iconst_1"])
+	if (t[3].type=="post_increment"):
+		if t[1]==t[3].children[0].type:
+			pass
+		else:
+			if res != None:
+				t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+				t[0].addCode(["iconst_1"])		
+	else:
+		if res != None:
+			t[0].addCode([javaType(res[0]).lower()+"store "+str(res[2])])
+			t[0].addCode(["iconst_1"])
 	
 def p_assignment_3(t):
 	'assignment : IDENTIFIER ADD_ASSIGN expression'
@@ -1222,11 +1230,11 @@ def p_unary_expression_1(t):
 		error = True
 	t[0].dataType = "int"
 	if res != None:
-		t[0].addCode(["iconst_1"])
 		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(["iconst_1"])
 		t[0].addCode(["iadd"])
 		t[0].addCode(["istore "+str(res[2])])
-		t[0].addCode(["iload "+str(res[2])])
 
 def p_unary_expression_2(t):
 	'unary_expression : IDENTIFIER DEC_OP'
@@ -1239,10 +1247,10 @@ def p_unary_expression_2(t):
 	t[0].dataType = "int"
 	if res != None:
 		t[0].addCode(["iload "+str(res[2])])
+		t[0].addCode(["iload "+str(res[2])])
 		t[0].addCode(["iconst_1"])
 		t[0].addCode(["isub"])
 		t[0].addCode(["istore "+str(res[2])])
-		t[0].addCode(["iload "+str(res[2])])
 
 def p_unary_expression_3(t):
 	'unary_expression : array INC_OP'
