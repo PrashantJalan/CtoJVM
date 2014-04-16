@@ -1,4 +1,4 @@
-CAVA
+C To JVM
 ======
 
 A compiler for running a C code on Java virtual machine. Just use the command 
