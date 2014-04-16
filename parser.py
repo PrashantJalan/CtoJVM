@@ -49,6 +49,11 @@ def codeGenerator(exp1, exp2, op):
 		code += ["i2f"]
 		code += ["f"+op]
 		type = "float"
+	elif exp1.dataType == "char" or exp2.dataType == "char":
+		code += exp1.code
+		code += exp2.code	
+		code += ["i"+op]
+		type = "char"
 	else:
 		sys.stdout.write("Error! Operation not defined between "+exp1.dataType+", "+exp1.dataType+'\n')
 		global error 

@@ -14,6 +14,8 @@ astore 50
 aload 50
 ldc 9
 ldc 97
+ldc 2
+iadd
 iastore
 iconst_1
 pop

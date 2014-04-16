@@ -1,5 +1,5 @@
 char foo(char a[10])	{
-	a[9] = 'a';
+	a[9] = 'a'+2;
 	return a[9];
 }
 void main()
