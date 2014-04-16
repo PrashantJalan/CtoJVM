@@ -18,7 +18,7 @@ iload 50
 iconst_1
 isub
 istore 50
-istore 51
+istore 52
 iconst_1
 pop
 iload 50
@@ -26,6 +26,8 @@ iload 50
 iconst_1
 iadd
 istore 50
+istore 51
+iconst_1
 pop
 iload 50
 	getstatic java/lang/System/out Ljava/io/PrintStream;
@@ -36,6 +38,14 @@ iload 50
     		aload 251
     		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V 
 iload 51
+	getstatic java/lang/System/out Ljava/io/PrintStream;
+    		astore 250
+    		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
+    		astore 251
+    		aload 250
+    		aload 251
+    		invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V 
+iload 52
 	getstatic java/lang/System/out Ljava/io/PrintStream;
     		astore 250
     		invokestatic java/lang/String/valueOf(I)Ljava/lang/String;

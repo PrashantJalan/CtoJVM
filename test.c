@@ -1,9 +1,10 @@
 void main()
 {
-int a,c;
+int a,b,c;
 a =5;
 c = a--;
-a = a++;
+b = a++;
 print a;
+print b;
 print c;
 }
