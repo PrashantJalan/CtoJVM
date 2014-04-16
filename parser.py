@@ -314,14 +314,9 @@ def p_function_3(t):
 
 def p_type_specifier(t):
 	'''type_specifier : CHAR
-						| VOID
-						| SHORT
 						| INT 
-						| LONG 
 						| FLOAT 
-						| DOUBLE 
-						| SIGNED 
-						| UNSIGNED'''
+						| VOID'''
 	t[0] = Node(t[1],[])
 
 def p_argument_list_1(t):

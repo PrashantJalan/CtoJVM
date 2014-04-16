@@ -29,7 +29,6 @@ This program compiles a C program into Java byte code (the .j file) and uses the
 <br>Supports comments.
 
 <b>Limitations</b>:
+<br>Works only for INT, FLOAT and CHAR for now.
 <br>Doesn't support any header files in C.
 <br>Doesn't support pointer.
-<br>Doesn't support struct.
-<br>Doesn't support function declaration.
